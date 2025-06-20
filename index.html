@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Inventario Antigüedades El Jueves</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Icono para pantalla de inicio iOS -->
-    <link rel="apple-touch-icon" href="https://poladrados.github.io/muebles-app/images/apple-touch-icon.png" />
+    <!-- Ícono para iOS cuando se agrega a la pantalla de inicio -->
+    <link rel="apple-touch-icon" href="./images/apple-touch-icon.png" />
 
-    <!-- Redirección con JavaScript -->
+    <!-- Redirección segura por JavaScript -->
     <script>
-        window.location.href = "https://muebles-app-hcl7ujxfr9appjkzsjsnwt6.streamlit.app/";
+      // Redirigir sin causar bucles
+      window.onload = function () {
+        window.location.replace("https://muebles-app-hcl7ujxfr9appjkzsjsnwt6.streamlit.app/");
+      };
     </script>
-
-    <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-    </style>
-</head>
-<body>
-    <p>Redirigiendo a la app...<br />
-    <a href="https://muebles-app-hcl7ujxfr9appjkzsjsnwt6.streamlit.app/">Haz clic aquí si no funciona la redirección</a></p>
-</body>
+  </head>
+  <body>
+    <p>Redirigiendo a la app... Si no se carga, <a href="https://muebles-app-hcl7ujxfr9appjkzsjsnwt6.streamlit.app/">haz clic aquí</a>.</p>
+  </body>
 </html>
+
 
