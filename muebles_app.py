@@ -17,7 +17,7 @@ c = conn.cursor()
 # Configuración de la página (AL PRINCIPIO del archivo)
 st.set_page_config(
     page_title="Inventario El Jueves",
-    page_icon="images/favicon.ico",  # Usa el favicon.ico
+    page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
 
