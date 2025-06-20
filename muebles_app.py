@@ -30,7 +30,7 @@ st.title("🪑 Registro de El Jueves")
 st.subheader("📤 Añadir nueva antigüedad")
 
 # Subida de imagen
-imagen = st.file_uploader("Sube una imagen del mueble", type=["jpg", "jpeg", "png"])
+imagen = st.file_uploader("Sube una imagen", type=["jpg", "jpeg", "png"])
 
 # Información del mueble
 nombre = st.text_input("Nombre de la antigüedad")
