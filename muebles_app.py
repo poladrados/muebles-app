@@ -14,26 +14,24 @@ c = conn.cursor()
 # ==============================================
 # CONFIGURACIÓN DE ICONOS (COPIAR ESTO PRIMERO)
 # ==============================================
+# Configuración de la página (AL PRINCIPIO del archivo)
 st.set_page_config(
-    page_title="El Jueves Antigüedades",
-    page_icon="static/favicon.ico",
+    page_title="Inventario El Jueves",
+    page_icon="images/favicon.ico",  # Usa el favicon.ico
     layout="wide"
 )
 
+# Inyecta iconos y manifest (también al principio)
 st.markdown(
     """
-    <link rel="manifest" href="/static/manifest.json">
-    <link rel="icon" href="/static/favicon.ico">
-    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/web-app-manifest-192x192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Inventario">
     """,
     unsafe_allow_html=True
 )
-
-# ==============================================
-# (EL RESTO DE TU CÓDIGO ACTUAL VA DESPUÉS)
-# ==============================================
 st.title("Gestión de Inventario")
 # ... resto de tu aplicación ...
 # --- MIGRACIÓN: Añade columnas si no existen (SOLO EJECUTA UNA VEZ) ---
