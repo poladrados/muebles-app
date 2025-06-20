@@ -1,14 +1,14 @@
 {
-  "name": "Inventario El Jueves",
+  "name": "El Jueves Antigüedades",
   "short_name": "Inventario",
   "icons": [
     {
-      "src": "https://i.ibb.co/tYZpXkR/logo-192.png",  // Reemplaza con tu URL
+      "src": "/static/logo-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.ibb.co/tYZpXkR/logo-512.png",  // Reemplaza con tu URL
+      "src": "/static/logo-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
