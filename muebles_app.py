@@ -22,7 +22,7 @@ st.set_page_config(
 )
 
 # Inyecta iconos y manifest (también al principio)
-st.title("Gestión de Inventario")
+st.title("🪑 Inventario de Antigüedades El Jueves")
 # ... resto de tu aplicación ...
 # --- MIGRACIÓN: Añade columnas si no existen (SOLO EJECUTA UNA VEZ) ---
 try:
@@ -52,7 +52,6 @@ c.execute("""
 conn.commit()
 
 # --- Interfaz de la app ---
-st.title("🪑 Gestión de Antigüedades - El Jueves")
 
 # --- Sidebar con estadísticas ---
 st.sidebar.markdown("## 📊 Estadísticas")
