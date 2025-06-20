@@ -22,16 +22,6 @@ st.set_page_config(
 )
 
 # Inyecta iconos y manifest (también al principio)
-st.markdown(
-    """
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="images/favicon.ico">
-    <link rel="apple-touch-icon" href="images/web-app-manifest-192x192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Inventario">
-    """,
-    unsafe_allow_html=True
-)
 st.title("Gestión de Inventario")
 # ... resto de tu aplicación ...
 # --- MIGRACIÓN: Añade columnas si no existen (SOLO EJECUTA UNA VEZ) ---
