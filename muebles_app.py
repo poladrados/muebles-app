@@ -25,15 +25,15 @@ c.execute("""
 """)
 conn.commit()
 
-st.title("🪑 Registro de Muebles Antiguos")
+st.title("🪑 Registro de El Jueves")
 
-st.subheader("📤 Añadir nuevo mueble")
+st.subheader("📤 Añadir nueva antigüedad")
 
 # Subida de imagen
 imagen = st.file_uploader("Sube una imagen del mueble", type=["jpg", "jpeg", "png"])
 
 # Información del mueble
-nombre = st.text_input("Nombre del mueble")
+nombre = st.text_input("Nombre de la antigüedad")
 precio = st.number_input("Precio (€)", min_value=0.0, step=1.0)
 descripcion = st.text_area("Descripción (opcional)")
 
