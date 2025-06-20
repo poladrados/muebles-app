@@ -11,6 +11,17 @@ os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 # Conexión a la base de datos
 conn = sqlite3.connect("muebles.db")
 c = conn.cursor()
+# --- MIGRACIÓN: Añade columnas si no existen (SOLO EJECUTA UNA VEZ) ---
+try:
+    c.execute("ALTER TABLE muebles ADD COLUMN vendido BOOLEAN DEFAULT 0")
+    c.execute("ALTER TABLE muebles ADD COLUMN tienda TEXT DEFAULT 'El Rastro'")
+    conn.commit()
+    st.success("✅ Base de datos actualizada con las nuevas columnas")
+except sqlite3.OperationalError as e:
+    if "duplicate column name" in str(e):  # Si las columnas ya existen
+        pass  # No hagas nada
+    else:
+        st.error(f"Error al actualizar la BD: {e}")
 
 # Crear tabla (con los nuevos campos)
 c.execute("""
