@@ -11,6 +11,31 @@ os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 # Conexión a la base de datos
 conn = sqlite3.connect("muebles.db")
 c = conn.cursor()
+# ==============================================
+# CONFIGURACIÓN DE ICONOS (COPIAR ESTO PRIMERO)
+# ==============================================
+st.set_page_config(
+    page_title="El Jueves Antigüedades",
+    page_icon="static/favicon.ico",
+    layout="wide"
+)
+
+st.markdown(
+    """
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Inventario">
+    """,
+    unsafe_allow_html=True
+)
+
+# ==============================================
+# (EL RESTO DE TU CÓDIGO ACTUAL VA DESPUÉS)
+# ==============================================
+st.title("Gestión de Inventario")
+# ... resto de tu aplicación ...
 # --- MIGRACIÓN: Añade columnas si no existen (SOLO EJECUTA UNA VEZ) ---
 try:
     c.execute("ALTER TABLE muebles ADD COLUMN vendido BOOLEAN DEFAULT 0")
