@@ -1,3 +1,12 @@
+import subprocess
+import sys
+
+# Instalar passlib si no está disponible
+try:
+    import passlib
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "passlib"])
+    import passlib
 import streamlit as st
 import sqlite3
 import os
