@@ -21,38 +21,39 @@ st.set_page_config(
 st.markdown("""
     <style>
     @media (max-width: 768px) {
-        /* 1. Título más pequeño */
-        .custom-header h1 {
+        /* Título más pequeño */
+        h1, h2, h3 {
             font-size: 1.3rem !important;
-            padding-left: 0 !important;
+            color: black !important;
         }
 
-        /* 2. Texto de radio buttons (tienda) y checkbox (vendido) */
-        div[data-testid="stRadio"] label,
-        div[data-testid="stCheckbox"] label {
+        /* Etiquetas de radio y checkbox */
+        label, span {
             color: black !important;
             font-weight: 600 !important;
         }
 
-        /* 3. Pestañas de En venta / Vendidos */
-        button[data-baseweb="tab"] {
-            color: black !important;
+        /* Botones de pestañas */
+        button[role="tab"] {
             background-color: #E6F0F8 !important;
+            color: black !important;
         }
 
-        button[data-baseweb="tab"][aria-selected="true"] {
+        button[role="tab"][aria-selected="true"] {
             background-color: #023e8a !important;
             color: white !important;
         }
     }
-
-    /* Estilo general del título en todas las resoluciones */
-    .custom-header h1 {
-        font-size: 2.2rem;
-        margin: 0.5rem 0;
-    }
     </style>
+    <script>
+        // Safari no siempre aplica bien los estilos de forma inmediata
+        setTimeout(() => {
+            const labels = document.querySelectorAll('label, span');
+            labels.forEach(l => l.style.color = 'black');
+        }, 500);
+    </script>
 """, unsafe_allow_html=True)
+
 
 
 # --- HEADER ---
