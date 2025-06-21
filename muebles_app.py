@@ -115,7 +115,6 @@ st.sidebar.metric("🔴 En Regueros", en_regueros)
 st.sidebar.metric("💰 Vendidos", vendidos)
 
 # --- Formulario ---
-# --- Formulario ---
 with st.expander("📥 Añadir nueva antigüedad", expanded=False):
     with st.form(key="form_mueble"):
         col1, col2 = st.columns(2)
@@ -128,62 +127,48 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0)
         descripcion = st.text_area("Descripción")
         
-        tipo = st.selectbox(
-            "Tipo de mueble*",
-            ["Mesa", "Consola", "Buffet", "Biblioteca", "Armario", "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"]
-        )
+        tipo = st.selectbox("Tipo de mueble*", [
+            "Mesa", "Consola", "Buffet", "Biblioteca", "Armario", 
+            "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"
+        ])
         
-        # Campos de medidas según tipo
+        # Aquí el bloque para medidas según tipo:
+        medida1 = medida2 = medida3 = None
+        
         if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-            medida1 = st.number_input("Largo (cm)*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Alto (cm)*", min_value=0.0, step=0.1)
-            medida3 = st.number_input("Fondo (cm)*", min_value=0.0, step=0.1)
+            medida1 = st.number_input("Medida 1 (largo) en cm*", min_value=0.0, step=0.1)
+            medida2 = st.number_input("Medida 2 (alto) en cm*", min_value=0.0, step=0.1)
+            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0, step=0.1)
         elif tipo in ["Biblioteca", "Armario"]:
-            medida1 = st.number_input("Alto (cm)*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Ancho (cm)*", min_value=0.0, step=0.1)
-            medida3 = st.number_input("Fondo (cm)*", min_value=0.0, step=0.1)
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
+            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0, step=0.1)
+            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0, step=0.1)
         elif tipo == "Columna":
-            medida1 = st.number_input("Alto (cm)*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Número de lados en base*", min_value=1, step=1)
-            medida3 = None
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
+            medida2 = st.number_input("Medida 2 (lados en base)*", min_value=0, step=1)
         elif tipo == "Espejo":
-            medida1 = st.number_input("Alto (cm)*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Ancho (cm)*", min_value=0.0, step=0.1)
-            medida3 = None
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
+            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0, step=0.1)
         elif tipo == "Copa":
-            medida1 = st.number_input("Alto (cm)*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Diámetro base (cm)*", min_value=0.0, step=0.1)
-            medida3 = st.number_input("Diámetro boca (cm)*", min_value=0.0, step=0.1)
-        elif tipo in ["Asiento", "Otro artículo"]:
-            medida1 = None
-            medida2 = None
-            medida3 = None
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
+            medida2 = st.number_input("Base: diámetro en cm*", min_value=0.0, step=0.1)
+            medida3 = st.number_input("Boca: diámetro en cm*", min_value=0.0, step=0.1)
+        elif tipo == "Asiento":
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
+            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0, step=0.1)
         else:
-            medida1 = None
-            medida2 = None
-            medida3 = None
+            st.write("No hay medidas requeridas para este tipo.")
         
         imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
         
         submitted = st.form_submit_button("Guardar")
         if submitted:
-            # Validar campos obligatorios
-            campos_validos = nombre and precio > 0 and tipo
-            # Además, si hay medidas requeridas, comprobar que no sean None o 0
-            if tipo in ["Mesa", "Consola", "Buffet", "Cómoda", "Biblioteca", "Armario", "Copa"]:
-                if not (medida1 and medida2 and (medida3 if medida3 is not None else True)):
-                    campos_validos = False
-            if tipo in ["Columna", "Espejo"]:
-                if not (medida1 and medida2):
-                    campos_validos = False
-            
-            if imagen and campos_validos:
+            if imagen and nombre and precio > 0 and tipo:
                 nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.name}"
                 ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
                 with open(ruta_imagen, "wb") as f:
                     f.write(imagen.getbuffer())
                 
-                # Insert en BD, poner None para medida3 si no aplica
                 c.execute("""
                     INSERT INTO muebles (
                         nombre, precio, descripcion, ruta_imagen, fecha, 
@@ -199,7 +184,8 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                 st.success("✅ ¡Antigüedad registrada!")
                 st.rerun()
             else:
-                st.warning("⚠️ Completa los campos obligatorios (*) y las medidas requeridas")
+                st.warning("⚠️ Completa los campos obligatorios (*)")
+
 
 
 # --- Pestañas ---
