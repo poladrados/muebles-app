@@ -20,39 +20,40 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-    /* Estilos generales para móviles */
     @media (max-width: 768px) {
-        /* 1. Título principal más pequeño */
+        /* 1. Título más pequeño */
         .custom-header h1 {
-            font-size: 1.4rem !important;
+            font-size: 1.3rem !important;
             padding-left: 0 !important;
         }
 
-        /* 2. Radio buttons y checkbox (Tienda y Marcar como vendido) */
-        .stRadio > div > label,
-        .stCheckbox > label {
-            color: #000000 !important;
-            font-weight: bold !important;
+        /* 2. Texto de radio buttons (tienda) y checkbox (vendido) */
+        div[data-testid="stRadio"] label,
+        div[data-testid="stCheckbox"] label {
+            color: black !important;
+            font-weight: 600 !important;
         }
 
-        /* 3. Pestañas (En venta / Vendidos) */
-        div[data-testid="stHorizontalBlock"] > button {
-            color: #000000 !important;
+        /* 3. Pestañas de En venta / Vendidos */
+        button[data-baseweb="tab"] {
+            color: black !important;
             background-color: #E6F0F8 !important;
         }
 
-        div[data-testid="stHorizontalBlock"] > button[aria-selected="true"] {
-            color: white !important;
+        button[data-baseweb="tab"][aria-selected="true"] {
             background-color: #023e8a !important;
+            color: white !important;
         }
+    }
 
-        /* 4. Mejor separación de los radios */
-        .stRadio > div {
-            gap: 0.5rem !important;
-        }
+    /* Estilo general del título en todas las resoluciones */
+    .custom-header h1 {
+        font-size: 2.2rem;
+        margin: 0.5rem 0;
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 # --- HEADER ---
 st.markdown("""
