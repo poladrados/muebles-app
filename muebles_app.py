@@ -375,7 +375,7 @@ with tab1:
                 with col_img:
                     try:
                         img = Image.open(mueble[4])
-                        st.image(img, use_column_width=True)
+                        st.image(img, use_container_width=True)  # ← Corregido aquí
                     except:
                         st.warning("Imagen no encontrada")
                 
