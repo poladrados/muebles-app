@@ -59,7 +59,7 @@ st.markdown("""
     
     /* Título en blanco */
     .custom-title {
-        color: white !important;  /* Texto blanco */
+        color: #023e8a;  /* Texto blanco */
         font-size: 2.5rem;
         font-weight: bold;
         text-align: center;
