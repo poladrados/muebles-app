@@ -320,20 +320,22 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
 def mostrar_medidas(tipo, m1, m2, m3):
-    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
+    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"] and m1 and m2 and m3:
         return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
-    elif tipo in ["Biblioteca", "Armario"]:
+    elif tipo in ["Biblioteca", "Armario"] and m1 and m2 and m3:
         return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
-    elif tipo == "Columna":
+    elif tipo == "Columna" and m1 and m2:
         return f"{m1}cm (alto) | {m2} lados en base"
-    elif tipo == "Espejo":
+    elif tipo == "Espejo" and m1 and m2:
         return f"{m1}cm (alto) × {m2}cm (ancho)"
-    elif tipo == "Tinaja":
+    elif tipo == "Tinaja" and m1 and m2 and m3:
         return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
-    elif m1 and m2:
-        return f"{m1}cm (alto) × {m2}cm (ancho)"
+    elif tipo in ["Silla", "Otro artículo"] and (m1 or m2):
+        medidas = []
+        if m1: medidas.append(f"{m1}cm (alto)")
+        if m2: medidas.append(f"{m2}cm (ancho)")
+        return " × ".join(medidas) if medidas else "Sin medidas"
     return "Sin medidas registradas"
-
 # Pestaña 1: En venta
 with tab1:
     st.markdown("## 🏷️ Muebles disponibles")
