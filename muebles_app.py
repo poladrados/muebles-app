@@ -14,6 +14,7 @@ c = conn.cursor()
 
 # Configuración de la página
 # Configuración de la página
+# Configuración de la página
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
@@ -100,7 +101,54 @@ st.markdown("""
     /* ESTILOS MÓVIL */
 div[data-testid="stTabs"] button {
     color: #000000 !important;
-    background: #E6F0F8
+    background: #E6F0F8 !important;
+    border: 1px solid #023e8a !important;
+    font-weight: 600 !important;
+}
+div[data-testid="stTabs"] button[aria-selected="true"] {
+    color: white !important;
+    background: #023e8a !important;
+}
+    @media (max-width: 768px) {
+        .custom-header h1.header-title {
+            font-size: 1.5rem !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+        
+        div[data-testid="stTabs"] button[aria-selected="true"] {
+            color: white !important;
+            background: #023e8a !important;
+        }
+        
+        .stApp {
+            padding: 0.8rem !important;
+        }
+        
+        .header-logo img {
+            height: 50px !important;
+        }
+        
+        .stButton>button {
+            width: 100% !important;
+            margin: 6px 0 !important;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- HEADER ---
+st.markdown("""
+    <div class="custom-header">
+        <div class="header-logo">
+            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo">
+        </div>
+        <div class="header-title-container">
+            <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
 
 
 # --- Inicialización BD ---
