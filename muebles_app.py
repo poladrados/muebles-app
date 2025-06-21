@@ -19,9 +19,10 @@ st.set_page_config(
 )
 st.markdown("""<meta name="viewport" content="width=device-width, initial-scale=1.0">""", unsafe_allow_html=True)
 
+# --- CSS personalizado ---
 st.markdown("""
     <style>
-    /* Tu CSS personalizado aquí */
+    /* Aquí puedes poner estilos CSS personalizados si quieres */
     </style>
 """, unsafe_allow_html=True)
 
@@ -149,5 +150,6 @@ with tab2:
                 st.markdown(f"**Fecha de venta:** {mueble[5]}")
 
 conn.close()
+
 
 
