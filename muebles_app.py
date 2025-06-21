@@ -48,10 +48,11 @@ st.markdown("""
         justify-content: center;
         margin-bottom: 2rem;
         position: relative;
-        background-color: white;  /* Fondo blanco para el header */
+        background-color: white;
         padding: 1rem;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        min-height: 100px;  /* Asegura altura suficiente */
     }
     
     /* Título en azul #023e8a */
@@ -61,6 +62,7 @@ st.markdown("""
         font-weight: bold;
         text-align: center;
         margin: 0 auto;
+        padding-left: 100px;  /* Espacio para el logo */
     }
     
     /* Subtítulos (como "Muebles disponibles") en azul */
@@ -74,6 +76,17 @@ st.markdown("""
         left: 1rem;
         top: 50%;
         transform: translateY(-50%);
+        height: 80px;
+        width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .logo-container img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
     }
     
     /* Ocultar header original */
@@ -89,9 +102,11 @@ st.markdown("""
         .custom-title {
             font-size: 1.8rem;
             margin-left: 60px;
+            padding-left: 60px;
         }
-        .logo-container img {
+        .logo-container {
             width: 50px;
+            height: 50px;
         }
     }
     </style>
@@ -101,7 +116,7 @@ st.markdown("""
 st.markdown("""
     <div class="custom-header">
         <div class="logo-container">
-            <img src="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png" width="80">
+            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo">
         </div>
         <h1 class="custom-title">Inventario de Antigüedades El Jueves</h1>
     </div>
