@@ -1,32 +1,26 @@
-import subprocess
-import sys
-
-# Instalar passlib si no está disponible
-try:
-    import passlib
-except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "passlib"])
-    import passlib
 import streamlit as st
 import sqlite3
 import os
+import hashlib  # Usamos hashlib en lugar de passlib
 from PIL import Image
 from datetime import datetime
-from passlib.hash import pbkdf2_sha256  # Añade esta importación
 
 # --- Configuración inicial ---
 CARPETA_IMAGENES = "imagenes_muebles"
 os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 
 # --- Configuración de Acceso Admin ---
-ADMIN_PASSWORD_HASH = pbkdf2_sha256.hash("admin123")  # Cambia esta contraseña!
+# Contraseña: "admin123" (cámbiala después)
+ADMIN_PASSWORD_HASH = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
 
 def init_session():
     if 'es_admin' not in st.session_state:
         st.session_state.es_admin = False
 
 def verificar_admin(password):
-    return pbkdf2_sha256.verify(password, ADMIN_PASSWORD_HASH)
+    # Crear hash SHA-256 de la contraseña
+    hash_input = hashlib.sha256(password.encode()).hexdigest()
+    return hash_input == ADMIN_PASSWORD_HASH
 
 # --- Inicialización de sesión ---
 init_session()
