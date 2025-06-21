@@ -158,8 +158,21 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
 # --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
+# Función para mostrar medidas según tipo
 def mostrar_medidas(tipo, m1, m2, m3):
-    # ... (igual que antes)
+    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
+        return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
+    elif tipo in ["Biblioteca", "Armario"]:
+        return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
+    elif tipo == "Columna":
+        return f"{m1}cm (alto) | {m2} lados en base"
+    elif tipo == "Espejo":
+        return f"{m1}cm (alto) × {m2}cm (ancho)"
+    elif tipo == "Tinaja":
+        return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
+    elif m1 and m2:
+        return f"{m1}cm (alto) × {m2}cm (ancho)"
+    return "Sin medidas registradas"
 
 # Pestaña 1: En venta
 with tab1:
