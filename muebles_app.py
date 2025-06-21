@@ -16,6 +16,21 @@ c = conn.cursor()
 # Configuración de la página
 # Configuración de página (AL PRINCIPIO del script)
 
+import streamlit as st
+import sqlite3
+import os
+from PIL import Image
+from datetime import datetime
+
+# --- Configuración inicial ---
+CARPETA_IMAGENES = "imagenes_muebles"
+os.makedirs(CARPETA_IMAGENES, exist_ok=True)
+
+# Conexión a la base de datos
+conn = sqlite3.connect("muebles.db")
+c = conn.cursor()
+
+# Configuración de la página
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
@@ -86,45 +101,53 @@ st.markdown("""
         color: #023e8a !important;
     }
     
+    /* Botones principales */
+    .stButton > button {
+        background-color: #023e8a;
+        color: white;
+        border-radius: 5px;
+        padding: 8px 12px;
+        border: 1px solid #023e8a;
+    }
+    
     /* Versión móvil */
     @media (max-width: 768px) {
-    /* Ajustes generales */
-    .stApp {
-        padding: 1rem;
+        .stApp {
+            padding: 1rem;
+        }
+        
+        .header-logo img {
+            height: 50px;
+        }
+        
+        .header-title {
+            font-size: 1.8rem;
+        }
+        
+        /* Botones en móvil */
+        .stButton > button {
+            font-size: 14px !important;
+            padding: 6px 10px !important;
+            margin: 2px 0 !important;
+            width: 100% !important;
+        }
+        
+        /* Textos y checkboxes */
+        .stMarkdown, 
+        .stCheckbox>label, 
+        .stRadio>label, 
+        .stTextInput>label {
+            color: #000000 !important;
+            font-size: 14px !important;
+        }
+        
+        /* Contenedores */
+        .stContainer, .stExpander {
+            padding: 12px !important;
+        }
     }
-    
-    /* Header */
-    .header-logo img {
-        height: 50px;
-    }
-    .header-title {
-        font-size: 1.8rem;
-    }
-    
-    /* Botones - Solución para el problema */
-    .stButton > button {
-        color: white !important;
-        background-color: #023e8a !important;
-        border: 1px solid #023e8a !important;
-        border-radius: 5px !important;
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-    }
-    
-    /* Textos y checkboxes */
-    .stMarkdown, 
-    .stCheckbox>label, 
-    .stRadio>label, 
-    .stTextInput>label {
-        color: #000000 !important;
-        font-size: 14px !important;
-    }
-    
-    /* Contenedores */
-    .stContainer, .stExpander {
-        padding: 12px !important;
-    }
-}
+    </style>
+""", unsafe_allow_html=True)
 
 # --- HEADER PERSONALIZADO ---
 st.markdown("""
@@ -137,6 +160,9 @@ st.markdown("""
         </div>
     </div>
 """, unsafe_allow_html=True)
+
+# --- Resto del código se mantiene igual desde "MIGRACIÓN" en adelante ---
+# ... (el resto de tu código original permanece igual)
 
 # --- MIGRACIÓN: Añade columnas si no existen ---
 try:
