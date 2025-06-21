@@ -8,57 +8,137 @@ from datetime import datetime
 CARPETA_IMAGENES = "imagenes_muebles"
 os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 
-# Conexión a la base de datos
 conn = sqlite3.connect("muebles.db")
 c = conn.cursor()
 
-# Configuración de la página
+# --- Configuración de página ---
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
-
-# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    /* ESTILOS GENERALES (DESKTOP) */
-    .stApp > header {display: none;}
-    .stApp {background-color: #E6F0F8; padding: 2rem;}
-    body, .stTextInput>label, .stNumberInput>label,
-    .stSelectbox>label, .stMultiselect>label,
-    .stCheckbox>label, .stRadio>label, .stTextArea>label,
-    .stMarkdown, .stAlert {color: #000 !important;}
-    .custom-header {display: flex; align-items: center; background-color: white; padding: 1rem 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; width: 100%;}
-    .header-logo img {height: 80px; width: auto;}
-    .header-title {color: #023e8a !important; font-size: 2.5rem; font-weight: bold; margin: 0; text-align: center;}
-    h1, h2, h3, h4, h5, h6 {color: #023e8a !important;}
-    .stButton>button {background-color: white; color: #023e8a; border: 1px solid #023e8a; border-radius: 4px;}
-    /* MÓVIL */
-    @media (max-width: 768px) {
-        .custom-header h1.header-title {font-size: 1.5rem !important;}
-        /* Forms & expander */
-        div[role="form"], div[role="group"] {background-color: #E6F0F8 !important; padding: 1rem !important; border-radius: 8px !important;}
-        div[role="form"] label, div[role="group"] label,
-        div[role="form"] input, div[role="form"] textarea, div[role="form"] select,
-        div[role="group"] input, div[role="group"] textarea, div[role="group"] select {color: #000 !important; background-color: white !important;}
-        /* Radios & Checkbox */
-        div[data-testid="stRadio"] label, div[data-testid="stCheckbox"] label {color: #000 !important; font-weight: 600 !important; background: white !important; padding: 8px 12px !important; border-radius: 8px !important; margin: 4px 0 !important; border: 1px solid #023e8a !important;}
-        /* Tabs */
-        button[role="tab"] {color: #000 !important; background: #E6F0F8 !important; border: 1px solid #023e8a !important; font-weight: 600 !important;}
-        button[role="tab"][aria-selected="true"] {color: white !important; background: #023e8a !important;}
-        .stApp {padding: 0.8rem !important;}
-        .header-logo img {height: 50px !important;}
-    }
-    </style>
-    <script>
-    const applyMobile = () => { if(window.innerWidth<=768) { document.querySelectorAll('div[role="form"], div[role="group"]').forEach(el=>el.style.backgroundColor='#E6F0F8'); document.querySelectorAll('div[role="form"] label, div[role="group"] label').forEach(l=>l.style.color='#000'); }};
-    window.addEventListener('load', ()=>setTimeout(applyMobile,300)); window.addEventListener('resize', applyMobile);
-    </script>
 """, unsafe_allow_html=True)
 
-# --- HEADER PERSONALIZADO ---
+st.markdown("""
+    <style>
+    /* ESTILOS GENERALES (DESKTOP) */
+    .stApp > header {
+        display: none;
+    }
+    
+    .stApp {
+        background-color: #E6F0F8;
+        padding: 2rem;
+    }
+    
+    body, .stTextInput>label, .stNumberInput>label, 
+    .stSelectbox>label, .stMultiselect>label,
+    .stCheckbox>label, .stRadio>label, .stTextArea>label,
+    .stMarkdown, .stAlert {
+        color: #000000 !important;
+    }
+    
+    .custom-header {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    
+    .header-logo {
+        flex: 0 0 auto;
+    }
+    
+    .header-logo img {
+        height: 80px;
+        width: auto;
+    }
+    
+    .header-title-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .header-title {
+        color: #023e8a !important;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: #023e8a !important;
+    }
+    
+    .stButton>button {
+        background-color: white;
+        color: #023e8a;
+        border: 1px solid #023e8a;
+        border-radius: 4px;
+    }
+
+     /* ESTILOS ESPECÍFICOS PARA MÓVIL (SOLO se aplican bajo 768px) */
+    @media (max-width: 768px) {
+        /* 1. Título más pequeño */
+        .custom-header h1.header-title {
+            font-size: 1.5rem !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+        
+        /* 2. Radio buttons (El Rastro/Regueros) */
+        div[data-testid="stRadio"] label {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            background: white !important;
+            padding: 8px 12px !important;
+            border-radius: 8px !important;
+            margin: 4px 0 !important;
+            border: 1px solid #023e8a !important;
+        }
+        
+        /* 3. Checkbox (Marcar como vendido) */
+        div[data-testid="stCheckbox"] label {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            background: white !important;
+            padding: 8px !important;
+        }
+        
+        /* 4. Pestañas (En venta/Vendidos) */
+        div[data-testid="stTabs"] button {
+            color: #000000 !important;
+            background: #E6F0F8 !important;
+            border: 1px solid #023e8a !important;
+            font-weight: 600 !important;
+        }
+        
+        div[data-testid="stTabs"] button[aria-selected="true"] {
+            color: white !important;
+            background: #023e8a !important;
+        }
+        
+        /* 5. Ajustes generales móvil */
+        .stApp {
+            padding: 0.8rem !important;
+        }
+        
+        .header-logo img {
+            height: 50px !important;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- HEADER ---
 st.markdown("""
     <div class="custom-header">
         <div class="header-logo">
@@ -69,8 +149,6 @@ st.markdown("""
         </div>
     </div>
 """, unsafe_allow_html=True)
-
-
 
 # --- Inicialización BD ---
 try:
@@ -122,71 +200,99 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
             tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], horizontal=True)
         with col2:
             vendido = st.checkbox("Marcar como vendido")
-        
+
         nombre = st.text_input("Nombre de la antigüedad*")
         precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0)
         descripcion = st.text_area("Descripción")
-        
-        tipo = st.selectbox("Tipo de mueble*", [
-            "Mesa", "Consola", "Buffet", "Biblioteca", "Armario", 
-            "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"
-        ])
-        
-        # Aquí el bloque para medidas según tipo:
-        medida1 = medida2 = medida3 = None
-        
+
+        # Inicializar tipo en session_state si no existe
+        if "tipo" not in st.session_state:
+            st.session_state["tipo"] = "Mesa"
+
+        tipo = st.selectbox(
+            "Tipo de mueble*",
+            [
+                "Mesa", "Consola", "Buffet", "Biblioteca", "Armario",
+                "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"
+            ],
+            index=[
+                "Mesa", "Consola", "Buffet", "Biblioteca", "Armario",
+                "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"
+            ].index(st.session_state["tipo"]),
+            key="tipo",
+            on_change=st.experimental_rerun
+        )
+
+        # Mostrar campos medidas según tipo
         if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-            medida1 = st.number_input("Medida 1 (largo) en cm*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Medida 2 (alto) en cm*", min_value=0.0, step=0.1)
-            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0, step=0.1)
+            medida1 = st.number_input("Medida 1 (largo) en cm*", min_value=0.0)
+            medida2 = st.number_input("Medida 2 (alto) en cm*", min_value=0.0)
+            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0)
         elif tipo in ["Biblioteca", "Armario"]:
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0, step=0.1)
-            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0, step=0.1)
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
+            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0)
+            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0)
         elif tipo == "Columna":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Medida 2 (lados en base)*", min_value=0, step=1)
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
+            medida2 = st.number_input("Medida 2 (lados en base)*", min_value=0)
+            medida3 = None
         elif tipo == "Espejo":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0, step=0.1)
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
+            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0)
+            medida3 = None
         elif tipo == "Copa":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Base: diámetro en cm*", min_value=0.0, step=0.1)
-            medida3 = st.number_input("Boca: diámetro en cm*", min_value=0.0, step=0.1)
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
+            medida2 = st.number_input("Base: diámetro en cm*", min_value=0.0)
+            medida3 = st.number_input("Boca: diámetro en cm*", min_value=0.0)
         elif tipo == "Asiento":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0, step=0.1)
-            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0, step=0.1)
+            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
+            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0)
+            medida3 = None
         else:
-            st.write("No hay medidas requeridas para este tipo.")
-        
+            st.info("No hay medidas requeridas para este tipo.")
+            medida1 = medida2 = medida3 = None
+
         imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
-        
+
         submitted = st.form_submit_button("Guardar")
+
         if submitted:
-            if imagen and nombre and precio > 0 and tipo:
-                nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.name}"
+            if not nombre.strip():
+                st.error("El nombre es obligatorio.")
+            elif precio <= 0:
+                st.error("El precio debe ser mayor que 0.")
+            elif imagen is None:
+                st.error("Debes subir una imagen.")
+            else:
+                # Guardar imagen
+                fecha_hora = datetime.now().strftime("%Y%m%d%H%M%S")
+                nombre_archivo = f"{nombre}_{fecha_hora}.jpg"
                 ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
-                with open(ruta_imagen, "wb") as f:
-                    f.write(imagen.getbuffer())
-                
+
+                img = Image.open(imagen)
+                img.save(ruta_imagen)
+
+                # Insertar en la base de datos
                 c.execute("""
-                    INSERT INTO muebles (
-                        nombre, precio, descripcion, ruta_imagen, fecha, 
-                        vendido, tienda, tipo, medida1, medida2, medida3
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO muebles (nombre, precio, descripcion, ruta_imagen, fecha, vendido, tienda, tipo, medida1, medida2, medida3)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    nombre, precio, descripcion, ruta_imagen, 
-                    datetime.now().strftime("%Y-%m-%d"), 
-                    int(vendido), tienda, tipo, 
-                    medida1, medida2, medida3
+                    nombre.strip(),
+                    precio,
+                    descripcion.strip(),
+                    ruta_imagen,
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    int(vendido),
+                    tienda,
+                    tipo,
+                    medida1,
+                    medida2,
+                    medida3
                 ))
                 conn.commit()
-                st.success("✅ ¡Antigüedad registrada!")
-                st.rerun()
-            else:
-                st.warning("⚠️ Completa los campos obligatorios (*)")
-
-
+                st.success(f"Antigüedad '{nombre}' añadida correctamente.")
+                # Limpiar campos
+                st.experimental_rerun()
 
 # --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
