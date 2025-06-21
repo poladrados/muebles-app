@@ -315,6 +315,67 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                 st.rerun()
             else:
                 st.warning("⚠️ Completa los campos obligatorios (*)")
+def mostrar_medidas(tipo, m1, m2, m3):
+    # Primero convertimos None a 0 para las medidas
+    m1 = m1 or 0
+    m2 = m2 or 0
+    m3 = m3 or 0
+    
+    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
+        if m1 and m2 and m3:
+            return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
+        elif m1 or m2 or m3:
+            medidas = []
+            if m1: medidas.append(f"{m1}cm (largo)")
+            if m2: medidas.append(f"{m2}cm (alto)")
+            if m3: medidas.append(f"{m3}cm (fondo)")
+            return " × ".join(medidas)
+    
+    elif tipo in ["Biblioteca", "Armario"]:
+        if m1 and m2 and m3:
+            return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
+        elif m1 or m2 or m3:
+            medidas = []
+            if m1: medidas.append(f"{m1}cm (alto)")
+            if m2: medidas.append(f"{m2}cm (ancho)")
+            if m3: medidas.append(f"{m3}cm (fondo)")
+            return " × ".join(medidas)
+    
+    elif tipo == "Columna":
+        if m1 and m2:
+            return f"{m1}cm (alto) | {m2} lados en base"
+        elif m1 or m2:
+            medidas = []
+            if m1: medidas.append(f"{m1}cm (alto)")
+            if m2: medidas.append(f"{m2} lados")
+            return " | ".join(medidas)
+    
+    elif tipo == "Espejo":
+        if m1 and m2:
+            return f"{m1}cm (alto) × {m2}cm (ancho)"
+        elif m1 or m2:
+            medidas = []
+            if m1: medidas.append(f"{m1}cm (alto)")
+            if m2: medidas.append(f"{m2}cm (ancho)")
+            return " × ".join(medidas)
+    
+    elif tipo == "Tinaja":
+        if m1 and m2 and m3:
+            return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
+        elif m1 or m2 or m3:
+            medidas = [f"{m1}cm (alto)"] if m1 else []
+            if m2: medidas.append(f"Base: Ø{m2}cm")
+            if m3: medidas.append(f"Boca: Ø{m3}cm")
+            return " | ".join(medidas)
+    
+    elif tipo in ["Silla", "Otro artículo"]:
+        medidas = []
+        if m1: medidas.append(f"{m1}cm (alto)")
+        if m2: medidas.append(f"{m2}cm (ancho)")
+        if m3: medidas.append(f"{m3}cm (profundo)")
+        return " × ".join(medidas) if medidas else "Sin medidas"
+    
+    return "Sin medidas registradas"
 
 # --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
