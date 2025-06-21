@@ -138,20 +138,24 @@ st.markdown("""
 
         /* 6. Formulario Añadir nueva antigüedad */
         div[role="form"] {
+            background-color: #E6F0F8 !important;
+            padding: 1rem !important;
+            border-radius: 8px !important;
             color: #000000 !important;
         }
 
-        div[role="form"] label, 
-        div[role="form"] .stTextInput > div > input,
-        div[role="form"] .stNumberInput > div > input,
-        div[role="form"] .stTextArea > div > textarea,
-        div[role="form"] .stSelectbox > div > div > div {
-            color: #000000 !important;
+        div[role="form"] label,
+        div[role="form"] input,
+        div[role="form"] textarea,
+        div[role="form"] select {
             background-color: white !important;
+            color: #000000 !important;
+            border-radius: 4px !important;
         }
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
