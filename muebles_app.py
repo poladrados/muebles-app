@@ -17,6 +17,8 @@ c = conn.cursor()
 # Configuración de página (AL PRINCIPIO del script)
 import streamlit as st
 
+import streamlit as st
+
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
@@ -35,6 +37,14 @@ st.markdown("""
     .stApp {
         background-color: #E6F0F8;
         padding: 2rem;
+    }
+    
+    /* Texto general en NEGRO */
+    body, .stTextInput>label, .stNumberInput>label, 
+    .stSelectbox>label, .stMultiselect>label,
+    .stCheckbox>label, .stRadio>label, .stTextArea>label,
+    .stMarkdown, .stAlert, .stButton>button {
+        color: #000000 !important;
     }
     
     /* Header personalizado */
@@ -67,14 +77,14 @@ st.markdown("""
     }
     
     .header-title {
-        color: #023e8a !important;
+        color: #023e8a !important;  /* Solo el título principal en azul */
         font-size: 2.5rem;
         font-weight: bold;
         margin: 0;
         text-align: center;
     }
     
-    /* Color para todos los encabezados */
+    /* Color AZUL solo para encabezados */
     h1, h2, h3, h4, h5, h6 {
         color: #023e8a !important;
     }
@@ -92,6 +102,13 @@ st.markdown("""
         .header-title {
             font-size: 1.8rem;
         }
+        
+        /* Asegurar texto negro en móvil */
+        .stMarkdown, .stCheckbox>label, 
+        .stRadio>label, .stTextInput>label {
+            color: #000000 !important;
+            font-size: 14px;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -106,13 +123,7 @@ st.markdown("""
             <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
         </div>
     </div>
-""", unsafe_allow_html=True)
-
-# --- CONTENIDO EJEMPLO ---
-st.header("Muebles disponibles")  # Esto debería aparecer en azul (#023e8a)
-st.checkbox("Añadir nueva antigüedad")
-st.checkbox("En venta", value=True)
-st.checkbox("Vendidos")
+""", unsafe
 
 # --- MIGRACIÓN: Añade columnas si no existen ---
 try:
