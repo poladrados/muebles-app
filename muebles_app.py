@@ -15,7 +15,7 @@ c = conn.cursor()
 # Configuración de la página
 st.set_page_config(
     page_title="Inventario El Jueves",
-    page_icon="🪑",
+    page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/apple-touch-icon.png",
     layout="wide"
 )
 
