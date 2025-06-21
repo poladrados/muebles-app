@@ -223,7 +223,6 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                 "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"
             ].index(st.session_state["tipo"]),
             key="tipo",
-            on_change=lambda: st.experimental_rerun()
         )
 
         # Mostrar campos medidas según tipo
