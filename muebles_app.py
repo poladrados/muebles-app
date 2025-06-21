@@ -13,13 +13,34 @@ conn = sqlite3.connect("muebles.db")
 c = conn.cursor()
 
 # Configuración de la página
+# Configuración de la página
 st.set_page_config(
     page_title="Inventario El Jueves",
-    page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/apple-touch-icon.png",
+    page_icon="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png",  # Logo en pestaña
     layout="wide"
 )
 
-st.title("🪑 Inventario de Antigüedades El Jueves")
+# Fondo azul y título centrado sin emoji
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #1B3555;
+    }
+    .titulo-centrado {
+        text-align: center;
+        font-size: 2.5rem;
+        color: white;
+        font-weight: bold;
+        margin-top: -30px;
+        margin-bottom: 30px;
+    }
+    header[data-testid="stHeader"] {
+        background: none;
+    }
+    </style>
+    <div class="titulo-centrado">Inventario de Antigüedades El Jueves</div>
+""", unsafe_allow_html=True)
+
 
 # --- MIGRACIÓN: Añade columnas si no existen ---
 try:
