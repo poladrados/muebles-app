@@ -122,12 +122,6 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- CONTENIDO EJEMPLO ---
-st.header("Muebles disponibles")
-st.checkbox("Añadir nueva antigüedad")
-st.checkbox("En venta", value=True)
-st.checkbox("Vendidos")
-
 # --- MIGRACIÓN: Añade columnas si no existen ---
 try:
     c.execute("ALTER TABLE muebles ADD COLUMN tipo TEXT DEFAULT 'Otro'")
