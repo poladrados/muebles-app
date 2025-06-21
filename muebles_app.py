@@ -18,40 +18,59 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- ESTILOS ---
+# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    .stApp > header { display: none; }
-    .stApp { background-color: #E6F0F8; padding: 2rem; }
-    body, .stTextInput>label, .stNumberInput>label, 
-    .stSelectbox>label, .stMultiselect>label,
-    .stCheckbox>label, .stRadio>label, .stTextArea>label,
-    .stMarkdown, .stAlert { color: #000000 !important; }
-    .custom-header { display: flex; align-items: center; 
-                   background-color: white; padding: 1rem 2rem;
-                   border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                   margin-bottom: 2rem; width: 100%; }
-    .header-logo { flex: 0 0 auto; }
-    .header-logo img { height: 80px; width: auto; }
-    .header-title-container { flex: 1; display: flex; justify-content: center; }
-    .header-title { color: #023e8a !important; font-size: 2.5rem;
-                  font-weight: bold; margin: 0; text-align: center; }
-    h1, h2, h3, h4, h5, h6 { color: #023e8a !important; }
-    .stButton>button { border-radius: 8px !important; padding: 8px 12px !important;
-                     margin: 4px !important; transition: all 0.3s ease !important; }
-    button[data-testid="baseButton-secondary"] { 
-        background-color: #e63946 !important; color: white !important;
-        border: 1px solid #e63946 !important; }
-    button[data-testid="baseButton-primary"] { 
-        background-color: #023e8a !important; color: white !important;
-        border: 1px solid #023e8a !important; }
+    /* ... (tus estilos actuales para desktop) ... */
+    
+    /* Versión móvil - Ajustes específicos */
     @media (max-width: 768px) {
-        .stApp { padding: 1rem; }
-        .header-logo img { height: 50px; }
-        .header-title { font-size: 1.8rem; }
-        .stButton>button { width: 100% !important; margin: 6px 0 !important; }
-        .stMarkdown, .stCheckbox>label, .stRadio>label, .stTextInput>label {
-            color: #000000 !important; font-size: 14px !important; }
+        /* 1. Título más pequeño */
+        .header-title {
+            font-size: 1.5rem !important;  /* Reducido de 1.8rem */
+            margin-left: 0.5rem !important;
+        }
+        
+        /* 2. Textos en formulario (Regueros, El Rastro, Marcar como vendido) */
+        .stRadio > label, .stCheckbox > label {
+            color: #000000 !important;  /* Texto negro */
+            font-weight: 500 !important;
+        }
+        
+        /* Opciones del radio button */
+        .stRadio [role="radiogroup"] label {
+            background-color: white !important;
+            padding: 8px 12px !important;
+            border-radius: 8px !important;
+            margin: 4px 0 !important;
+        }
+        
+        /* 3. Pestañas (En venta / Vendidos) */
+        .stTabs [role="tablist"] button {
+            color: #000000 !important;  /* Texto negro */
+            font-weight: 600 !important;
+            background-color: #E6F0F8 !important;  /* Fondo azul claro */
+            border: 1px solid #023e8a !important;
+        }
+        
+        .stTabs [role="tablist"] button[aria-selected="true"] {
+            background-color: #023e8a !important;  /* Fondo azul oscuro */
+            color: white !important;  /* Texto blanco */
+        }
+        
+        /* Ajustes generales para móvil */
+        .stApp {
+            padding: 0.8rem !important;
+        }
+        
+        .header-logo img {
+            height: 40px !important;  /* Logo más pequeño */
+        }
+        
+        /* Contenedores más compactos */
+        .stContainer, .stExpander {
+            padding: 1rem !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
