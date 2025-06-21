@@ -18,40 +18,122 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    @media (max-width: 768px) {
-        /* Título más pequeño */
-        h1, h2, h3 {
-            font-size: 1.3rem !important;
-            color: black !important;
-        }
+    /* ESTILOS GENERALES (DESKTOP) */
+    .stApp > header {
+        display: none;
+    }
+    
+    .stApp {
+        background-color: #E6F0F8;
+        padding: 2rem;
+    }
+    
+    body, .stTextInput>label, .stNumberInput>label, 
+    .stSelectbox>label, .stMultiselect>label,
+    .stCheckbox>label, .stRadio>label, .stTextArea>label,
+    .stMarkdown, .stAlert {
+        color: #000000 !important;
+    }
+    
+    .custom-header {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    
+    .header-logo {
+        flex: 0 0 auto;
+    }
+    
+    .header-logo img {
+        height: 80px;
+        width: auto;
+    }
+    
+    .header-title-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .header-title {
+        color: #023e8a !important;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: #023e8a !important;
+    }
+    
+    .stButton>button {
+        background-color: white;
+        color: #023e8a;
+        border: 1px solid #023e8a;
+        border-radius: 4px;
+    }
 
-        /* Etiquetas de radio y checkbox */
-        label, span {
-            color: black !important;
+    /* ESTILOS ESPECÍFICOS PARA MÓVIL (SOLO se aplican bajo 768px) */
+    @media (max-width: 768px) {
+        /* 1. Título más pequeño */
+        .custom-header h1.header-title {
+            font-size: 1.5rem !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+        
+        /* 2. Radio buttons (El Rastro/Regueros) */
+        div[data-testid="stRadio"] label {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            background: white !important;
+            padding: 8px 12px !important;
+            border-radius: 8px !important;
+            margin: 4px 0 !important;
+            border: 1px solid #023e8a !important;
+        }
+        
+        /* 3. Checkbox (Marcar como vendido) */
+        div[data-testid="stCheckbox"] label {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            background: white !important;
+            padding: 8px !important;
+        }
+        
+        /* 4. Pestañas (En venta/Vendidos) */
+        div[data-testid="stTabs"] button {
+            color: #000000 !important;
+            background: #E6F0F8 !important;
+            border: 1px solid #023e8a !important;
             font-weight: 600 !important;
         }
-
-        /* Botones de pestañas */
-        button[role="tab"] {
-            background-color: #E6F0F8 !important;
-            color: black !important;
-        }
-
-        button[role="tab"][aria-selected="true"] {
-            background-color: #023e8a !important;
+        
+        div[data-testid="stTabs"] button[aria-selected="true"] {
             color: white !important;
+            background: #023e8a !important;
+        }
+        
+        /* 5. Ajustes generales móvil */
+        .stApp {
+            padding: 0.8rem !important;
+        }
+        
+        .header-logo img {
+            height: 50px !important;
         }
     }
     </style>
-    <script>
-        // Safari no siempre aplica bien los estilos de forma inmediata
-        setTimeout(() => {
-            const labels = document.querySelectorAll('label, span');
-            labels.forEach(l => l.style.color = 'black');
-        }, 500);
-    </script>
 """, unsafe_allow_html=True)
 
 
