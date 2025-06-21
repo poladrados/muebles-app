@@ -318,6 +318,19 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
 
 # --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
+TIPOS_PLURAL = {
+    "Mesa": "Mesas",
+    "Consola": "Consolas",
+    "Buffet": "Buffets",
+    "Biblioteca": "Bibliotecas",
+    "Armario": "Armarios",
+    "Cómoda": "Cómodas",
+    "Columna": "Columnas",
+    "Espejo": "Espejos",
+    "Tinaja": "Tinajas",
+    "Silla": "Sillas",
+    "Otro artículo": "Otros artículos"
+}
 
 def mostrar_medidas(tipo, m1, m2, m3):
     if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"] and m1 and m2 and m3:
@@ -344,7 +357,21 @@ with tab1:
     with col_filtros[0]:
         filtro_tienda = st.selectbox("Filtrar por tienda", options=["Todas", "El Rastro", "Regueros"])
     with col_filtros[1]:
-        filtro_tipo = st.selectbox("Filtrar por tipo", options=["Todos"] + [tipo[0] for tipo in c.execute("SELECT DISTINCT tipo FROM muebles").fetchall()])
+    # Obtenemos los tipos únicos de la base de datos
+        c.execute("SELECT DISTINCT tipo FROM muebles")
+        tipos_db = [tipo[0] for tipo in c.fetchall()]
+    
+    # Creamos la lista de opciones con los plurales
+        opciones_tipos = ["Todos"] + [TIPOS_PLURAL.get(tipo, tipo + "s") for tipo in tipos_db]
+    
+    # Mostramos el selectbox con los nombres en plural
+        filtro_tipo_plural = st.selectbox("Filtrar por tipo", options=opciones_tipos)
+    
+    # Pero internamente trabajamos con el tipo en singular
+        if filtro_tipo != "Todos":
+            query += f" AND tipo = '{filtro_tipo}'"
+        else:
+            filtro_tipo = "Todos"
     with col_filtros[2]:
         orden = st.selectbox("Ordenar por", options=["Más reciente", "Más antiguo", "Precio (↑)", "Precio (↓)"])
     
