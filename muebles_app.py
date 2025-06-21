@@ -15,7 +15,7 @@ c = conn.cursor()
 # Configuración de la página
 st.set_page_config(
     page_title="Inventario El Jueves",
-    page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
+    page_icon="🪑",
     layout="wide"
 )
 
@@ -82,57 +82,67 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0)
         descripcion = st.text_area("Descripción")
         
-        # Nuevo campo: Tipo de mueble
+        # Selector de tipo de mueble
         tipo = st.selectbox("Tipo de mueble*", [
             "Mesa", "Consola", "Buffet", "Biblioteca", 
-            "Cómoda", "Columna", "Espejo", "Silla", "Tinaja", "Otro artículo"
+            "Armario", "Cómoda", "Columna", "Espejo", 
+            "Tinaja", "Silla", "Otro artículo"
         ])
         
         # Campos de medidas según el tipo
         if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
+            st.markdown("**Medidas requeridas:**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                medida1 = st.number_input("Largo (cm)*", min_value=0)
+                medida1 = st.number_input("Largo (cm)*", min_value=0, help="Distancia entre los extremos más largos")
             with col2:
-                medida2 = st.number_input("Alto (cm)*", min_value=0)
+                medida2 = st.number_input("Alto (cm)*", min_value=0, help="Altura desde el suelo hasta la parte superior")
             with col3:
-                medida3 = st.number_input("Fondo (cm)*", min_value=0)
+                medida3 = st.number_input("Fondo (cm)*", min_value=0, help="Profundidad de frente a atrás")
                 
         elif tipo in ["Biblioteca", "Armario"]:
+            st.markdown("**Medidas requeridas:**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0)
+                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura total del mueble")
             with col2:
-                medida2 = st.number_input("Ancho (cm)*", min_value=0)
+                medida2 = st.number_input("Ancho (cm)*", min_value=0, help="Ancho total de lado a lado")
             with col3:
-                medida3 = st.number_input("Fondo (cm)*", min_value=0)
+                medida3 = st.number_input("Fondo (cm)*", min_value=0, help="Profundidad de los estantes")
                 
         elif tipo == "Columna":
+            st.markdown("**Medidas requeridas:**")
             col1, col2 = st.columns(2)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0)
+                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura total de la columna")
             with col2:
-                medida2 = st.number_input("Lados de la base (cm)*", min_value=3, max_value=8, value=4)
+                medida2 = st.number_input("Lados de la base*", min_value=3, max_value=8, value=4, help="Número de lados (ej: 4 para base cuadrada)")
                 
         elif tipo == "Espejo":
+            st.markdown("**Medidas requeridas:**")
             col1, col2 = st.columns(2)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0)
+                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura del espejo sin marco")
             with col2:
-                medida2 = st.number_input("Ancho (cm)*", min_value=0)
+                medida2 = st.number_input("Ancho (cm)*", min_value=0, help="Ancho del espejo sin marco")
                 
         elif tipo == "Tinaja":
+            st.markdown("**Medidas requeridas:**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0)
+                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura total desde la base hasta el borde")
             with col2:
-                medida2 = st.number_input("Diámetro base (cm)*", min_value=0)
+                medida2 = st.number_input("Diámetro base (cm)*", min_value=0, help="Ancho de la parte inferior")
             with col3:
-                medida3 = st.number_input("Diámetro boca (cm)*", min_value=0)
+                medida3 = st.number_input("Diámetro boca (cm)*", min_value=0, help="Ancho de la apertura superior")
                 
         else:  # Para sillas y otros artículos
-            medida1 = st.number_input("Alto (cm)", min_value=0)
-            medida2 = st.number_input("Ancho (cm)", min_value=0)
+            st.markdown("**Medidas opcionales:**")
+            col1, col2 = st.columns(2)
+            with col1:
+                medida1 = st.number_input("Alto (cm)", min_value=0, help="Altura aproximada")
+            with col2:
+                medida2 = st.number_input("Ancho (cm)", min_value=0, help="Ancho aproximado")
         
         imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
         
@@ -141,10 +151,21 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         if submitted:
             if imagen and nombre and precio > 0 and tipo:
                 # Validación de medidas según tipo
-                if tipo in ["Mesa", "Consola", "Buffet", "Cómoda", "Biblioteca", "Armario", "Tinaja"]:
-                    if medida1 <= 0 or medida2 <= 0 or medida3 <= 0:
-                        st.error("Por favor, completa todas las medidas obligatorias")
-                        st.stop()
+                required_fields = {
+                    "Mesa": [medida1, medida2, medida3],
+                    "Consola": [medida1, medida2, medida3],
+                    "Buffet": [medida1, medida2, medida3],
+                    "Cómoda": [medida1, medida2, medida3],
+                    "Biblioteca": [medida1, medida2, medida3],
+                    "Armario": [medida1, medida2, medida3],
+                    "Columna": [medida1, medida2],
+                    "Espejo": [medida1, medida2],
+                    "Tinaja": [medida1, medida2, medida3]
+                }
+                
+                if tipo in required_fields and any(x <= 0 for x in required_fields[tipo]):
+                    st.error("Por favor, completa todas las medidas obligatorias con valores mayores a cero")
+                    st.stop()
                 
                 # Guardar imagen
                 nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.name}"
@@ -162,7 +183,7 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                     nombre, precio, descripcion, ruta_imagen, 
                     datetime.now().strftime("%Y-%m-%d"), 
                     int(vendido), tienda, tipo, 
-                    medida1, medida2, medida3 if 'medida3' in locals() else None
+                    medida1, medida2, medida3 if tipo not in ["Columna", "Espejo", "Silla", "Otro artículo"] else None
                 ))
                 conn.commit()
                 st.success("✅ ¡Antigüedad registrada!")
@@ -173,11 +194,27 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
 # --- Pestañas principales ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
+# Función para mostrar medidas según tipo
+def mostrar_medidas(tipo, m1, m2, m3):
+    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
+        return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
+    elif tipo in ["Biblioteca", "Armario"]:
+        return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
+    elif tipo == "Columna":
+        return f"{m1}cm (alto) | {m2} lados en base"
+    elif tipo == "Espejo":
+        return f"{m1}cm (alto) × {m2}cm (ancho)"
+    elif tipo == "Tinaja":
+        return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
+    elif m1 and m2:
+        return f"{m1}cm (alto) × {m2}cm (ancho)"
+    return "Sin medidas registradas"
+
 # Pestaña 1: Muebles en venta
 with tab1:
     st.markdown("## 🏷️ Muebles disponibles")
     
-    # Filtros mejorados
+    # Filtros
     col_filtros = st.columns(4)
     with col_filtros[0]:
         filtro_tienda = st.selectbox(
@@ -235,21 +272,8 @@ with tab1:
                     st.markdown(f"**Tipo:** {mueble[7]}")
                     st.markdown(f"**Precio:** {mueble[2]} €")
                     st.markdown(f"**Tienda:** {mueble[6]}")
+                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
                     st.markdown(f"**Fecha registro:** {mueble[5]}")
-                    
-                    # Mostrar medidas según el tipo
-                    if mueble[7] in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-                        st.markdown(f"**Medidas:** {mueble[8]}cm (largo) × {mueble[9]}cm (alto) × {mueble[10]}cm (fondo)")
-                    elif mueble[7] in ["Biblioteca", "Armario"]:
-                        st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (ancho) × {mueble[10]}cm (fondo)")
-                    elif mueble[7] == "Columna":
-                        st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (lados base)")
-                    elif mueble[7] == "Espejo":
-                        st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (ancho)")
-                    elif mueble[7] == "Tinaja":
-                        st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (diámetro base) × {mueble[10]}cm (diámetro boca)")
-                    elif mueble[8] and mueble[9]:
-                        st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (ancho)")
                     
                     if mueble[3]:
                         st.markdown(f"**Descripción:** {mueble[3]}")
@@ -279,21 +303,8 @@ with tab2:
                 st.markdown(f"### {mueble[1]} ({mueble[6]})")
                 st.markdown(f"**Tipo:** {mueble[7]}")
                 st.markdown(f"**Precio de venta:** {mueble[2]} €")
+                st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
                 st.markdown(f"**Fecha de venta:** {mueble[5]}")
-                
-                # Mostrar medidas para los vendidos también
-                if mueble[7] in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-                    st.markdown(f"**Medidas:** {mueble[8]}cm (largo) × {mueble[9]}cm (alto) × {mueble[10]}cm (fondo)")
-                elif mueble[7] in ["Biblioteca", "Armario"]:
-                    st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (ancho) × {mueble[10]}cm (fondo)")
-                elif mueble[7] == "Columna":
-                    st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (lados base)")
-                elif mueble[7] == "Espejo":
-                    st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (ancho)")
-                elif mueble[7] == "Tinaja":
-                    st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (diámetro base) × {mueble[10]}cm (diámetro boca)")
-                elif mueble[8] and mueble[9]:
-                    st.markdown(f"**Medidas:** {mueble[8]}cm (alto) × {mueble[9]}cm (ancho)")
                 
                 # Opción para revertir a "no vendido"
                 if st.button(f"Marcar como disponible", key=f"revertir_{mueble[0]}"):
