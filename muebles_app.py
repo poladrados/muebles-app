@@ -15,9 +15,6 @@ c = conn.cursor()
 # Configuración de la página
 # Configuración de la página
 # Configuración de página (AL PRINCIPIO del script)
-import streamlit as st
-
-import streamlit as st
 
 st.set_page_config(
     page_title="Inventario El Jueves",
@@ -77,7 +74,7 @@ st.markdown("""
     }
     
     .header-title {
-        color: #023e8a !important;  /* Solo el título principal en azul */
+        color: #023e8a !important;
         font-size: 2.5rem;
         font-weight: bold;
         margin: 0;
@@ -123,7 +120,13 @@ st.markdown("""
             <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
         </div>
     </div>
-""", unsafe
+""", unsafe_allow_html=True)
+
+# --- CONTENIDO EJEMPLO ---
+st.header("Muebles disponibles")
+st.checkbox("Añadir nueva antigüedad")
+st.checkbox("En venta", value=True)
+st.checkbox("Vendidos")
 
 # --- MIGRACIÓN: Añade columnas si no existen ---
 try:
