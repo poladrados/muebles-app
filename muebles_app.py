@@ -24,16 +24,17 @@ st.set_page_config(
 # --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* Fondo azul SOLO en los bordes */
+    /* Fondo azul claro solo en bordes */
     .stApp {
-        background-color: #E6F0F8;  /* Azul claro */
-        padding: 2rem;             /* Espacio para ver el azul alrededor */
+        background-color: #E6F0F8;
+        padding: 2rem;
     }
     
-    /* Contenedores principales - Fondo blanco */
+    /* Contenido principal - Fondo blanco */
     .main .block-container,
     .stTab,
-    .stExpander {
+    .stExpander,
+    .stContainer {
         background-color: white !important;
         border-radius: 8px;
         padding: 1.5rem;
@@ -47,6 +48,24 @@ st.markdown("""
         justify-content: center;
         margin-bottom: 2rem;
         position: relative;
+        background-color: white;  /* Fondo blanco para el header */
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* Título en azul #023e8a */
+    .custom-title {
+        color: #023e8a !important;
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-align: center;
+        margin: 0 auto;
+    }
+    
+    /* Subtítulos (como "Muebles disponibles") en azul */
+    h2, h3, h4 {
+        color: #023e8a !important;
     }
     
     /* Logo */
@@ -57,22 +76,12 @@ st.markdown("""
         transform: translateY(-50%);
     }
     
-    /* Título en blanco */
-    .custom-title {
-        color: #023e8a;  /* Texto blanco */
-        font-size: 2.5rem;
-        font-weight: bold;
-        text-align: center;
-        margin: 0 auto;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.3); /* Mejor legibilidad sobre azul */
-    }
-    
     /* Ocultar header original */
     header[data-testid="stHeader"] {
         display: none !important;
     }
     
-    /* Ajustar márgenes en móvil */
+    /* Ajustes móvil */
     @media (max-width: 768px) {
         .stApp {
             padding: 1rem;
@@ -86,6 +95,16 @@ st.markdown("""
         }
     }
     </style>
+""", unsafe_allow_html=True)
+
+# --- HEADER PERSONALIZADO ---
+st.markdown("""
+    <div class="custom-header">
+        <div class="logo-container">
+            <img src="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png" width="80">
+        </div>
+        <h1 class="custom-title">Inventario de Antigüedades El Jueves</h1>
+    </div>
 """, unsafe_allow_html=True)
 
 # --- HEADER PERSONALIZADO ---
