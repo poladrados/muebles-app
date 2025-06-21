@@ -212,7 +212,7 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         tipo = st.selectbox("Tipo de mueble*", [
             "Mesa", "Consola", "Buffet", "Biblioteca", 
             "Armario", "Cómoda", "Columna", "Espejo", 
-            "Tinaja", "Silla", "Otro artículo"
+            "Copa", "Asiento", "Otro artículo"
         ])
         
         # --- Campos de medidas dinámicos ---
@@ -249,7 +249,7 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                 medida2 = st.number_input("Ancho (cm)*", min_value=0, key="ancho_esp")
             medida3 = None
                 
-        elif tipo == "Tinaja":
+        elif tipo == "Copa":
             with col1:
                 medida1 = st.number_input("Alto (cm)*", min_value=0, key="alto_tin")
             with col2:
