@@ -22,7 +22,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
     /* ESTILOS GENERALES (DESKTOP) */
@@ -136,9 +135,24 @@ st.markdown("""
         .header-logo img {
             height: 50px !important;
         }
+
+        /* 6. Formulario Añadir nueva antigüedad */
+        div[role="form"] {
+            color: #000000 !important;
+        }
+
+        div[role="form"] label, 
+        div[role="form"] .stTextInput > div > input,
+        div[role="form"] .stNumberInput > div > input,
+        div[role="form"] .stTextArea > div > textarea,
+        div[role="form"] .stSelectbox > div > div > div {
+            color: #000000 !important;
+            background-color: white !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
