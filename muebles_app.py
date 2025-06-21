@@ -21,41 +21,120 @@ st.set_page_config(
 
 # --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
     /* ESTILOS GENERALES (DESKTOP) */
-    .stApp > header {display: none;}
-    .stApp {background-color: #E6F0F8; padding: 2rem;}
-    body, .stTextInput>label, .stNumberInput>label,
+    .stApp > header {
+        display: none;
+    }
+    
+    .stApp {
+        background-color: #E6F0F8;
+        padding: 2rem;
+    }
+    
+    body, .stTextInput>label, .stNumberInput>label, 
     .stSelectbox>label, .stMultiselect>label,
     .stCheckbox>label, .stRadio>label, .stTextArea>label,
-    .stMarkdown, .stAlert {color: #000 !important;}
-    .custom-header {display: flex; align-items: center; background-color: white; padding: 1rem 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; width: 100%;}
-    .header-logo img {height: 80px; width: auto;}
-    .header-title {color: #023e8a !important; font-size: 2.5rem; font-weight: bold; margin: 0; text-align: center;}
-    h1, h2, h3, h4, h5, h6 {color: #023e8a !important;}
-    .stButton>button {background-color: white; color: #023e8a; border: 1px solid #023e8a; border-radius: 4px;}
-    /* MÓVIL */
+    .stMarkdown, .stAlert {
+        color: #000000 !important;
+    }
+    
+    .custom-header {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    
+    .header-logo {
+        flex: 0 0 auto;
+    }
+    
+    .header-logo img {
+        height: 80px;
+        width: auto;
+    }
+    
+    .header-title-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .header-title {
+        color: #023e8a !important;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: #023e8a !important;
+    }
+    
+    .stButton>button {
+        background-color: white;
+        color: #023e8a;
+        border: 1px solid #023e8a;
+        border-radius: 4px;
+    }
+
+    /* ESTILOS ESPECÍFICOS PARA MÓVIL (SOLO se aplican bajo 768px) */
     @media (max-width: 768px) {
-        .custom-header h1.header-title {font-size: 1.5rem !important;}
-        /* Forms & expander */
-        div[role="form"], div[role="group"] {background-color: #E6F0F8 !important; padding: 1rem !important; border-radius: 8px !important;}
-        div[role="form"] label, div[role="group"] label,
-        div[role="form"] input, div[role="form"] textarea, div[role="form"] select,
-        div[role="group"] input, div[role="group"] textarea, div[role="group"] select {color: #000 !important; background-color: white !important;}
-        /* Radios & Checkbox */
-        div[data-testid="stRadio"] label, div[data-testid="stCheckbox"] label {color: #000 !important; font-weight: 600 !important; background: white !important; padding: 8px 12px !important; border-radius: 8px !important; margin: 4px 0 !important; border: 1px solid #023e8a !important;}
-        /* Tabs */
-        button[role="tab"] {color: #000 !important; background: #E6F0F8 !important; border: 1px solid #023e8a !important; font-weight: 600 !important;}
-        button[role="tab"][aria-selected="true"] {color: white !important; background: #023e8a !important;}
-        .stApp {padding: 0.8rem !important;}
-        .header-logo img {height: 50px !important;}
+        /* 1. Título más pequeño */
+        .custom-header h1.header-title {
+            font-size: 1.5rem !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+        
+        /* 2. Radio buttons (El Rastro/Regueros) */
+        div[data-testid="stRadio"] label {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            background: white !important;
+            padding: 8px 12px !important;
+            border-radius: 8px !important;
+            margin: 4px 0 !important;
+            border: 1px solid #023e8a !important;
+        }
+        
+        /* 3. Checkbox (Marcar como vendido) */
+        div[data-testid="stCheckbox"] label {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            background: white !important;
+            padding: 8px !important;
+        }
+        
+        /* 4. Pestañas (En venta/Vendidos) */
+        div[data-testid="stTabs"] button {
+            color: #000000 !important;
+            background: #E6F0F8 !important;
+            border: 1px solid #023e8a !important;
+            font-weight: 600 !important;
+        }
+        
+        div[data-testid="stTabs"] button[aria-selected="true"] {
+            color: white !important;
+            background: #023e8a !important;
+        }
+        
+        /* 5. Ajustes generales móvil */
+        .stApp {
+            padding: 0.8rem !important;
+        }
+        
+        .header-logo img {
+            height: 50px !important;
+        }
     }
     </style>
-    <script>
-    const applyMobile = () => { if(window.innerWidth<=768) { document.querySelectorAll('div[role="form"], div[role="group"]').forEach(el=>el.style.backgroundColor='#E6F0F8'); document.querySelectorAll('div[role="form"] label, div[role="group"] label').forEach(l=>l.style.color='#000'); }};
-    window.addEventListener('load', ()=>setTimeout(applyMobile,300)); window.addEventListener('resize', applyMobile);
-    </script>
 """, unsafe_allow_html=True)
 
 # --- HEADER PERSONALIZADO ---
