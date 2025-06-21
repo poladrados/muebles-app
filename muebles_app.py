@@ -18,7 +18,8 @@ def init_session():
         st.session_state.es_admin = False
 
 def verificar_admin(password):
-    return password == "0404"
+    hash_input = hashlib.sha256(password.encode()).hexdigest()
+    return hash_input == ADMIN_PASSWORD_HASH
 
 
 # --- Inicialización de sesión ---
