@@ -14,31 +14,88 @@ c = conn.cursor()
 
 # Configuración de la página
 # Configuración de la página
+# Configuración de página (AL PRINCIPIO del script)
 st.set_page_config(
     page_title="Inventario El Jueves",
-    page_icon="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png",  # Logo en pestaña
+    page_icon="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png",
     layout="wide"
 )
 
-# Fondo azul y título centrado sin emoji
+# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
+    /* Fondo azul SOLO en los bordes */
     .stApp {
-        background-color: #1B3555;
+        background-color: #E6F0F8;  /* Azul claro */
+        padding: 2rem;             /* Espacio para ver el azul alrededor */
     }
-    .titulo-centrado {
-        text-align: center;
+    
+    /* Contenedores principales - Fondo blanco */
+    .main .block-container,
+    .stTab,
+    .stExpander {
+        background-color: white !important;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    /* Header personalizado */
+    .custom-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    /* Logo */
+    .logo-container {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    /* Título en blanco */
+    .custom-title {
+        color: white !important;  /* Texto blanco */
         font-size: 2.5rem;
-        color: white;
         font-weight: bold;
-        margin-top: -30px;
-        margin-bottom: 30px;
+        text-align: center;
+        margin: 0 auto;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3); /* Mejor legibilidad sobre azul */
     }
+    
+    /* Ocultar header original */
     header[data-testid="stHeader"] {
-        background: none;
+        display: none !important;
+    }
+    
+    /* Ajustar márgenes en móvil */
+    @media (max-width: 768px) {
+        .stApp {
+            padding: 1rem;
+        }
+        .custom-title {
+            font-size: 1.8rem;
+            margin-left: 60px;
+        }
+        .logo-container img {
+            width: 50px;
+        }
     }
     </style>
-    <div class="titulo-centrado">Inventario de Antigüedades El Jueves</div>
+""", unsafe_allow_html=True)
+
+# --- HEADER PERSONALIZADO ---
+st.markdown("""
+    <div class="custom-header">
+        <div class="logo-container">
+            <img src="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png" width="80">
+        </div>
+        <h1 class="custom-title">Inventario de Antigüedades El Jueves</h1>
+    </div>
 """, unsafe_allow_html=True)
 
 
