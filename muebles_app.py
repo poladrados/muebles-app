@@ -18,38 +18,35 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* [Tus estilos desktop actuales se mantienen igual] */
-    
-    /* Versión móvil SOLO para los elementos problemáticos */
+    /* Estilos generales para móviles */
     @media (max-width: 768px) {
-        /* 1. Título más pequeño */
+        /* 1. Título principal más pequeño */
         .custom-header h1 {
-            font-size: 1.5rem !important;
+            font-size: 1.4rem !important;
             padding-left: 0 !important;
         }
-        
-        /* 2. Radio buttons y checkbox en formulario */
-        .stRadio > div > label, 
+
+        /* 2. Radio buttons y checkbox (Tienda y Marcar como vendido) */
+        .stRadio > div > label,
         .stCheckbox > label {
             color: #000000 !important;
             font-weight: bold !important;
         }
-        
-        /* 3. Texto de las pestañas */
+
+        /* 3. Pestañas (En venta / Vendidos) */
         div[data-testid="stHorizontalBlock"] > button {
             color: #000000 !important;
             background-color: #E6F0F8 !important;
         }
-        
+
         div[data-testid="stHorizontalBlock"] > button[aria-selected="true"] {
             color: white !important;
             background-color: #023e8a !important;
         }
-        
-        /* 4. Espaciado mejorado */
+
+        /* 4. Mejor separación de los radios */
         .stRadio > div {
             gap: 0.5rem !important;
         }
