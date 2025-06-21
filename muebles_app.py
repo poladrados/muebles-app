@@ -134,6 +134,26 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
             margin: 6px 0 !important;
         }
     }
+    /* Forzar modo claro en todo el contenido, incluso si el navegador está en oscuro */
+    html, body, .stApp {
+        color-scheme: light !important;
+        background-color: #E6F0F8 !important;
+        color: black !important;
+        }
+
+    @media (prefers-color-scheme: dark) {
+        html, body, .stApp {
+            background-color: #E6F0F8 !important;
+            color: black !important;
+        }
+
+        input, textarea, select, div[data-baseweb="select"] > div {
+            background-color: white !important;
+            color: black !important;
+            border: 1px solid #023e8a !important;
+    }
+}
+
     </style>
 """, unsafe_allow_html=True)
 
