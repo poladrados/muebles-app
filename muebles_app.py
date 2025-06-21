@@ -209,7 +209,7 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         tipo = st.selectbox("Tipo de mueble*", [
             "Mesa", "Consola", "Buffet", "Biblioteca", 
             "Armario", "Cómoda", "Columna", "Espejo", 
-            "Tinaja", "Silla", "Otro artículo"
+            "Copa", "Asiento", "Otro artículo"
         ])
         
         # --- Todos los campos de medidas posibles ---
@@ -240,8 +240,8 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
             "Armario": ["alto", "ancho", "fondo"],
             "Columna": ["alto", "lados"],
             "Espejo": ["alto", "ancho"],
-            "Tinaja": ["alto", "diam_base", "diam_boca"],
-            "Silla": [],  # Opcionales
+            "Copa": ["alto", "diam_base", "diam_boca"],
+            "Asiento": [],  # Opcionales
             "Otro artículo": []  # Opcionales
         }
         
@@ -284,8 +284,8 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                     "Armario": [alto, ancho, fondo],
                     "Columna": [alto, lados_base, None],
                     "Espejo": [alto, ancho, None],
-                    "Tinaja": [alto, diametro_base, diametro_boca],
-                    "Silla": [alto, ancho, None],
+                    "Copa": [alto, diametro_base, diametro_boca],
+                    "Asiento": [alto, ancho, None],
                     "Otro artículo": [alto, ancho, None]
                 }
                 
@@ -356,7 +356,7 @@ def mostrar_medidas(tipo, m1, m2, m3):
             if m2: medidas.append(f"{m2}cm (ancho)")
             return " × ".join(medidas)
     
-    elif tipo == "Tinaja":
+    elif tipo == "Copa":
         if m1 and m2 and m3:
             return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
         elif m1 or m2 or m3:
@@ -365,7 +365,7 @@ def mostrar_medidas(tipo, m1, m2, m3):
             if m3: medidas.append(f"Boca: Ø{m3}cm")
             return " | ".join(medidas)
     
-    elif tipo in ["Silla", "Otro artículo"]:
+    elif tipo in ["Asiento", "Otro artículo"]:
         medidas = []
         if m1: medidas.append(f"{m1}cm (alto)")
         if m2: medidas.append(f"{m2}cm (ancho)")
@@ -385,8 +385,8 @@ TIPOS_PLURAL = {
     "Cómoda": "Cómodas",
     "Columna": "Columnas",
     "Espejo": "Espejos",
-    "Tinaja": "Tinajas",
-    "Silla": "Sillas",
+    "Copa": "Copas",
+    "Asiento": "Asientos",
     "Otro artículo": "Otros artículos"
 }
 
