@@ -18,9 +18,9 @@ def init_session():
         st.session_state.es_admin = False
 
 def verificar_admin(password):
-    # Crear hash SHA-256 de la contraseña
     hash_input = hashlib.sha256(password.encode()).hexdigest()
     return hash_input == ADMIN_PASSWORD_HASH
+
 
 # --- Inicialización de sesión ---
 init_session()
