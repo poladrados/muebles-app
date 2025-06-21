@@ -88,27 +88,43 @@ st.markdown("""
     
     /* Versión móvil */
     @media (max-width: 768px) {
-        .stApp {
-            padding: 1rem;
-        }
-        
-        .header-logo img {
-            height: 50px;
-        }
-        
-        .header-title {
-            font-size: 1.8rem;
-        }
-        
-        /* Asegurar texto negro en móvil */
-        .stMarkdown, .stCheckbox>label, 
-        .stRadio>label, .stTextInput>label {
-            color: #000000 !important;
-            font-size: 14px;
-        }
+    /* Ajustes generales */
+    .stApp {
+        padding: 1rem;
     }
-    </style>
-""", unsafe_allow_html=True)
+    
+    /* Header */
+    .header-logo img {
+        height: 50px;
+    }
+    .header-title {
+        font-size: 1.8rem;
+    }
+    
+    /* Botones - Solución para el problema */
+    .stButton > button {
+        color: white !important;
+        background-color: #023e8a !important;
+        border: 1px solid #023e8a !important;
+        border-radius: 5px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+    }
+    
+    /* Textos y checkboxes */
+    .stMarkdown, 
+    .stCheckbox>label, 
+    .stRadio>label, 
+    .stTextInput>label {
+        color: #000000 !important;
+        font-size: 14px !important;
+    }
+    
+    /* Contenedores */
+    .stContainer, .stExpander {
+        padding: 12px !important;
+    }
+}
 
 # --- HEADER PERSONALIZADO ---
 st.markdown("""
