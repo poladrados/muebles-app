@@ -24,89 +24,69 @@ st.set_page_config(
 # --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* Fondo azul claro solo en bordes */
+    /* Reset de márgenes del header */
+    .stApp > header {
+        display: none;
+    }
+    
+    /* Fondo general */
     .stApp {
         background-color: #E6F0F8;
         padding: 2rem;
     }
     
-    /* Contenido principal - Fondo blanco */
-    .main .block-container,
-    .stTab,
-    .stExpander,
-    .stContainer {
-        background-color: white !important;
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    
-    /* Header personalizado */
+    /* Header personalizado - contenedor principal */
     .custom-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        margin-bottom: 2rem;
-        position: relative;
         background-color: white;
-        padding: 1rem;
+        padding: 1rem 2rem;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        min-height: 100px;  /* Asegura altura suficiente */
+        margin-bottom: 2rem;
+        position: relative;
     }
     
-    /* Título en azul #023e8a */
-    .custom-title {
-        color: #023e8a !important;
+    /* Contenedor del logo */
+    .header-logo {
+        margin-right: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .header-logo img {
+        height: 80px;
+        width: auto;
+        display: block;
+    }
+    
+    /* Título principal */
+    .header-title {
+        color: #023e8a;
         font-size: 2.5rem;
         font-weight: bold;
+        margin: 0;
+        flex-grow: 1;
         text-align: center;
-        margin: 0 auto;
-        padding-left: 100px;  /* Espacio para el logo */
     }
     
-    /* Subtítulos (como "Muebles disponibles") en azul */
-    h2, h3, h4 {
-        color: #023e8a !important;
-    }
-    
-    /* Logo */
-    .logo-container {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        height: 80px;
-        width: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .logo-container img {
-        max-height: 100%;
-        max-width: 100%;
-        object-fit: contain;
-    }
-    
-    /* Ocultar header original */
-    header[data-testid="stHeader"] {
-        display: none !important;
-    }
-    
-    /* Ajustes móvil */
+    /* Versión móvil */
     @media (max-width: 768px) {
         .stApp {
             padding: 1rem;
         }
-        .custom-title {
-            font-size: 1.8rem;
-            margin-left: 60px;
-            padding-left: 60px;
+        
+        .custom-header {
+            padding: 0.5rem 1rem;
         }
-        .logo-container {
-            width: 50px;
+        
+        .header-logo img {
             height: 50px;
+        }
+        
+        .header-title {
+            font-size: 1.8rem;
+            text-align: left;
+            padding-left: 0.5rem;
         }
     }
     </style>
@@ -115,14 +95,12 @@ st.markdown("""
 # --- HEADER PERSONALIZADO ---
 st.markdown("""
     <div class="custom-header">
-        <div class="logo-container">
-            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo">
+        <div class="header-logo">
+            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo El Jueves">
         </div>
-        <h1 class="custom-title">Inventario de Antigüedades El Jueves</h1>
+        <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
     </div>
 """, unsafe_allow_html=True)
-
-
 
 # --- MIGRACIÓN: Añade columnas si no existen ---
 try:
