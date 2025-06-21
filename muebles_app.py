@@ -61,18 +61,21 @@ st.markdown("""
     }
     
     .header-title-container {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-    }
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center;     /* Centra verticalmente */
+}
+
     
     .header-title {
-        color: #023e8a !important;
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-    }
+    color: #023e8a !important;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+}
+
     
     h1, h2, h3, h4, h5, h6 {
         color: #023e8a !important;
