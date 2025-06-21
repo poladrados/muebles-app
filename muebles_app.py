@@ -97,29 +97,21 @@ st.markdown("""
     }
 
     /* ESTILOS MÓVIL */
+div[data-testid="stTabs"] button {
+    color: #000000 !important;
+    background: #E6F0F8 !important;
+    border: 1px solid #023e8a !important;
+    font-weight: 600 !important;
+}
+div[data-testid="stTabs"] button[aria-selected="true"] {
+    color: white !important;
+    background: #023e8a !important;
+}
     @media (max-width: 768px) {
         .custom-header h1.header-title {
             font-size: 1.5rem !important;
             margin-left: 0 !important;
             padding-left: 0 !important;
-        }
-        
-        div[data-testid="stRadio"] label,
-        div[data-testid="stCheckbox"] label {
-            color: #000000 !important;
-            font-weight: 600 !important;
-            background: white !important;
-            padding: 8px 12px !important;
-            border-radius: 8px !important;
-            margin: 4px 0 !important;
-            border: 1px solid #023e8a !important;
-        }
-        
-        div[data-testid="stTabs"] button {
-            color: #000000 !important;
-            background: #E6F0F8 !important;
-            border: 1px solid #023e8a !important;
-            font-weight: 600 !important;
         }
         
         div[data-testid="stTabs"] button[aria-selected="true"] {
