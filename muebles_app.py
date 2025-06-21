@@ -15,6 +15,8 @@ c = conn.cursor()
 # Configuración de la página
 # Configuración de la página
 # Configuración de página (AL PRINCIPIO del script)
+import streamlit as st
+
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
@@ -24,7 +26,7 @@ st.set_page_config(
 # --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* Reset de márgenes del header */
+    /* Reset de estilos de Streamlit */
     .stApp > header {
         display: none;
     }
@@ -35,7 +37,7 @@ st.markdown("""
         padding: 2rem;
     }
     
-    /* Header personalizado - contenedor principal */
+    /* Header personalizado */
     .custom-header {
         display: flex;
         align-items: center;
@@ -44,29 +46,37 @@ st.markdown("""
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         margin-bottom: 2rem;
-        position: relative;
+        width: 100%;
     }
     
-    /* Contenedor del logo */
+    /* Logo */
     .header-logo {
-        margin-right: 1.5rem;
-        flex-shrink: 0;
+        flex: 0 0 auto;
     }
     
     .header-logo img {
         height: 80px;
         width: auto;
-        display: block;
     }
     
-    /* Título principal */
+    /* Título - ahora realmente centrado */
+    .header-title-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+    
     .header-title {
-        color: #023e8a;
+        color: #023e8a !important;
         font-size: 2.5rem;
         font-weight: bold;
         margin: 0;
-        flex-grow: 1;
         text-align: center;
+    }
+    
+    /* Color para todos los encabezados */
+    h1, h2, h3, h4, h5, h6 {
+        color: #023e8a !important;
     }
     
     /* Versión móvil */
@@ -75,18 +85,12 @@ st.markdown("""
             padding: 1rem;
         }
         
-        .custom-header {
-            padding: 0.5rem 1rem;
-        }
-        
         .header-logo img {
             height: 50px;
         }
         
         .header-title {
             font-size: 1.8rem;
-            text-align: left;
-            padding-left: 0.5rem;
         }
     }
     </style>
@@ -96,11 +100,19 @@ st.markdown("""
 st.markdown("""
     <div class="custom-header">
         <div class="header-logo">
-            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo El Jueves">
+            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo">
         </div>
-        <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
+        <div class="header-title-container">
+            <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
+        </div>
     </div>
 """, unsafe_allow_html=True)
+
+# --- CONTENIDO EJEMPLO ---
+st.header("Muebles disponibles")  # Esto debería aparecer en azul (#023e8a)
+st.checkbox("Añadir nueva antigüedad")
+st.checkbox("En venta", value=True)
+st.checkbox("Vendidos")
 
 # --- MIGRACIÓN: Añade columnas si no existen ---
 try:
