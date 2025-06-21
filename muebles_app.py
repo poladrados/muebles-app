@@ -70,17 +70,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- HEADER ---
-st.markdown("""
-    <div class="custom-header">
-        <div class="header-logo">
-            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo">
-        </div>
-        <div class="header-title-container">
-            <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
+
 
 # --- Inicialización BD ---
 try:
