@@ -212,58 +212,36 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         tipo = st.selectbox("Tipo de mueble*", [
             "Mesa", "Consola", "Buffet", "Biblioteca", 
             "Armario", "Cómoda", "Columna", "Espejo", 
-            "Copa", "Asiento", "Otro artículo"
+            "Tinaja", "Silla", "Otro artículo"
         ])
         
-        # --- Campos de medidas dinámicos ---
-        st.markdown("**Medidas requeridas:**")
+        # --- Campos de medidas fijos ---
+        st.markdown("**Medidas:**")
         col1, col2, col3 = st.columns(3)
         
-        if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-            with col1:
-                medida1 = st.number_input("Largo (cm)*", min_value=0, key="largo")
-            with col2:
-                medida2 = st.number_input("Alto (cm)*", min_value=0, key="alto")
-            with col3:
-                medida3 = st.number_input("Fondo (cm)*", min_value=0, key="fondo")
-                
-        elif tipo in ["Biblioteca", "Armario"]:
-            with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, key="alto")
-            with col2:
-                medida2 = st.number_input("Ancho (cm)*", min_value=0, key="ancho")
-            with col3:
-                medida3 = st.number_input("Fondo (cm)*", min_value=0, key="fondo")
-                
-        elif tipo == "Columna":
-            with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, key="alto_col")
-            with col2:
-                medida2 = st.number_input("Lados base*", min_value=3, max_value=8, value=4, key="lados")
-            medida3 = None
-                
-        elif tipo == "Espejo":
-            with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, key="alto_esp")
-            with col2:
-                medida2 = st.number_input("Ancho (cm)*", min_value=0, key="ancho_esp")
-            medida3 = None
-                
-        elif tipo == "Copa":
-            with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, key="alto_tin")
-            with col2:
-                medida2 = st.number_input("Diámetro base (cm)*", min_value=0, key="base_tin")
-            with col3:
-                medida3 = st.number_input("Diámetro boca (cm)*", min_value=0, key="boca_tin")
-                
-        else:  # Para sillas y otros artículos
-            st.markdown("**Medidas opcionales:**")
-            with col1:
-                medida1 = st.number_input("Alto (cm)", min_value=0, key="alto_gen")
-            with col2:
-                medida2 = st.number_input("Ancho (cm)", min_value=0, key="ancho_gen")
-            medida3 = None
+        with col1:
+            medida1 = st.number_input("Medida 1 (cm)", min_value=0, key="medida1")
+        with col2:
+            medida2 = st.number_input("Medida 2 (cm)", min_value=0, key="medida2")
+        with col3:
+            medida3 = st.number_input("Medida 3 (cm)", min_value=0, key="medida3")
+        
+        # Nota sobre las medidas requeridas según el tipo
+        medidas_requeridas = {
+            "Mesa": "Largo × Alto × Fondo",
+            "Consola": "Largo × Alto × Fondo",
+            "Buffet": "Largo × Alto × Fondo",
+            "Cómoda": "Largo × Alto × Fondo",
+            "Biblioteca": "Alto × Ancho × Fondo",
+            "Armario": "Alto × Ancho × Fondo",
+            "Columna": "Alto × Lados base",
+            "Espejo": "Alto × Ancho",
+            "Tinaja": "Alto × Diámetro base × Diámetro boca",
+            "Silla": "Opcionales",
+            "Otro artículo": "Opcionales"
+        }
+        
+        st.caption(f"ℹ️ Para {tipo}: {medidas_requeridas[tipo]}")
         
         imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
         
@@ -283,13 +261,16 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                 }
                 
                 if tipo in required_fields and any(x <= 0 for x in required_fields[tipo]):
-                    st.error("Por favor, completa todas las medidas obligatorias con valores mayores a cero")
+                    st.error(f"Por favor, completa todas las medidas obligatorias para {tipo} con valores mayores a cero")
                     st.stop()
                 
                 nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.name}"
                 ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
                 with open(ruta_imagen, "wb") as f:
                     f.write(imagen.getbuffer())
+                
+                # Solo guardar medida3 si es relevante para el tipo
+                save_medida3 = medida3 if tipo not in ["Columna", "Espejo", "Silla", "Otro artículo"] else None
                 
                 c.execute("""
                     INSERT INTO muebles (
@@ -300,7 +281,7 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
                     nombre, precio, descripcion, ruta_imagen, 
                     datetime.now().strftime("%Y-%m-%d"), 
                     int(vendido), tienda, tipo, 
-                    medida1, medida2, medida3 if tipo not in ["Columna", "Espejo", "Silla", "Otro artículo"] else None
+                    medida1, medida2, save_medida3
                 ))
                 conn.commit()
                 st.success("✅ ¡Antigüedad registrada!")
