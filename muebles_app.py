@@ -97,25 +97,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER PERSONALIZADO ---
-st.markdown("""
-    <div class="custom-header">
-        <div class="logo-container">
-            <img src="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png" width="80">
-        </div>
-        <h1 class="custom-title">Inventario de Antigüedades El Jueves</h1>
-    </div>
-""", unsafe_allow_html=True)
-
-# --- HEADER PERSONALIZADO ---
-st.markdown("""
-    <div class="custom-header">
-        <div class="logo-container">
-            <img src="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png" width="80">
-        </div>
-        <h1 class="custom-title">Inventario de Antigüedades El Jueves</h1>
-    </div>
-""", unsafe_allow_html=True)
 
 
 # --- MIGRACIÓN: Añade columnas si no existen ---
