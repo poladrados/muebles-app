@@ -8,135 +8,55 @@ from datetime import datetime
 CARPETA_IMAGENES = "imagenes_muebles"
 os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 
-# Conexión a la base de datos
 conn = sqlite3.connect("muebles.db")
 c = conn.cursor()
 
-# Configuración de la página
+# --- Configuración de página ---
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
 
-# --- ESTILOS PERSONALIZADOS ---
+# --- ESTILOS ---
 st.markdown("""
     <style>
-    /* Reset de estilos de Streamlit */
-    .stApp > header {
-        display: none;
-    }
-    
-    /* Fondo general */
-    .stApp {
-        background-color: #E6F0F8;
-        padding: 2rem;
-    }
-    
-    /* Texto general en NEGRO */
+    .stApp > header { display: none; }
+    .stApp { background-color: #E6F0F8; padding: 2rem; }
     body, .stTextInput>label, .stNumberInput>label, 
     .stSelectbox>label, .stMultiselect>label,
     .stCheckbox>label, .stRadio>label, .stTextArea>label,
-    .stMarkdown, .stAlert {
-        color: #000000 !important;
-    }
-    
-    /* Header personalizado */
-    .custom-header {
-        display: flex;
-        align-items: center;
-        background-color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-        width: 100%;
-    }
-    
-    /* Logo */
-    .header-logo {
-        flex: 0 0 auto;
-    }
-    
-    .header-logo img {
-        height: 80px;
-        width: auto;
-    }
-    
-    /* Título */
-    .header-title-container {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-    }
-    
-    .header-title {
-        color: #023e8a !important;
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-    }
-    
-    /* Color AZUL solo para encabezados */
-    h1, h2, h3, h4, h5, h6 {
-        color: #023e8a !important;
-    }
-    
-    /* Botones */
-    .stButton>button {
-        border-radius: 8px !important;
-        padding: 8px 12px !important;
-        margin: 4px !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    /* Botón eliminar */
-    button[data-testid="baseButton-secondary"] {
-        background-color: #e63946 !important;
-        color: white !important;
-        border: 1px solid #e63946 !important;
-    }
-    
-    /* Botón marcar como vendido */
-    button[data-testid="baseButton-primary"] {
-        background-color: #023e8a !important;
-        color: white !important;
-        border: 1px solid #023e8a !important;
-    }
-    
-    /* Versión móvil */
+    .stMarkdown, .stAlert { color: #000000 !important; }
+    .custom-header { display: flex; align-items: center; 
+                   background-color: white; padding: 1rem 2rem;
+                   border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                   margin-bottom: 2rem; width: 100%; }
+    .header-logo { flex: 0 0 auto; }
+    .header-logo img { height: 80px; width: auto; }
+    .header-title-container { flex: 1; display: flex; justify-content: center; }
+    .header-title { color: #023e8a !important; font-size: 2.5rem;
+                  font-weight: bold; margin: 0; text-align: center; }
+    h1, h2, h3, h4, h5, h6 { color: #023e8a !important; }
+    .stButton>button { border-radius: 8px !important; padding: 8px 12px !important;
+                     margin: 4px !important; transition: all 0.3s ease !important; }
+    button[data-testid="baseButton-secondary"] { 
+        background-color: #e63946 !important; color: white !important;
+        border: 1px solid #e63946 !important; }
+    button[data-testid="baseButton-primary"] { 
+        background-color: #023e8a !important; color: white !important;
+        border: 1px solid #023e8a !important; }
     @media (max-width: 768px) {
-        .stApp {
-            padding: 1rem;
-        }
-        
-        .header-logo img {
-            height: 50px;
-        }
-        
-        .header-title {
-            font-size: 1.8rem;
-        }
-        
-        .stButton>button {
-            width: 100% !important;
-            margin: 6px 0 !important;
-        }
-        
-        /* Textos en móvil */
-        .stMarkdown, 
-        .stCheckbox>label, 
-        .stRadio>label, 
-        .stTextInput>label {
-            color: #000000 !important;
-            font-size: 14px !important;
-        }
+        .stApp { padding: 1rem; }
+        .header-logo img { height: 50px; }
+        .header-title { font-size: 1.8rem; }
+        .stButton>button { width: 100% !important; margin: 6px 0 !important; }
+        .stMarkdown, .stCheckbox>label, .stRadio>label, .stTextInput>label {
+            color: #000000 !important; font-size: 14px !important; }
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER PERSONALIZADO ---
+# --- HEADER ---
 st.markdown("""
     <div class="custom-header">
         <div class="header-logo">
@@ -148,7 +68,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- MIGRACIÓN: Añade columnas si no existen ---
+# --- Inicialización BD ---
 try:
     c.execute("ALTER TABLE muebles ADD COLUMN tipo TEXT DEFAULT 'Otro'")
     c.execute("ALTER TABLE muebles ADD COLUMN medida1 REAL")
@@ -159,7 +79,6 @@ except sqlite3.OperationalError as e:
     if "duplicate column name" not in str(e):
         st.error(f"Error al actualizar la BD: {e}")
 
-# Crear tabla con los nuevos campos
 c.execute("""
     CREATE TABLE IF NOT EXISTS muebles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -178,7 +97,7 @@ c.execute("""
 """)
 conn.commit()
 
-# --- Sidebar con estadísticas ---
+# --- Sidebar ---
 st.sidebar.markdown("## 📊 Estadísticas")
 c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'El Rastro'")
 en_rastro = c.fetchone()[0]
@@ -191,39 +110,86 @@ st.sidebar.metric("🔵 En El Rastro", en_rastro)
 st.sidebar.metric("🔴 En Regueros", en_regueros)
 st.sidebar.metric("💰 Vendidos", vendidos)
 
-# --- Formulario para añadir muebles ---
+# --- Formulario ---
 with st.expander("📥 Añadir nueva antigüedad", expanded=False):
     with st.form(key="form_mueble"):
-        # Campos del formulario (se mantienen igual)
-        # ... (tu código existente para el formulario)
+        col1, col2 = st.columns(2)
+        with col1:
+            tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], horizontal=True)
+        with col2:
+            vendido = st.checkbox("Marcar como vendido")
+        
+        nombre = st.text_input("Nombre de la antigüedad*")
+        precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0)
+        descripcion = st.text_area("Descripción")
+        tipo = st.selectbox("Tipo de mueble*", ["Mesa", "Consola", "Buffet", "Biblioteca", "Armario", "Cómoda", "Columna", "Espejo", "Tinaja", "Silla", "Otro artículo"])
+        
+        # ... (medidas según tipo - igual que antes)
 
-# --- Pestañas principales ---
+        imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
+        
+        submitted = st.form_submit_button("Guardar")
+        if submitted:
+            if imagen and nombre and precio > 0 and tipo:
+                # ... (validación igual que antes)
+                
+                nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.name}"
+                ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
+                with open(ruta_imagen, "wb") as f:
+                    f.write(imagen.getbuffer())
+                
+                c.execute("""
+                    INSERT INTO muebles (
+                        nombre, precio, descripcion, ruta_imagen, fecha, 
+                        vendido, tienda, tipo, medida1, medida2, medida3
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    nombre, precio, descripcion, ruta_imagen, 
+                    datetime.now().strftime("%Y-%m-%d"), 
+                    int(vendido), tienda, tipo, 
+                    medida1, medida2, medida3 if tipo not in ["Columna", "Espejo", "Silla", "Otro artículo"] else None
+                ))
+                conn.commit()
+                st.success("✅ ¡Antigüedad registrada!")
+                st.rerun()
+            else:
+                st.warning("⚠️ Completa los campos obligatorios (*)")
+
+# --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
-# Función para mostrar medidas según tipo
 def mostrar_medidas(tipo, m1, m2, m3):
-    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-        return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
-    elif tipo in ["Biblioteca", "Armario"]:
-        return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
-    elif tipo == "Columna":
-        return f"{m1}cm (alto) | {m2} lados en base"
-    elif tipo == "Espejo":
-        return f"{m1}cm (alto) × {m2}cm (ancho)"
-    elif tipo == "Tinaja":
-        return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
-    elif m1 and m2:
-        return f"{m1}cm (alto) × {m2}cm (ancho)"
-    return "Sin medidas registradas"
+    # ... (igual que antes)
 
-# Pestaña 1: Muebles en venta (con borrado)
+# Pestaña 1: En venta
 with tab1:
     st.markdown("## 🏷️ Muebles disponibles")
     
-    # Filtros (se mantienen igual)
-    # ... (tu código existente de filtros)
+    col_filtros = st.columns(4)
+    with col_filtros[0]:
+        filtro_tienda = st.selectbox("Filtrar por tienda", options=["Todas", "El Rastro", "Regueros"])
+    with col_filtros[1]:
+        filtro_tipo = st.selectbox("Filtrar por tipo", options=["Todos"] + [tipo[0] for tipo in c.execute("SELECT DISTINCT tipo FROM muebles").fetchall()])
+    with col_filtros[2]:
+        orden = st.selectbox("Ordenar por", options=["Más reciente", "Más antiguo", "Precio (↑)", "Precio (↓)"])
     
-    # Mostrar resultados con botón de eliminar
+    query = "SELECT id, nombre, precio, descripcion, ruta_imagen, fecha, tienda, tipo, medida1, medida2, medida3 FROM muebles WHERE vendido = 0"
+    if filtro_tienda != "Todas":
+        query += f" AND tienda = '{filtro_tienda}'"
+    if filtro_tipo != "Todos":
+        query += f" AND tipo = '{filtro_tipo}'"
+    if orden == "Más reciente":
+        query += " ORDER BY id DESC"
+    elif orden == "Más antiguo":
+        query += " ORDER BY id ASC"
+    elif orden == "Precio (↑)":
+        query += " ORDER BY precio ASC"
+    else:
+        query += " ORDER BY precio DESC"
+    
+    c.execute(query)
+    muebles = c.fetchall()
+
     if not muebles:
         st.info("No hay muebles disponibles")
     else:
@@ -248,25 +214,21 @@ with tab1:
                     if mueble[3]:
                         st.markdown(f"**Descripción:** {mueble[3]}")
                     
-                    # Botones de acción con confirmación
                     col1, col2 = st.columns(2)
                     with col1:
                         if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
-                            st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
-                        
-                        if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                            if st.button(f"✅ Confirmar eliminar", key=f"conf_elim_{mueble[0]}"):
-                                # Borrar imagen si existe
+                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
                                 if mueble[4] and os.path.exists(mueble[4]):
                                     os.remove(mueble[4])
-                                # Borrar de BD
                                 c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
                                 conn.commit()
-                                del st.session_state[f'confirm_eliminar_{mueble[0]}']
                                 st.rerun()
-                            if st.button("❌ Cancelar", key=f"cancel_elim_{mueble[0]}"):
-                                del st.session_state[f'confirm_eliminar_{mueble[0]}']
+                            else:
+                                st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
                                 st.rerun()
+                        
+                        if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                            st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
                     
                     with col2:
                         if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
@@ -274,7 +236,7 @@ with tab1:
                             conn.commit()
                             st.rerun()
 
-# Pestaña 2: Muebles vendidos (con borrado)
+# Pestaña 2: Vendidos
 with tab2:
     st.markdown("## ✔️ Muebles vendidos")
     c.execute("""
@@ -296,23 +258,21 @@ with tab2:
                 st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
                 st.markdown(f"**Fecha de venta:** {mueble[5]}")
                 
-                # Botones de acción con confirmación
                 col1, col2 = st.columns(2)
                 with col1:
                     if st.button(f"🗑️ Eliminar", key=f"eliminar_v_{mueble[0]}"):
-                        st.session_state[f'confirm_eliminar_v_{mueble[0]}'] = True
-                    
-                    if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
-                        if st.button(f"✅ Confirmar eliminar", key=f"conf_elim_v_{mueble[0]}"):
+                        if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
                             if mueble[4] and os.path.exists(mueble[4]):
                                 os.remove(mueble[4])
                             c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
                             conn.commit()
-                            del st.session_state[f'confirm_eliminar_v_{mueble[0]}']
                             st.rerun()
-                        if st.button("❌ Cancelar", key=f"cancel_elim_v_{mueble[0]}"):
-                            del st.session_state[f'confirm_eliminar_v_{mueble[0]}']
+                        else:
+                            st.session_state[f'confirm_eliminar_v_{mueble[0]}'] = True
                             st.rerun()
+                    
+                    if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
+                        st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
                 
                 with col2:
                     if st.button(f"↩️ Marcar como disponible", key=f"revertir_{mueble[0]}"):
@@ -320,6 +280,5 @@ with tab2:
                         conn.commit()
                         st.rerun()
 
-# Cerrar conexión a la BD al final
 conn.close()
 
