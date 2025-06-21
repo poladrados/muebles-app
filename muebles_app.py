@@ -21,55 +21,37 @@ st.set_page_config(
 # --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* ... (tus estilos actuales para desktop) ... */
+    /* [Tus estilos desktop actuales se mantienen igual] */
     
-    /* Versión móvil - Ajustes específicos */
+    /* Versión móvil SOLO para los elementos problemáticos */
     @media (max-width: 768px) {
         /* 1. Título más pequeño */
-        .header-title {
-            font-size: 1.5rem !important;  /* Reducido de 1.8rem */
-            margin-left: 0.5rem !important;
+        .custom-header h1 {
+            font-size: 1.5rem !important;
+            padding-left: 0 !important;
         }
         
-        /* 2. Textos en formulario (Regueros, El Rastro, Marcar como vendido) */
-        .stRadio > label, .stCheckbox > label {
-            color: #000000 !important;  /* Texto negro */
-            font-weight: 500 !important;
+        /* 2. Radio buttons y checkbox en formulario */
+        .stRadio > div > label, 
+        .stCheckbox > label {
+            color: #000000 !important;
+            font-weight: bold !important;
         }
         
-        /* Opciones del radio button */
-        .stRadio [role="radiogroup"] label {
-            background-color: white !important;
-            padding: 8px 12px !important;
-            border-radius: 8px !important;
-            margin: 4px 0 !important;
+        /* 3. Texto de las pestañas */
+        div[data-testid="stHorizontalBlock"] > button {
+            color: #000000 !important;
+            background-color: #E6F0F8 !important;
         }
         
-        /* 3. Pestañas (En venta / Vendidos) */
-        .stTabs [role="tablist"] button {
-            color: #000000 !important;  /* Texto negro */
-            font-weight: 600 !important;
-            background-color: #E6F0F8 !important;  /* Fondo azul claro */
-            border: 1px solid #023e8a !important;
+        div[data-testid="stHorizontalBlock"] > button[aria-selected="true"] {
+            color: white !important;
+            background-color: #023e8a !important;
         }
         
-        .stTabs [role="tablist"] button[aria-selected="true"] {
-            background-color: #023e8a !important;  /* Fondo azul oscuro */
-            color: white !important;  /* Texto blanco */
-        }
-        
-        /* Ajustes generales para móvil */
-        .stApp {
-            padding: 0.8rem !important;
-        }
-        
-        .header-logo img {
-            height: 40px !important;  /* Logo más pequeño */
-        }
-        
-        /* Contenedores más compactos */
-        .stContainer, .stExpander {
-            padding: 1rem !important;
+        /* 4. Espaciado mejorado */
+        .stRadio > div {
+            gap: 0.5rem !important;
         }
     }
     </style>
