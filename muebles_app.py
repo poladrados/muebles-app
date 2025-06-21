@@ -86,7 +86,7 @@ st.markdown("""
         border-radius: 4px;
     }
 
-    /* ESTILOS ESPECÍFICOS PARA MÓVIL (SOLO se aplican bajo 768px) */
+     /* ESTILOS ESPECÍFICOS PARA MÓVIL (SOLO se aplican bajo 768px) */
     @media (max-width: 768px) {
         /* 1. Título más pequeño */
         .custom-header h1.header-title {
@@ -135,30 +135,9 @@ st.markdown("""
         .header-logo img {
             height: 50px !important;
         }
-
-        /* 6. Formulario Añadir nueva antigüedad */
-        div[role="form"] {
-            background-color: #E6F0F8 !important;
-            padding: 1rem !important;
-            border-radius: 8px !important;
-            color: #000000 !important;
-        }
-
-        div[role="form"] label,
-        div[role="form"] input,
-        div[role="form"] textarea,
-        div[role="form"] select {
-            background-color: white !important;
-            color: #000000 !important;
-            border-radius: 4px !important;
-        }
     }
     </style>
 """, unsafe_allow_html=True)
-
-
-
-
 
 # --- HEADER ---
 st.markdown("""
