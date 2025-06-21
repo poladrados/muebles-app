@@ -8,190 +8,34 @@ from datetime import datetime
 CARPETA_IMAGENES = "imagenes_muebles"
 os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 
-# Conexión a la base de datos
 conn = sqlite3.connect("muebles.db")
 c = conn.cursor()
 
-# Configuración de la página
+# --- Configuración de página ---
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
+st.markdown("""<meta name="viewport" content="width=device-width, initial-scale=1.0">""", unsafe_allow_html=True)
 
-# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    /* ESTILOS GENERALES (DESKTOP) */
-    .stApp > header {
-        display: none;
-    }
-    
-    .stApp {
-        background-color: #E6F0F8;
-        padding: 2rem;
-    }
-    
-    body, .stTextInput>label, .stNumberInput>label, 
-    .stSelectbox>label, .stMultiselect>label,
-    .stCheckbox>label, .stRadio>label, .stTextArea>label,
-    .stMarkdown, .stAlert {
-        color: #000000 !important;
-    }
-    
-    .custom-header {
-        display: flex;
-        align-items: center;
-        background-color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-        width: 100%;
-    }
-    
-    .header-logo {
-        flex: 0 0 auto;
-    }
-    
-    .header-logo img {
-        height: 80px;
-        width: auto;
-    }
-    
-    .header-title-container {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-    }
-    
-    .header-title {
-        color: #023e8a !important;
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-        color: #023e8a !important;
-    }
-    
-    .stButton>button {
-        background-color: white;
-        color: #023e8a;
-        border: 1px solid #023e8a;
-        border-radius: 4px;
-    }
-
-    /* ESTILOS ESPECÍFICOS PARA MÓVIL (SOLO se aplican bajo 768px) */
-    @media (max-width: 768px) {
-        /* 1. Título más pequeño */
-        .custom-header h1.header-title {
-            font-size: 1.5rem !important;
-            margin-left: 0 !important;
-            padding-left: 0 !important;
-        }
-        
-        /* 2. Radio buttons (El Rastro/Regueros) */
-        div[data-testid="stRadio"] label {
-            color: #000000 !important;
-            font-weight: 600 !important;
-            background: white !important;
-            padding: 8px 12px !important;
-            border-radius: 8px !important;
-            margin: 4px 0 !important;
-            border: 1px solid #023e8a !important;
-        }
-        
-        /* 3. Checkbox (Marcar como vendido) */
-        div[data-testid="stCheckbox"] label {
-            color: #000000 !important;
-            font-weight: 600 !important;
-            background: white !important;
-            padding: 8px !important;
-        }
-        
-        /* 4. Pestañas (En venta/Vendidos) */
-        div[data-testid="stTabs"] button {
-            color: #000000 !important;
-            background: #E6F0F8 !important;
-            border: 1px solid #023e8a !important;
-            font-weight: 600 !important;
-        }
-        
-        div[data-testid="stTabs"] button[aria-selected="true"] {
-            color: white !important;
-            background: #023e8a !important;
-        }
-        
-        /* 5. Ajustes generales móvil */
-        .stApp {
-            padding: 0.8rem !important;
-        }
-        
-        .header-logo img {
-            height: 50px !important;
-        }
-    }
+    /* Tu CSS personalizado aquí */
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER PERSONALIZADO ---
-st.markdown("""
-    <div class="custom-header">
-        <div class="header-logo">
-            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo">
-        </div>
-        <div class="header-title-container">
-            <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
+# --- HEADER centrado ---
+st.markdown(
+    """
+    <h1 style='text-align: center; color: #023e8a; font-weight: bold; margin-bottom: 1rem;'>
+        Inventario de Antigüedades El Jueves
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
-# --- Inicialización BD ---
-try:
-    c.execute("ALTER TABLE muebles ADD COLUMN tipo TEXT DEFAULT 'Otro'")
-    c.execute("ALTER TABLE muebles ADD COLUMN medida1 REAL")
-    c.execute("ALTER TABLE muebles ADD COLUMN medida2 REAL")
-    c.execute("ALTER TABLE muebles ADD COLUMN medida3 REAL")
-    conn.commit()
-except sqlite3.OperationalError as e:
-    if "duplicate column name" not in str(e):
-        st.error(f"Error al actualizar la BD: {e}")
-
-c.execute("""
-    CREATE TABLE IF NOT EXISTS muebles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT,
-        precio REAL,
-        descripcion TEXT,
-        ruta_imagen TEXT,
-        fecha TEXT,
-        vendido BOOLEAN DEFAULT 0,
-        tienda TEXT,
-        tipo TEXT,
-        medida1 REAL,
-        medida2 REAL,
-        medida3 REAL
-    )
-""")
-conn.commit()
-
-# --- Sidebar ---
-st.sidebar.markdown("## 📊 Estadísticas")
-c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'El Rastro'")
-en_rastro = c.fetchone()[0]
-c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'Regueros'")
-en_regueros = c.fetchone()[0]
-c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 1")
-vendidos = c.fetchone()[0]
-
-st.sidebar.metric("🔵 En El Rastro", en_rastro)
-st.sidebar.metric("🔴 En Regueros", en_regueros)
-st.sidebar.metric("💰 Vendidos", vendidos)
-
-# --- Formulario ---
+# --- Formulario para añadir muebles ---
 with st.expander("📥 Añadir nueva antigüedad", expanded=False):
     with st.form(key="form_mueble"):
         col1, col2 = st.columns(2)
@@ -204,147 +48,70 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0)
         descripcion = st.text_area("Descripción")
 
-        # Inicializar tipo en session_state si no existe
-        if "tipo" not in st.session_state:
-            st.session_state["tipo"] = "Mesa"
-
         tipo = st.selectbox(
             "Tipo de mueble*",
-            [
-                "Mesa", "Consola", "Buffet", "Biblioteca", "Armario",
-                "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"
-            ],
-            index=[
-                "Mesa", "Consola", "Buffet", "Biblioteca", "Armario",
-                "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"
-            ].index(st.session_state["tipo"]),
-            key="tipo",
+            ["Mesa", "Consola", "Buffet", "Biblioteca", "Armario", "Cómoda", "Columna", "Espejo", "Copa", "Asiento", "Otro artículo"]
         )
 
-        # Mostrar campos medidas según tipo
-        if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-            medida1 = st.number_input("Medida 1 (largo) en cm*", min_value=0.0)
-            medida2 = st.number_input("Medida 2 (alto) en cm*", min_value=0.0)
-            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0)
-        elif tipo in ["Biblioteca", "Armario"]:
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
-            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0)
-            medida3 = st.number_input("Medida 3 (fondo) en cm*", min_value=0.0)
-        elif tipo == "Columna":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
-            medida2 = st.number_input("Medida 2 (lados en base)*", min_value=0)
-            medida3 = None
-        elif tipo == "Espejo":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
-            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0)
-            medida3 = None
-        elif tipo == "Copa":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
-            medida2 = st.number_input("Base: diámetro en cm*", min_value=0.0)
-            medida3 = st.number_input("Boca: diámetro en cm*", min_value=0.0)
-        elif tipo == "Asiento":
-            medida1 = st.number_input("Medida 1 (alto) en cm*", min_value=0.0)
-            medida2 = st.number_input("Medida 2 (ancho) en cm*", min_value=0.0)
-            medida3 = None
-        else:
-            st.info("No hay medidas requeridas para este tipo.")
-            medida1 = medida2 = medida3 = None
+        st.markdown("### Medidas (cm) - Rellena las que correspondan")
+        medida1 = st.number_input("Medida 1", min_value=0.0, step=0.1, format="%.1f")
+        medida2 = st.number_input("Medida 2", min_value=0.0, step=0.1, format="%.1f")
+        medida3 = st.number_input("Medida 3", min_value=0.0, step=0.1, format="%.1f")
 
         imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
 
         submitted = st.form_submit_button("Guardar")
-
         if submitted:
-            if not nombre.strip():
-                st.error("El nombre es obligatorio.")
-            elif precio <= 0:
-                st.error("El precio debe ser mayor que 0.")
-            elif imagen is None:
-                st.error("Debes subir una imagen.")
-            else:
-                # Guardar imagen
-                fecha_hora = datetime.now().strftime("%Y%m%d%H%M%S")
-                nombre_archivo = f"{nombre}_{fecha_hora}.jpg"
+            if imagen and nombre and precio > 0 and tipo:
+                nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.name}"
                 ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
+                with open(ruta_imagen, "wb") as f:
+                    f.write(imagen.getbuffer())
 
-                img = Image.open(imagen)
-                img.save(ruta_imagen)
-
-                # Insertar en la base de datos
                 c.execute("""
-                    INSERT INTO muebles (nombre, precio, descripcion, ruta_imagen, fecha, vendido, tienda, tipo, medida1, medida2, medida3)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO muebles (
+                        nombre, precio, descripcion, ruta_imagen, fecha,
+                        vendido, tienda, tipo, medida1, medida2, medida3
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
-                    nombre.strip(),
-                    precio,
-                    descripcion.strip(),
-                    ruta_imagen,
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    int(vendido),
-                    tienda,
-                    tipo,
-                    medida1,
-                    medida2,
-                    medida3
+                    nombre, precio, descripcion, ruta_imagen,
+                    datetime.now().strftime("%Y-%m-%d"),
+                    int(vendido), tienda, tipo,
+                    medida1 if medida1 > 0 else None,
+                    medida2 if medida2 > 0 else None,
+                    medida3 if medida3 > 0 else None
                 ))
                 conn.commit()
-                st.success(f"Antigüedad '{nombre}' añadida correctamente.")
-                # Limpiar campos
+                st.success("✅ ¡Antigüedad registrada!")
                 st.experimental_rerun()
+            else:
+                st.warning("⚠️ Completa los campos obligatorios (*)")
 
-# --- Pestañas ---
+# --- Pestañas para mostrar muebles ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
-# Función para mostrar medidas según tipo
 def mostrar_medidas(tipo, m1, m2, m3):
-    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-        return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
-    elif tipo in ["Biblioteca", "Armario"]:
-        return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
-    elif tipo == "Columna":
-        return f"{m1}cm (alto) | {m2} lados en base"
-    elif tipo == "Espejo":
-        return f"{m1}cm (alto) × {m2}cm (ancho)"
-    elif tipo == "Tinaja":
-        return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
-    elif m1 and m2:
-        return f"{m1}cm (alto) × {m2}cm (ancho)"
-    return "Sin medidas registradas"
+    if m1 is None and m2 is None and m3 is None:
+        return "Sin medidas registradas"
+    partes = []
+    if m1 is not None:
+        partes.append(f"{m1}cm (medida1)")
+    if m2 is not None:
+        partes.append(f"{m2}cm (medida2)")
+    if m3 is not None:
+        partes.append(f"{m3}cm (medida3)")
+    return " × ".join(partes)
 
-# Pestaña 1: En venta
 with tab1:
     st.markdown("## 🏷️ Muebles disponibles")
-    
-    col_filtros = st.columns(4)
-    with col_filtros[0]:
-        filtro_tienda = st.selectbox("Filtrar por tienda", options=["Todas", "El Rastro", "Regueros"])
-    with col_filtros[1]:
-        filtro_tipo = st.selectbox("Filtrar por tipo", options=["Todos"] + [tipo[0] for tipo in c.execute("SELECT DISTINCT tipo FROM muebles").fetchall()])
-    with col_filtros[2]:
-        orden = st.selectbox("Ordenar por", options=["Más reciente", "Más antiguo", "Precio (↑)", "Precio (↓)"])
-    
-    query = "SELECT id, nombre, precio, descripcion, ruta_imagen, fecha, tienda, tipo, medida1, medida2, medida3 FROM muebles WHERE vendido = 0"
-    if filtro_tienda != "Todas":
-        query += f" AND tienda = '{filtro_tienda}'"
-    if filtro_tipo != "Todos":
-        query += f" AND tipo = '{filtro_tipo}'"
-    if orden == "Más reciente":
-        query += " ORDER BY id DESC"
-    elif orden == "Más antiguo":
-        query += " ORDER BY id ASC"
-    elif orden == "Precio (↑)":
-        query += " ORDER BY precio ASC"
-    else:
-        query += " ORDER BY precio DESC"
-    
-    c.execute(query)
+    c.execute("SELECT id, nombre, precio, descripcion, ruta_imagen, fecha, tienda, tipo, medida1, medida2, medida3 FROM muebles WHERE vendido = 0 ORDER BY id DESC")
     muebles = c.fetchall()
 
     if not muebles:
         st.info("No hay muebles disponibles")
     else:
         for mueble in muebles:
-            with st.container(border=True):
+            with st.container():
                 col_img, col_info = st.columns([1, 3])
                 with col_img:
                     try:
@@ -352,7 +119,6 @@ with tab1:
                         st.image(img, use_container_width=True)
                     except:
                         st.warning("Imagen no encontrada")
-                
                 with col_info:
                     st.markdown(f"### {mueble[1]}")
                     st.markdown(f"**Tipo:** {mueble[7]}")
@@ -360,33 +126,7 @@ with tab1:
                     st.markdown(f"**Tienda:** {mueble[6]}")
                     st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
                     st.markdown(f"**Fecha registro:** {mueble[5]}")
-                    
-                    if mueble[3]:
-                        st.markdown(f"**Descripción:** {mueble[3]}")
-                    
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
-                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                if mueble[4] and os.path.exists(mueble[4]):
-                                    os.remove(mueble[4])
-                                c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
-                                conn.commit()
-                                st.rerun()
-                            else:
-                                st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
-                                st.rerun()
-                        
-                        if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                            st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
-                    
-                    with col2:
-                        if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
-                            c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
-                            conn.commit()
-                            st.rerun()
 
-# Pestaña 2: Vendidos
 with tab2:
     st.markdown("## ✔️ Muebles vendidos")
     c.execute("""
@@ -396,39 +136,18 @@ with tab2:
         ORDER BY fecha DESC
     """)
     muebles_vendidos = c.fetchall()
-    
+
     if not muebles_vendidos:
         st.info("No hay muebles vendidos registrados")
     else:
         for mueble in muebles_vendidos:
-            with st.container(border=True):
+            with st.container():
                 st.markdown(f"### {mueble[1]} ({mueble[6]})")
                 st.markdown(f"**Tipo:** {mueble[7]}")
                 st.markdown(f"**Precio de venta:** {mueble[2]} €")
                 st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
                 st.markdown(f"**Fecha de venta:** {mueble[5]}")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button(f"🗑️ Eliminar", key=f"eliminar_v_{mueble[0]}"):
-                        if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
-                            if mueble[4] and os.path.exists(mueble[4]):
-                                os.remove(mueble[4])
-                            c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
-                            conn.commit()
-                            st.rerun()
-                        else:
-                            st.session_state[f'confirm_eliminar_v_{mueble[0]}'] = True
-                            st.rerun()
-                    
-                    if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
-                        st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
-                
-                with col2:
-                    if st.button(f"↩️ Marcar como disponible", key=f"revertir_{mueble[0]}"):
-                        c.execute("UPDATE muebles SET vendido = 0 WHERE id = ?", (mueble[0],))
-                        conn.commit()
-                        st.rerun()
 
 conn.close()
+
 
