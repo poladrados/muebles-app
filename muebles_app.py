@@ -11,7 +11,7 @@ os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 
 # --- Configuración de Acceso Admin ---
 # Contraseña: "admin123" (cámbiala después)
-ADMIN_PASSWORD_HASH = "ad3f4c320fe8fc8421b02bcd372da1c3706df631f37a8b2f1945d982d7e2c9e7"
+ADMIN_PASSWORD_HASH = "0df03a030db935a56c6c8ffdf0fa66b2f1f11170c8db82334eae1ab64b6b563a"
 
 def init_session():
     if 'es_admin' not in st.session_state:
