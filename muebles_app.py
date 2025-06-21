@@ -15,7 +15,7 @@ c = conn.cursor()
 # Configuración de la página
 st.set_page_config(
     page_title="Inventario El Jueves",
-    page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
+    page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/apple-touch-icon.png",
     layout="wide"
 )
 
@@ -94,55 +94,55 @@ with st.expander("📥 Añadir nueva antigüedad", expanded=False):
             st.markdown("**Medidas requeridas:**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                medida1 = st.number_input("Largo (cm)*", min_value=0, help="Distancia entre los extremos más largos")
+                medida1 = st.number_input("Largo (cm)*", min_value=0)
             with col2:
-                medida2 = st.number_input("Alto (cm)*", min_value=0, help="Altura desde el suelo hasta la parte superior")
+                medida2 = st.number_input("Alto (cm)*", min_value=0)
             with col3:
-                medida3 = st.number_input("Fondo (cm)*", min_value=0, help="Profundidad de frente a atrás")
+                medida3 = st.number_input("Fondo (cm)*", min_value=0)
                 
         elif tipo in ["Biblioteca", "Armario"]:
             st.markdown("**Medidas requeridas:**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura total del mueble")
+                medida1 = st.number_input("Alto (cm)*", min_value=0)
             with col2:
-                medida2 = st.number_input("Ancho (cm)*", min_value=0, help="Ancho total de lado a lado")
+                medida2 = st.number_input("Ancho (cm)*", min_value=0)
             with col3:
-                medida3 = st.number_input("Fondo (cm)*", min_value=0, help="Profundidad de los estantes")
+                medida3 = st.number_input("Fondo (cm)*", min_value=0)
                 
         elif tipo == "Columna":
             st.markdown("**Medidas requeridas:**")
             col1, col2 = st.columns(2)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura total de la columna")
+                medida1 = st.number_input("Alto (cm)*", min_value=0)
             with col2:
-                medida2 = st.number_input("Lados de la base*", min_value=3, max_value=8, value=4, help="Número de lados (ej: 4 para base cuadrada)")
+                medida2 = st.number_input("Lados de la base*", min_value=3, max_value=8, value=4)
                 
         elif tipo == "Espejo":
             st.markdown("**Medidas requeridas:**")
             col1, col2 = st.columns(2)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura del espejo sin marco")
+                medida1 = st.number_input("Alto (cm)*", min_value=0)
             with col2:
-                medida2 = st.number_input("Ancho (cm)*", min_value=0, help="Ancho del espejo sin marco")
+                medida2 = st.number_input("Ancho (cm)*", min_value=0)
                 
         elif tipo == "Tinaja":
             st.markdown("**Medidas requeridas:**")
             col1, col2, col3 = st.columns(3)
             with col1:
-                medida1 = st.number_input("Alto (cm)*", min_value=0, help="Altura total desde la base hasta el borde")
+                medida1 = st.number_input("Alto (cm)*", min_value=0)
             with col2:
-                medida2 = st.number_input("Diámetro base (cm)*", min_value=0, help="Ancho de la parte inferior")
+                medida2 = st.number_input("Diámetro base (cm)*", min_value=0)
             with col3:
-                medida3 = st.number_input("Diámetro boca (cm)*", min_value=0, help="Ancho de la apertura superior")
+                medida3 = st.number_input("Diámetro boca (cm)*", min_value=0)
                 
         else:  # Para sillas y otros artículos
             st.markdown("**Medidas opcionales:**")
             col1, col2 = st.columns(2)
             with col1:
-                medida1 = st.number_input("Alto (cm)", min_value=0, help="Altura aproximada")
+                medida1 = st.number_input("Alto (cm)", min_value=0)
             with col2:
-                medida2 = st.number_input("Ancho (cm)", min_value=0, help="Ancho aproximado")
+                medida2 = st.number_input("Ancho (cm)", min_value=0)
         
         imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
         
