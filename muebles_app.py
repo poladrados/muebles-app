@@ -19,26 +19,25 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
     /* ESTILOS GENERALES */
     .stApp > header {
         display: none;
     }
-    
+
     .stApp {
         background-color: #E6F0F8;
         padding: 2rem;
     }
-    
+
     body, .stTextInput>label, .stNumberInput>label, 
     .stSelectbox>label, .stMultiselect>label,
     .stCheckbox>label, .stRadio>label, .stTextArea>label,
     .stMarkdown, .stAlert {
         color: #000000 !important;
     }
-    
+
     .custom-header {
         display: flex;
         align-items: center;
@@ -49,22 +48,22 @@ st.markdown("""
         margin-bottom: 2rem;
         width: 100%;
     }
-    
+
     .header-logo {
         flex: 0 0 auto;
     }
-    
+
     .header-logo img {
         height: 80px;
         width: auto;
     }
-    
+
     .header-title-container {
         flex: 1;
         display: flex;
         justify-content: center;
     }
-    
+
     .header-title {
         color: #023e8a !important;
         font-size: 2.5rem;
@@ -72,61 +71,86 @@ st.markdown("""
         margin: 0;
         text-align: center;
     }
-    
+
     h1, h2, h3, h4, h5, h6 {
         color: #023e8a !important;
     }
-    
+
     .stButton>button {
         border-radius: 8px !important;
         padding: 8px 12px !important;
         margin: 4px !important;
         transition: all 0.3s ease !important;
     }
-    
+
     button[data-testid="baseButton-secondary"] {
         background-color: #e63946 !important;
         color: white !important;
         border: 1px solid #e63946 !important;
     }
-    
+
     button[data-testid="baseButton-primary"] {
         background-color: #023e8a !important;
         color: white !important;
         border: 1px solid #023e8a !important;
     }
 
+    /* NUEVO: Input fondo blanco y texto negro */
+    input, select, textarea {
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid #023e8a !important;
+        border-radius: 6px !important;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #888 !important;
+    }
+
+    /* NUEVO: Estilo reforzado por data-testid para inputs */
+    div[data-testid="stTextInput"] input,
+    div[data-testid="stTextArea"] textarea,
+    div[data-testid="stNumberInput"] input,
+    div[data-testid="stSelectbox"] label {
+        background-color: white !important;
+        color: black !important;
+    }
+
+    /* TABS */
+    div[data-testid="stTabs"] button {
+        color: #000000 !important;
+        background: #E6F0F8 !important;
+        border: 1px solid #023e8a !important;
+        font-weight: 600 !important;
+    }
+
+    div[data-testid="stTabs"] button[aria-selected="true"] {
+        color: white !important;
+        background: #023e8a !important;
+    }
+
     /* ESTILOS MÓVIL */
-div[data-testid="stTabs"] button {
-    color: #000000 !important;
-    background: #E6F0F8 !important;
-    border: 1px solid #023e8a !important;
-    font-weight: 600 !important;
-}
-div[data-testid="stTabs"] button[aria-selected="true"] {
-    color: white !important;
-    background: #023e8a !important;
-}
     @media (max-width: 768px) {
         .custom-header h1.header-title {
             font-size: 1.5rem !important;
             margin-left: 0 !important;
             padding-left: 0 !important;
         }
-        
+
         div[data-testid="stTabs"] button[aria-selected="true"] {
             color: white !important;
             background: #023e8a !important;
         }
-        
+
         .stApp {
             padding: 0.8rem !important;
         }
-        
+
         .header-logo img {
             height: 50px !important;
         }
-        
+
         .stButton>button {
             width: 100% !important;
             margin: 6px 0 !important;
