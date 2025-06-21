@@ -17,7 +17,7 @@ c = conn.cursor()
 # Configuración de página (AL PRINCIPIO del script)
 st.set_page_config(
     page_title="Inventario El Jueves",
-    page_icon="https://www.antiguedadeseljueves.com/wp-content/uploads/2023/04/favicon.png",
+    page_icon="https://github.com/poladrados/muebles-app/blob/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
 
