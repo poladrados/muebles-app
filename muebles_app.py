@@ -26,7 +26,7 @@ st.markdown("""
     <style>
     /* Fondo azul SOLO en los bordes */
     .stApp {
-        background-color: #E6F0F8;  /* Azul claro */
+        background-color: #023e8a;  /* Azul claro */
         padding: 2rem;             /* Espacio para ver el azul alrededor */
     }
     
