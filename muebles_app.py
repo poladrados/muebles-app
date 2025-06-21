@@ -51,12 +51,9 @@ st.markdown("""
         padding: 2rem;
     }
     
-    /* Texto general en NEGRO */
-    body, .stTextInput>label, .stNumberInput>label, 
-    .stSelectbox>label, .stMultiselect>label,
-    .stCheckbox>label, .stRadio>label, .stTextArea>label,
-    .stMarkdown, .stAlert, .stButton>button {
-        color: #000000 !important;
+    /* Texto general */
+    body {
+        color: #000000;
     }
     
     /* Header personalizado */
@@ -71,43 +68,45 @@ st.markdown("""
         width: 100%;
     }
     
-    /* Logo */
-    .header-logo {
-        flex: 0 0 auto;
-    }
-    
-    .header-logo img {
-        height: 80px;
-        width: auto;
-    }
-    
-    /* Título - ahora realmente centrado */
-    .header-title-container {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-    }
-    
-    .header-title {
-        color: #023e8a !important;
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-    }
-    
-    /* Color AZUL solo para encabezados */
+    /* Títulos */
     h1, h2, h3, h4, h5, h6 {
         color: #023e8a !important;
     }
     
-    /* Botones principales */
+    /* Componentes comunes (selectbox, radio, etc.) */
+    .stSelectbox, .stRadio, .stCheckbox, 
+    .stTextInput, .stNumberInput, .stTextArea {
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    /* Botones principales (Marcar como vendido) */
     .stButton > button {
-        background-color: #023e8a;
-        color: white;
-        border-radius: 5px;
-        padding: 8px 12px;
-        border: 1px solid #023e8a;
+        background-color: #023e8a !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: 1px solid #023e8a !important;
+        padding: 8px 16px !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Contenedores y tarjetas */
+    .stContainer, .stExpander, [data-testid="stVerticalBlock"] > div {
+        background-color: white !important;
+        border-radius: 8px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        margin-bottom: 1rem;
+    }
+    
+    /* Filtros y controles */
+    [data-testid="stForm"] {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
     /* Versión móvil */
@@ -116,6 +115,7 @@ st.markdown("""
             padding: 1rem;
         }
         
+        /* Ajustes de tamaño para móvil */
         .header-logo img {
             height: 50px;
         }
@@ -124,26 +124,18 @@ st.markdown("""
             font-size: 1.8rem;
         }
         
-        /* Botones en móvil */
+        /* Componentes en móvil */
+        .stSelectbox, .stRadio, .stCheckbox, 
+        .stTextInput, .stNumberInput, .stTextArea,
         .stButton > button {
             font-size: 14px !important;
-            padding: 6px 10px !important;
-            margin: 2px 0 !important;
-            width: 100% !important;
+            padding: 8px 12px !important;
         }
         
-        /* Textos y checkboxes */
-        .stMarkdown, 
-        .stCheckbox>label, 
-        .stRadio>label, 
-        .stTextInput>label {
+        /* Asegurar contraste en móvil */
+        .stMarkdown, .stCheckbox>label, 
+        .stRadio>label, .stTextInput>label {
             color: #000000 !important;
-            font-size: 14px !important;
-        }
-        
-        /* Contenedores */
-        .stContainer, .stExpander {
-            padding: 12px !important;
         }
     }
     </style>
