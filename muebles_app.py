@@ -13,29 +13,12 @@ conn = sqlite3.connect("muebles.db")
 c = conn.cursor()
 
 # Configuración de la página
-# Configuración de la página
-# Configuración de página (AL PRINCIPIO del script)
-
-import streamlit as st
-import sqlite3
-import os
-from PIL import Image
-from datetime import datetime
-
-# --- Configuración inicial ---
-CARPETA_IMAGENES = "imagenes_muebles"
-os.makedirs(CARPETA_IMAGENES, exist_ok=True)
-
-# Conexión a la base de datos
-conn = sqlite3.connect("muebles.db")
-c = conn.cursor()
-
-# Configuración de la página
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
+
 
 # --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
@@ -51,9 +34,12 @@ st.markdown("""
         padding: 2rem;
     }
     
-    /* Texto general */
-    body {
-        color: #000000;
+    /* Texto general en NEGRO */
+    body, .stTextInput>label, .stNumberInput>label, 
+    .stSelectbox>label, .stMultiselect>label,
+    .stCheckbox>label, .stRadio>label, .stTextArea>label,
+    .stMarkdown, .stAlert {
+        color: #000000 !important;
     }
     
     /* Header personalizado */
@@ -68,45 +54,42 @@ st.markdown("""
         width: 100%;
     }
     
-    /* Títulos */
+    /* Logo */
+    .header-logo {
+        flex: 0 0 auto;
+    }
+    
+    .header-logo img {
+        height: 80px;
+        width: auto;
+    }
+    
+    /* Título */
+    .header-title-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .header-title {
+        color: #023e8a !important;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+    }
+    
+    /* Color AZUL solo para encabezados */
     h1, h2, h3, h4, h5, h6 {
         color: #023e8a !important;
     }
     
-    /* Componentes comunes (selectbox, radio, etc.) */
-    .stSelectbox, .stRadio, .stCheckbox, 
-    .stTextInput, .stNumberInput, .stTextArea {
+    /* Botones NORMALES (como antes) */
+    .stButton>button {
         background-color: white;
-        border-radius: 8px;
-        padding: 10px;
-        margin-bottom: 1rem;
-    }
-    
-    /* Botones principales (Marcar como vendido) */
-    .stButton > button {
-        background-color: #023e8a !important;
-        color: white !important;
-        border-radius: 8px !important;
-        border: 1px solid #023e8a !important;
-        padding: 8px 16px !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Contenedores y tarjetas */
-    .stContainer, .stExpander, [data-testid="stVerticalBlock"] > div {
-        background-color: white !important;
-        border-radius: 8px !important;
-        padding: 1.5rem !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
-        margin-bottom: 1rem;
-    }
-    
-    /* Filtros y controles */
-    [data-testid="stForm"] {
-        background-color: white;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        color: #023e8a;
+        border: 1px solid #023e8a;
+        border-radius: 4px;
     }
     
     /* Versión móvil */
@@ -115,7 +98,6 @@ st.markdown("""
             padding: 1rem;
         }
         
-        /* Ajustes de tamaño para móvil */
         .header-logo img {
             height: 50px;
         }
@@ -124,18 +106,13 @@ st.markdown("""
             font-size: 1.8rem;
         }
         
-        /* Componentes en móvil */
-        .stSelectbox, .stRadio, .stCheckbox, 
-        .stTextInput, .stNumberInput, .stTextArea,
-        .stButton > button {
-            font-size: 14px !important;
-            padding: 8px 12px !important;
-        }
-        
-        /* Asegurar contraste en móvil */
-        .stMarkdown, .stCheckbox>label, 
-        .stRadio>label, .stTextInput>label {
+        /* Textos en móvil */
+        .stMarkdown, 
+        .stCheckbox>label, 
+        .stRadio>label, 
+        .stTextInput>label {
             color: #000000 !important;
+            font-size: 14px !important;
         }
     }
     </style>
