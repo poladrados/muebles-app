@@ -332,23 +332,6 @@ TIPOS_PLURAL = {
     "Otro artículo": "Otros artículos"
 }
 
-def mostrar_medidas(tipo, m1, m2, m3):
-    if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"] and m1 and m2 and m3:
-        return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
-    elif tipo in ["Biblioteca", "Armario"] and m1 and m2 and m3:
-        return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
-    elif tipo == "Columna" and m1 and m2:
-        return f"{m1}cm (alto) | {m2} lados en base"
-    elif tipo == "Espejo" and m1 and m2:
-        return f"{m1}cm (alto) × {m2}cm (ancho)"
-    elif tipo == "Tinaja" and m1 and m2 and m3:
-        return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
-    elif tipo in ["Silla", "Otro artículo"] and (m1 or m2):
-        medidas = []
-        if m1: medidas.append(f"{m1}cm (alto)")
-        if m2: medidas.append(f"{m2}cm (ancho)")
-        return " × ".join(medidas) if medidas else "Sin medidas"
-    return "Sin medidas registradas"
 # Pestaña 1: En venta
 with tab1:
     st.markdown("## 🏷️ Muebles disponibles")
@@ -356,30 +339,36 @@ with tab1:
     col_filtros = st.columns(4)
     with col_filtros[0]:
         filtro_tienda = st.selectbox("Filtrar por tienda", options=["Todas", "El Rastro", "Regueros"])
+    
     with col_filtros[1]:
-    # Obtenemos los tipos únicos de la base de datos
+        # Obtenemos los tipos únicos de la base de datos
         c.execute("SELECT DISTINCT tipo FROM muebles")
         tipos_db = [tipo[0] for tipo in c.fetchall()]
+        
+        # Creamos opciones con "Todos" primero y luego los tipos en plural
+        opciones_filtro = ["Todos"] + [TIPOS_PLURAL.get(tipo, tipo) for tipo in tipos_db]
+        
+        # Mostramos el selectbox con nombres en plural
+        filtro_tipo_plural = st.selectbox("Filtrar por tipo", options=opciones_filtro)
+        
+        # Convertimos el plural seleccionado de vuelta a singular para la consulta
+        tipo_para_consulta = None
+        if filtro_tipo_plural != "Todos":
+            tipo_para_consulta = next((k for k, v in TIPOS_PLURAL.items() if v == filtro_tipo_plural), filtro_tipo_plural)
     
-    # Creamos la lista de opciones con los plurales
-        opciones_tipos = ["Todos"] + [TIPOS_PLURAL.get(tipo, tipo + "s") for tipo in tipos_db]
-    
-    # Mostramos el selectbox con los nombres en plural
-        filtro_tipo_plural = st.selectbox("Filtrar por tipo", options=opciones_tipos)
-    
-    # Pero internamente trabajamos con el tipo en singular
-        if filtro_tipo != "Todos":
-            query += f" AND tipo = '{filtro_tipo}'"
-        else:
-            filtro_tipo = "Todos"
     with col_filtros[2]:
         orden = st.selectbox("Ordenar por", options=["Más reciente", "Más antiguo", "Precio (↑)", "Precio (↓)"])
     
+    # Construimos la consulta SQL
     query = "SELECT id, nombre, precio, descripcion, ruta_imagen, fecha, tienda, tipo, medida1, medida2, medida3 FROM muebles WHERE vendido = 0"
+    
+    # Aplicamos filtros
     if filtro_tienda != "Todas":
         query += f" AND tienda = '{filtro_tienda}'"
-    if filtro_tipo != "Todos":
-        query += f" AND tipo = '{filtro_tipo}'"
+    if filtro_tipo_plural != "Todos":
+        query += f" AND tipo = '{tipo_para_consulta}'"
+    
+    # Aplicamos orden
     if orden == "Más reciente":
         query += " ORDER BY id DESC"
     elif orden == "Más antiguo":
@@ -389,8 +378,11 @@ with tab1:
     else:
         query += " ORDER BY precio DESC"
     
+    # Ejecutamos la consulta
     c.execute(query)
     muebles = c.fetchall()
+
+    # Resto del código para mostrar los muebles...
 
     if not muebles:
         st.info("No hay muebles disponibles")
