@@ -513,6 +513,7 @@ def mostrar_formulario_edicion(mueble_id):
     with st.form(key=f"form_editar_{mueble_id}"):
         st.markdown(f"### Editando: {mueble[1]}")
         
+        # Sección de información básica
         col1, col2 = st.columns(2)
         with col1:
             tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], 
@@ -532,9 +533,13 @@ def mostrar_formulario_edicion(mueble_id):
             "Mesa", "Consola", "Buffet", "Biblioteca", 
             "Armario", "Cómoda", "Columna", "Espejo", 
             "Copa", "Asiento", "Otro artículo"
-        ].index(mueble[8] if mueble[8] else "Otro artículo"))
+        ].index(mueble[8] if mueble[8] in [
+            "Mesa", "Consola", "Buffet", "Biblioteca", 
+            "Armario", "Cómoda", "Columna", "Espejo", 
+            "Copa", "Asiento"
+        ] else 10))  # Default a "Otro artículo" si no está en la lista
         
-        # Campos de medidas
+        # Sección de medidas
         st.markdown("**Medidas:**")
         col1, col2, col3 = st.columns(3)
         
@@ -553,16 +558,27 @@ def mostrar_formulario_edicion(mueble_id):
                                        value=int(mueble[15]) if mueble[15] else 4, 
                                        key=f"lados_{mueble_id}")
         
-        # Botones del formulario
+        # Botones de acción
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.form_submit_button("💾 Guardar cambios"):
-                # Validación básica
-                if not nombre or precio <= 0:
-                    st.error("Nombre y precio son campos obligatorios")
-                    st.stop()
-                
-                # Actualizar en la base de datos
+            guardar = st.form_submit_button("💾 Guardar cambios")
+        with col2:
+            cancelar = st.form_submit_button("❌ Cancelar")
+        with col3:
+            # Botón opcional para ver imágenes si necesitas
+            pass
+        
+        if guardar:
+            # Validación de campos obligatorios
+            if not nombre.strip():
+                st.error("El nombre es obligatorio")
+                st.stop()
+            if precio <= 0:
+                st.error("El precio debe ser mayor que 0")
+                st.stop()
+            
+            # Actualizar en la base de datos
+            try:
                 c.execute("""
                     UPDATE muebles SET
                         nombre = ?,
@@ -573,24 +589,37 @@ def mostrar_formulario_edicion(mueble_id):
                         tipo = ?,
                         medida1 = ?,
                         medida2 = ?,
-                        medida3 = ?
+                        medida3 = ?,
+                        medida4 = ?,
+                        medida5 = ?,
+                        medida6 = ?
                     WHERE id = ?
                 """, (
-                    nombre, precio, descripcion, tienda, int(vendido), tipo,
+                    nombre.strip(),
+                    precio,
+                    descripcion.strip() if descripcion else None,
+                    tienda,
+                    int(vendido),
+                    tipo,
                     largo if largo > 0 else None,
                     alto if alto > 0 else None,
                     ancho if ancho > 0 else None,
+                    fondo if fondo > 0 else None,
+                    diametro_base if diametro_base > 0 else None,
+                    diametro_boca if diametro_boca > 0 else None,
                     mueble_id
                 ))
                 conn.commit()
                 st.success("¡Cambios guardados correctamente!")
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
+            except Exception as e:
+                st.error(f"Error al guardar cambios: {str(e)}")
+                conn.rollback()
         
-        with col2:
-            if st.form_submit_button("❌ Cancelar"):
-                st.session_state.pop('editar_mueble_id', None)
-                st.rerun()
+        if cancelar:
+            st.session_state.pop('editar_mueble_id', None)
+            st.rerun()
 
 # --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
