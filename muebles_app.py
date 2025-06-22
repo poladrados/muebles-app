@@ -179,6 +179,17 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    /* Estilo para botones de edición */
+    .btn-editar {
+        background-color: #4CAF50 !important;
+        color: white !important;
+        border: 1px solid #4CAF50 !important;
+        margin-left: 5px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # --- HEADER modificado ---
 st.markdown(f"""
