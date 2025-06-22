@@ -164,7 +164,14 @@ st.markdown("""
             margin: 6px 0 !important;
         }
     }
-    # Busca tu sección de ESTILOS PERSONALIZADOS y añade esto al final, antes del cierre </style>:
+    st.markdown("""
+    <style>
+    /* ESTILOS GENERALES */
+    .stApp > header {
+        display: none;
+    }
+    
+    /* ... (tus otros estilos existentes) ... */
 
     /* Estilos para el carrusel de imágenes */
     .image-carousel {
