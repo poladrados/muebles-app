@@ -652,7 +652,7 @@ with tab1:
                             SELECT ruta_imagen, es_principal 
                             FROM imagenes_muebles 
                             WHERE mueble_id = ?
-                            ORDER BY es_principal DESC  # La principal primero
+                            ORDER BY es_principal DESC  -- La principal primero
                         """, (mueble[0],))
                         imagenes_mueble = c.fetchall()
                         
@@ -752,7 +752,7 @@ if st.session_state.es_admin:
                                 SELECT ruta_imagen, es_principal 
                                 FROM imagenes_muebles 
                                 WHERE mueble_id = ?
-                                ORDER BY es_principal DESC  # La principal primero
+                                ORDER BY es_principal DESC  -- La principal primero
                             """, (mueble[0],))
                             imagenes_mueble = c.fetchall()
                             
