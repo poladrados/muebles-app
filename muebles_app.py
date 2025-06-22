@@ -412,98 +412,66 @@ if st.session_state.es_admin:
                     st.warning("⚠️ Completa los campos obligatorios (*)")
 
 def mostrar_medidas(tipo, m1, m2, m3):
-    # Primero convertimos None a 0 para las medidas
-    m1 = m1 or 0
-    m2 = m2 or 0
-    m3 = m3 or 0
+    # Filtramos medidas None o 0
+    medidas_disponibles = []
+    if m1 not in [None, 0]: medidas_disponibles.append(("largo", m1))
+    if m2 not in [None, 0]: medidas_disponibles.append(("alto", m2))
+    if m3 not in [None, 0]: medidas_disponibles.append(("fondo", m3))
     
+    if not medidas_disponibles:
+        return "Sin medidas registradas"
+    
+    # Formateamos según el tipo de mueble
     if tipo in ["Mesa", "Consola", "Buffet", "Cómoda"]:
-        if m1 and m2 and m3:
-            return f"{m1}cm (largo) × {m2}cm (alto) × {m3}cm (fondo)"
-        elif m1 or m2 or m3:
-            medidas = []
-            if m1: medidas.append(f"{m1}cm (largo)")
-            if m2: medidas.append(f"{m2}cm (alto)")
-            if m3: medidas.append(f"{m3}cm (fondo)")
-            return " × ".join(medidas)
+        partes = []
+        for nombre, valor in [("largo", m1), ("alto", m2), ("fondo", m3)]:
+            if valor not in [None, 0]:
+                partes.append(f"{valor}cm ({nombre})")
+        return " × ".join(partes) if partes else "Sin medidas"
     
     elif tipo in ["Biblioteca", "Armario"]:
-        if m1 and m2 and m3:
-            return f"{m1}cm (alto) × {m2}cm (ancho) × {m3}cm (fondo)"
-        elif m1 or m2 or m3:
-            medidas = []
-            if m1: medidas.append(f"{m1}cm (alto)")
-            if m2: medidas.append(f"{m2}cm (ancho)")
-            if m3: medidas.append(f"{m3}cm (fondo)")
-            return " × ".join(medidas)
+        partes = []
+        for nombre, valor in [("alto", m1), ("ancho", m2), ("fondo", m3)]:
+            if valor not in [None, 0]:
+                partes.append(f"{valor}cm ({nombre})")
+        return " × ".join(partes) if partes else "Sin medidas"
     
     elif tipo == "Columna":
-        if m1 and m2:
-            return f"{m1}cm (alto) | {m2} lados en base"
-        elif m1 or m2:
-            medidas = []
-            if m1: medidas.append(f"{m1}cm (alto)")
-            if m2: medidas.append(f"{m2} lados")
-            return " | ".join(medidas)
+        partes = []
+        if m1 not in [None, 0]: partes.append(f"{m1}cm (alto)")
+        if m2 not in [None, 0]: partes.append(f"{m2} lados")
+        return " | ".join(partes) if partes else "Sin medidas"
     
     elif tipo == "Espejo":
-        if m1 and m2:
-            return f"{m1}cm (alto) × {m2}cm (ancho)"
-        elif m1 or m2:
-            medidas = []
-            if m1: medidas.append(f"{m1}cm (alto)")
-            if m2: medidas.append(f"{m2}cm (ancho)")
-            return " × ".join(medidas)
+        partes = []
+        if m1 not in [None, 0]: partes.append(f"{m1}cm (alto)")
+        if m2 not in [None, 0]: partes.append(f"{m2}cm (ancho)")
+        return " × ".join(partes) if partes else "Sin medidas"
     
     elif tipo == "Copa":
-        if m1 and m2 and m3:
-            return f"{m1}cm (alto) | Base: Ø{m2}cm | Boca: Ø{m3}cm"
-        elif m1 or m2 or m3:
-            medidas = [f"{m1}cm (alto)"] if m1 else []
-            if m2: medidas.append(f"Base: Ø{m2}cm")
-            if m3: medidas.append(f"Boca: Ø{m3}cm")
-            return " | ".join(medidas)
+        partes = []
+        if m1 not in [None, 0]: partes.append(f"{m1}cm (alto)")
+        if m2 not in [None, 0]: partes.append(f"Base: Ø{m2}cm")
+        if m3 not in [None, 0]: partes.append(f"Boca: Ø{m3}cm")
+        return " | ".join(partes) if partes else "Sin medidas"
     
     elif tipo in ["Asiento", "Otro artículo"]:
-        medidas = []
-        if m1: medidas.append(f"{m1}cm (alto)")
-        if m2: medidas.append(f"{m2}cm (ancho)")
-        if m3: medidas.append(f"{m3}cm (profundo)")
-        return " × ".join(medidas) if medidas else "Sin medidas"
+        partes = []
+        if m1 not in [None, 0]: partes.append(f"{m1}cm (alto)")
+        if m2 not in [None, 0]: partes.append(f"{m2}cm (ancho)")
+        if m3 not in [None, 0]: partes.append(f"{m3}cm (profundo)")
+        return " × ".join(partes) if partes else "Sin medidas"
     
-    return "Sin medidas registradas"
+    # Caso por defecto (mostrar todas las medidas disponibles)
+    partes = []
+    if m1 not in [None, 0]: partes.append(f"{m1}cm")
+    if m2 not in [None, 0]: partes.append(f"{m2}cm")
+    if m3 not in [None, 0]: partes.append(f"{m3}cm")
+    return " × ".join(partes) if partes else "Sin medidas registradas"
 
 # Busca la función mostrar_medidas() y AÑADE JUSTO DESPUÉS esta nueva función:
 
-def mostrar_detalle_mueble(mueble_id):
-    # Obtener datos del mueble
-    c.execute("SELECT * FROM muebles WHERE id = ?", (mueble_id,))
-    mueble = c.fetchone()
-    
-    # Obtener todas las imágenes del mueble
-    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ? ORDER BY es_principal DESC", (mueble_id,))
-    imagenes = c.fetchall()
-    
-    with st.expander(f"🔍 Ver detalles completos de {mueble[1]}", expanded=False):
-        st.markdown(f"### {mueble[1]}")
-        st.markdown(f"**Precio:** {mueble[2]} €")
-        st.markdown(f"**Tienda:** {mueble[7]}")
-        st.markdown(f"**Tipo:** {mueble[8]}")
-        st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")
-        
-        if mueble[3]:  # Descripción
-            st.markdown(f"**Descripción:** {mueble[3]}")
-        
-        # Mostrar todas las imágenes en un carrusel
-        if imagenes:
-            cols = st.columns(min(3, len(imagenes)))
-            for i, img in enumerate(imagenes):
-                try:
-                    with cols[i % 3]:
-                        imagen = Image.open(img[0])
-                        st.image(imagen, use_container_width=True, caption=f"Foto {i+1}")
-                except:
-                    st.warning(f"No se pudo cargar la imagen {i+1}")
+
 def mostrar_formulario_edicion(mueble_id):
     # Obtener datos actuales del mueble
     c.execute("SELECT * FROM muebles WHERE id = ?", (mueble_id,))
