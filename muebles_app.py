@@ -632,7 +632,6 @@ with tab1:
                                             st.rerun()
 
 # Pestaña 2: Vendidos - solo visible para admin
-# Pestaña 2: Vendidos - solo visible para admin
 if st.session_state.es_admin:
     with tab2:
         st.markdown("## ✔️ Muebles vendidos")
