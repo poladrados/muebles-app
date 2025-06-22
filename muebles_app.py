@@ -680,8 +680,6 @@ with tab1:
                     # --- NUEVO: Bloque de edición ---
                     if st.session_state.get('editar_mueble_id') == mueble[0]:
                         mostrar_formulario_edicion(mueble[0])
-                    else:
-                        mostrar_detalle_mueble(mueble[0])
                         
                         # --- CONTROLES SOLO PARA ADMIN (3 columnas) ---
                         if st.session_state.es_admin:
@@ -769,8 +767,6 @@ if st.session_state.es_admin:
                         # --- NUEVO: Bloque de edición ---
                         if st.session_state.get('editar_mueble_id') == mueble[0]:
                             mostrar_formulario_edicion(mueble[0])
-                        else:
-                            mostrar_detalle_mueble(mueble[0])
                             
                             # --- CONTROLES SOLO PARA ADMIN (3 columnas) ---
                             if st.session_state.es_admin:
