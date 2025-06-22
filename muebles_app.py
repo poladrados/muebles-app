@@ -215,9 +215,7 @@ st.markdown(f"""
         <div class="header-title-container">
             <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
         </div>
-        <div class="mode-indicator">
-            {'🔓 Modo Admin' if st.session_state.es_admin else '🔒 Modo Cliente'}
-        </div>
+
     </div>
 """, unsafe_allow_html=True)
 
