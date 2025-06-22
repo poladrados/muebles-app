@@ -113,12 +113,41 @@ st.markdown("""
         border: 1px solid #023e8a !important;
     }
 
+    /* ESTILOS PARA EL INDICADOR DE MODO */
+    .mode-indicator {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        color: #023e8a;
+        font-weight: bold;
+    }
+    
     /* ESTILOS MÓVIL */
     @media (max-width: 768px) {
+        .custom-header {
+            padding: 0.8rem 1rem !important;
+            justify-content: space-between !important;
+        }
+        
         .custom-header h1.header-title {
             font-size: 1.5rem !important;
             margin-left: 0 !important;
             padding-left: 0 !important;
+            text-align: left !important;
+        }
+        
+        .header-logo img {
+            height: 50px !important;
+        }
+        
+        .header-title-container {
+            justify-content: flex-start;
+            padding-left: 10px;
+        }
+        
+        .mode-indicator {
+            display: none !important;
         }
         
         div[data-testid="stTabs"] button[aria-selected="true"] {
@@ -130,29 +159,15 @@ st.markdown("""
             padding: 0.8rem !important;
         }
         
-        .header-logo img {
-            height: 50px !important;
-        }
-        
         .stButton>button {
             width: 100% !important;
             margin: 6px 0 !important;
         }
-        
-        /* NUEVAS REGLAS PARA OCULTAR EL INDICADOR DE MODO */
-        .mode-indicator {
-            display: none !important;
-        }
-        
-        .custom-header {
-            justify-content: center !important;
-        }
     }
-    
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER modificado con indicador de modo (oculto en móvil) ---
+# --- HEADER modificado ---
 st.markdown(f"""
     <div class="custom-header">
         <div class="header-logo">
@@ -161,7 +176,7 @@ st.markdown(f"""
         <div class="header-title-container">
             <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
         </div>
-        <div class="mode-indicator" style="margin-left: auto; display: flex; align-items: center; margin-right: 20px; color: {'#023e8a' if st.session_state.es_admin else 'gray'}">
+        <div class="mode-indicator">
             {'🔓 Modo Admin' if st.session_state.es_admin else '🔒 Modo Cliente'}
         </div>
     </div>
