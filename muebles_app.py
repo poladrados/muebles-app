@@ -164,6 +164,19 @@ st.markdown("""
             margin: 6px 0 !important;
         }
     }
+    # Busca tu sección de ESTILOS PERSONALIZADOS y añade esto al final, antes del cierre </style>:
+
+    /* Estilos para el carrusel de imágenes */
+    .image-carousel {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .image-carousel img {
+        border-radius: 8px;
+        object-fit: cover;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -240,6 +253,16 @@ c.execute("""
         medida3 REAL
     )
 """)
+c.execute("""
+    CREATE TABLE IF NOT EXISTS imagenes_muebles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mueble_id INTEGER,
+        ruta_imagen TEXT,
+        es_principal BOOLEAN DEFAULT 0,
+        FOREIGN KEY(mueble_id) REFERENCES muebles(id)
+    )
+""")
+conn.commit()
 conn.commit()
 
 # --- Formulario solo visible para admin ---
@@ -296,11 +319,14 @@ if st.session_state.es_admin:
             
             st.caption(f"ℹ️ Medidas requeridas para {tipo}: {', '.join(medidas_requeridas[tipo]) if medidas_requeridas[tipo] else 'Opcionales'}")
             
-            imagen = st.file_uploader("Sube una imagen*", type=["jpg", "jpeg", "png"])
+                        # Reemplaza TODO el bloque desde el file_uploader hasta el final del if submitted con esto:
+            imagenes = st.file_uploader("Sube imágenes* (primera será la principal)", 
+                                     type=["jpg", "jpeg", "png"], 
+                                     accept_multiple_files=True)
             
             submitted = st.form_submit_button("Guardar")
             if submitted:
-                if imagen and nombre and precio > 0 and tipo:
+                if imagenes and nombre and precio > 0 and tipo:
                     # Validar medidas requeridas
                     medidas_faltantes = []
                     for medida in medidas_requeridas[tipo]:
@@ -340,24 +366,38 @@ if st.session_state.es_admin:
                     
                     medida1, medida2, medida3 = medida_map[tipo]
                     
-                    nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{imagen.name}"
-                    ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
-                    with open(ruta_imagen, "wb") as f:
-                        f.write(imagen.getbuffer())
-                    
+                    # Insertar el mueble (sin ruta_imagen)
                     c.execute("""
                         INSERT INTO muebles (
-                            nombre, precio, descripcion, ruta_imagen, fecha, 
+                            nombre, precio, descripcion, fecha, 
                             vendido, tienda, tipo, medida1, medida2, medida3
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, (
-                        nombre, precio, descripcion, ruta_imagen, 
+                        nombre, precio, descripcion, 
                         datetime.now().strftime("%Y-%m-%d"), 
                         int(vendido), tienda, tipo, 
                         medida1, medida2, medida3
                     ))
+                    mueble_id = c.lastrowid
+                    
+                    # Guardar las imágenes
+                    for i, imagen in enumerate(imagenes):
+                        nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{mueble_id}_{i}_{imagen.name}"
+                        ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
+                        
+                        with open(ruta_imagen, "wb") as f:
+                            f.write(imagen.getbuffer())
+                        
+                        # La primera imagen es la principal
+                        es_principal = 1 if i == 0 else 0
+                        
+                        c.execute("""
+                            INSERT INTO imagenes_muebles (mueble_id, ruta_imagen, es_principal)
+                            VALUES (?, ?, ?)
+                        """, (mueble_id, ruta_imagen, es_principal))
+                    
                     conn.commit()
-                    st.success("✅ ¡Antigüedad registrada!")
+                    st.success("✅ ¡Antigüedad registrada con éxito!")
                     st.rerun()
                 else:
                     st.warning("⚠️ Completa los campos obligatorios (*)")
@@ -423,6 +463,38 @@ def mostrar_medidas(tipo, m1, m2, m3):
         return " × ".join(medidas) if medidas else "Sin medidas"
     
     return "Sin medidas registradas"
+
+# Busca la función mostrar_medidas() y AÑADE JUSTO DESPUÉS esta nueva función:
+
+def mostrar_detalle_mueble(mueble_id):
+    # Obtener datos del mueble
+    c.execute("SELECT * FROM muebles WHERE id = ?", (mueble_id,))
+    mueble = c.fetchone()
+    
+    # Obtener todas las imágenes del mueble
+    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ? ORDER BY es_principal DESC", (mueble_id,))
+    imagenes = c.fetchall()
+    
+    with st.expander(f"🔍 Ver detalles completos de {mueble[1]}", expanded=False):
+        st.markdown(f"### {mueble[1]}")
+        st.markdown(f"**Precio:** {mueble[2]} €")
+        st.markdown(f"**Tienda:** {mueble[7]}")
+        st.markdown(f"**Tipo:** {mueble[8]}")
+        st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")
+        
+        if mueble[3]:  # Descripción
+            st.markdown(f"**Descripción:** {mueble[3]}")
+        
+        # Mostrar todas las imágenes en un carrusel
+        if imagenes:
+            cols = st.columns(min(3, len(imagenes)))
+            for i, img in enumerate(imagenes):
+                try:
+                    with cols[i % 3]:
+                        imagen = Image.open(img[0])
+                        st.image(imagen, use_container_width=True, caption=f"Foto {i+1}")
+                except:
+                    st.warning(f"No se pudo cargar la imagen {i+1}")
 
 # --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
@@ -492,16 +564,23 @@ with tab1:
 
     if not muebles:
         st.info("No hay muebles disponibles")
-    else:
-        for mueble in muebles:
-            with st.container(border=True):
-                col_img, col_info = st.columns([1, 3])
-                with col_img:
-                    try:
-                        img = Image.open(mueble[4])
-                        st.image(img, use_container_width=True)
-                    except:
-                        st.warning("Imagen no encontrada")
+                else:
+                    for mueble in muebles:
+                        with st.container(border=True):
+                            col_img, col_info = st.columns([1, 3])
+                            with col_img:
+                                try:
+                                    # Obtener la imagen principal
+                                    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ? AND es_principal = 1 LIMIT 1", (mueble[0],))
+                                    img_principal = c.fetchone()
+                                    
+                                    if img_principal:
+                                        imagen = Image.open(img_principal[0])
+                                        st.image(imagen, use_container_width=True)
+                                    else:
+                                        st.warning("Sin imagen principal")
+                                except Exception as e:
+                                    st.warning(f"Error al cargar imagen: {str(e)}")
                 
                 with col_info:
                     st.markdown(f"### {mueble[1]}")
@@ -513,15 +592,24 @@ with tab1:
                     
                     if mueble[3]:
                         st.markdown(f"**Descripción:** {mueble[3]}")
+                    mostrar_detalle_mueble(mueble[0])
                     
+                    # --- CONTROLES SOLO PARA ADMIN ---
                     # --- CONTROLES SOLO PARA ADMIN ---
                     if st.session_state.es_admin:
                         col1, col2 = st.columns(2)
                         with col1:
                             if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
                                 if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                    if mueble[4] and os.path.exists(mueble[4]):
-                                        os.remove(mueble[4])
+                                    # Eliminar primero las imágenes asociadas
+                                    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                    imagenes = c.fetchall()
+                                    for img in imagenes:
+                                        if img[0] and os.path.exists(img[0]):
+                                            os.remove(img[0])
+                                    c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                    
+                                    # Luego eliminar el mueble
                                     c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
                                     conn.commit()
                                     st.rerun()
@@ -563,25 +651,36 @@ if st.session_state.es_admin:
                     
                     col1, col2 = st.columns(2)
                     with col1:
-                        if st.button(f"🗑️ Eliminar", key=f"eliminar_v_{mueble[0]}"):
-                            if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
-                                if mueble[4] and os.path.exists(mueble[4]):
-                                    os.remove(mueble[4])
-                                c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
+                                            # --- CONTROLES SOLO PARA ADMIN ---
+                    if st.session_state.es_admin:
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
+                                if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                                    # Eliminar primero las imágenes asociadas
+                                    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                    imagenes = c.fetchall()
+                                    for img in imagenes:
+                                        if img[0] and os.path.exists(img[0]):
+                                            os.remove(img[0])
+                                    c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                    
+                                    # Luego eliminar el mueble
+                                    c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
+                                    conn.commit()
+                                    st.rerun()
+                                else:
+                                    st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
+                                    st.rerun()
+                            
+                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                                st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
+                        
+                        with col2:
+                            if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
+                                c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
                                 conn.commit()
                                 st.rerun()
-                            else:
-                                st.session_state[f'confirm_eliminar_v_{mueble[0]}'] = True
-                                st.rerun()
-                        
-                        if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
-                            st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
-                    
-                    with col2:
-                        if st.button(f"↩️ Marcar como disponible", key=f"revertir_{mueble[0]}"):
-                            c.execute("UPDATE muebles SET vendido = 0 WHERE id = ?", (mueble[0],))
-                            conn.commit()
-                            st.rerun()
 else:
     # Para clientes, mostrar solo un mensaje en la pestaña Vendidos
     with tab2:
