@@ -669,55 +669,55 @@ with tab1:
                     st.markdown(f"**Tipo:** {mueble[8]}")  # tipo (antes era 7)
                     st.markdown(f"**Precio:** {mueble[2]} €")  # precio
                     st.markdown(f"**Tienda:** {mueble[7]}")  # tienda (antes era 6)
-                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")  # medidas (índices actualizados)
+                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")  # medidas
                     st.markdown(f"**Fecha registro:** {mueble[5]}")  # fecha
                     
                     if mueble[3]:  # descripción
                         st.markdown(f"**Descripción:** {mueble[3]}")
                     
-                    # --- NUEVO: Bloque de edición ---
+                    # --- FORMULARIO DE EDICIÓN (solo aparece cuando se hace clic en Editar) ---
                     if st.session_state.get('editar_mueble_id') == mueble[0]:
                         mostrar_formulario_edicion(mueble[0])
+                    
+                    # --- CONTROLES SOLO PARA ADMIN (DEBE ESTAR FUERA del if anterior) ---
+                    if st.session_state.es_admin:
+                        col1, col2, col3 = st.columns(3)
                         
-                        # --- CONTROLES SOLO PARA ADMIN (3 columnas) ---
-                        if st.session_state.es_admin:
-                            col1, col2, col3 = st.columns(3)
-                            
-                            # Columna 1: Editar
-                            with col1:
-                                if st.button(f"✏️ Editar", key=f"editar_{mueble[0]}"):
-                                    st.session_state['editar_mueble_id'] = mueble[0]
-                                    st.rerun()
-                            
-                            # Columna 2: Eliminar
-                            with col2:
-                                if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
-                                    if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                        # Eliminar imágenes asociadas
-                                        c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
-                                        imagenes = c.fetchall()
-                                        for img in imagenes:
-                                            if img[0] and os.path.exists(img[0]):
-                                                os.remove(img[0])
-                                        c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
-                                        
-                                        # Eliminar mueble
-                                        c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
-                                        conn.commit()
-                                        st.rerun()
-                                    else:
-                                        st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
-                                        st.rerun()
-                                
+                        # Columna 1: Editar
+                        with col1:
+                            if st.button(f"✏️ Editar", key=f"editar_{mueble[0]}"):
+                                st.session_state['editar_mueble_id'] = mueble[0]
+                                st.rerun()
+                        
+                        # Columna 2: Eliminar
+                        with col2:
+                            if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
                                 if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                    st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
-                            
-                            # Columna 3: Marcar como vendido
-                            with col3:
-                                if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
-                                    c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
+                                    # Eliminar imágenes asociadas
+                                    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                    imagenes = c.fetchall()
+                                    for img in imagenes:
+                                        if img[0] and os.path.exists(img[0]):
+                                            os.remove(img[0])
+                                    c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                    
+                                    # Eliminar mueble
+                                    c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
                                     conn.commit()
                                     st.rerun()
+                                else:
+                                    st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
+                                    st.rerun()
+                            
+                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                                st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
+                        
+                        # Columna 3: Marcar como vendido
+                        with col3:
+                            if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
+                                c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
+                                conn.commit()
+                                st.rerun()
 
 # Pestaña 2: Vendidos - solo visible para admin
 if st.session_state.es_admin:
@@ -753,57 +753,58 @@ if st.session_state.es_admin:
                     
                     with col_info:
                         st.markdown(f"### {mueble[1]}")  # nombre
-                        st.markdown(f"**Tipo:** {mueble[8]}")  # tipo (antes era 7)
+                        st.markdown(f"**Tipo:** {mueble[8]}")  # tipo
                         st.markdown(f"**Precio:** {mueble[2]} €")  # precio
-                        st.markdown(f"**Tienda:** {mueble[7]}")  # tienda (antes era 6)
-                        st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")  # medidas (índices actualizados)
+                        st.markdown(f"**Tienda:** {mueble[7]}")  # tienda
+                        st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")  # medidas
                         st.markdown(f"**Fecha registro:** {mueble[5]}")  # fecha
                         
                         if mueble[3]:  # descripción
                             st.markdown(f"**Descripción:** {mueble[3]}")
                         
-                        # --- NUEVO: Bloque de edición ---
+                        # --- FORMULARIO DE EDICIÓN (solo aparece cuando se hace clic en Editar) ---
                         if st.session_state.get('editar_mueble_id') == mueble[0]:
                             mostrar_formulario_edicion(mueble[0])
+                        
+                        # --- CONTROLES SOLO PARA ADMIN (DEBE ESTAR FUERA del if anterior) ---
+                        if st.session_state.es_admin:
+                            col1, col2, col3 = st.columns(3)
                             
-                            # --- CONTROLES SOLO PARA ADMIN (3 columnas) ---
-                            if st.session_state.es_admin:
-                                col1, col2, col3 = st.columns(3)
-                                
-                                # Columna 1: Editar
-                                with col1:
-                                    if st.button(f"✏️ Editar", key=f"editar_v_{mueble[0]}"):
-                                        st.session_state['editar_mueble_id'] = mueble[0]
-                                        st.rerun()
-                                
-                                # Columna 2: Eliminar
-                                with col2:
-                                    if st.button(f"🗑️ Eliminar", key=f"eliminar_v_{mueble[0]}"):
-                                        if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
-                                            # Eliminar imágenes asociadas
-                                            c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
-                                            imagenes = c.fetchall()
-                                            for img in imagenes:
-                                                if img[0] and os.path.exists(img[0]):
-                                                    os.remove(img[0])
-                                            c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
-                                            
-                                            # Eliminar mueble
-                                            c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
-                                            conn.commit()
-                                            st.rerun()
-                                        else:
-                                            st.session_state[f'confirm_eliminar_v_{mueble[0]}'] = True
-                                            st.rerun()
-                                    
-                                    if st.session_state.get(f"confirm_eliminar_v_{mueble[0]}"):
-                                        st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
-                                
-                                with col3:
-                                    if st.button(f"↩️ Marcar como disponible", key=f"revertir_{mueble[0]}"):
-                                        c.execute("UPDATE muebles SET vendido = 0 WHERE id = ?", (mueble[0],))
+                            # Columna 1: Editar
+                            with col1:
+                                if st.button(f"✏️ Editar", key=f"editar_v_{mueble[0]}"):
+                                    st.session_state['editar_mueble_id'] = mueble[0]
+                                    st.rerun()
+                            
+                            # Columna 2: Eliminar
+                            with col2:
+                                if st.button(f"🗑️ Eliminar", key=f"eliminar_v_{mueble[0]}"):
+                                    if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
+                                        # Eliminar imágenes asociadas
+                                        c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                        imagenes = c.fetchall()
+                                        for img in imagenes:
+                                            if img[0] and os.path.exists(img[0]):
+                                                os.remove(img[0])
+                                        c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                        
+                                        # Eliminar mueble
+                                        c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
                                         conn.commit()
                                         st.rerun()
+                                    else:
+                                        st.session_state[f'confirm_eliminar_v_{mueble[0]}'] = True
+                                        st.rerun()
+                                
+                                if st.session_state.get(f"confirm_eliminar_v_{mueble[0]}"):
+                                    st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
+                            
+                            # Columna 3: Revertir a disponible
+                            with col3:
+                                if st.button(f"↩️ Marcar como disponible", key=f"revertir_{mueble[0]}"):
+                                    c.execute("UPDATE muebles SET vendido = 0 WHERE id = ?", (mueble[0],))
+                                    conn.commit()
+                                    st.rerun()
 else:
     # Para clientes, mostrar solo un mensaje en la pestaña Vendidos
     with tab2:
