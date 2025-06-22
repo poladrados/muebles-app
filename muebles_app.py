@@ -37,14 +37,22 @@ st.set_page_config(
 )
 
 # --- ESTILOS PERSONALIZADOS ---
-# Título principal (que ya funciona)
-st.markdown('<h1 class="header-title">Tu Título Principal</h1>', unsafe_allow_html=True)
-
-# Para Muebles disponibles
-st.markdown('<h2 class="muebles-disponibles-title">Muebles disponibles</h2>', unsafe_allow_html=True)
-
-# Para Muebles vendidos
-st.markdown('<h2 class="vendidos-title">Muebles vendidos</h2>', unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    /* Añadir esto al inicio de tus estilos CSS */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+    
+    .header-title,
+    .muebles-disponibles-title,
+    .vendidos-title {
+        font-family: 'Playfair Display', serif !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+    }
+    
+    /* Mantén todos tus otros estilos exactamente igual */
+    </style>
+""", unsafe_allow_html=True)
 st.markdown("""
     <style>
     /* ESTILOS GENERALES */
