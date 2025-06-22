@@ -44,7 +44,7 @@ st.markdown("""
     
     .header-title,
     .muebles-disponibles-title,
-    .vendidos-title {
+{
         font-family: 'Playfair Display', serif !important;
         font-weight: 700 !important;
         letter-spacing: 1px !important;
