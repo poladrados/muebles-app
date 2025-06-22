@@ -506,112 +506,89 @@ def mostrar_detalle_mueble(mueble_id):
                 except:
                     st.warning(f"No se pudo cargar la imagen {i+1}")
 def mostrar_formulario_edicion(mueble_id):
+    # Obtener datos actuales del mueble
     c.execute("SELECT * FROM muebles WHERE id = ?", (mueble_id,))
     mueble = c.fetchone()
-    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ? ORDER BY es_principal DESC", (mueble_id,))
-    imagenes = [img[0] for img in c.fetchall()]
     
-    with st.expander("✏️ Editar Mueble", expanded=True):
-        with st.form(key=f"form_editar_{mueble_id}"):
-            col1, col2 = st.columns(2)
-            with col1:
-                tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], 
-                                index=0 if mueble[7] == "El Rastro" else 1,
-                                horizontal=True)
-            with col2:
-                vendido = st.checkbox("Marcar como vendido", value=bool(mueble[6]))
+    with st.form(key=f"form_editar_{mueble_id}"):
+        st.markdown(f"### Editando: {mueble[1]}")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], 
+                             index=0 if mueble[7] == "El Rastro" else 1,
+                             horizontal=True)
+        with col2:
+            vendido = st.checkbox("Marcar como vendido", value=bool(mueble[6]))
+        
+        nombre = st.text_input("Nombre de la antigüedad*", value=mueble[1])
+        precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0, value=mueble[2])
+        descripcion = st.text_area("Descripción", value=mueble[3])
+        tipo = st.selectbox("Tipo de mueble*", [
+            "Mesa", "Consola", "Buffet", "Biblioteca", 
+            "Armario", "Cómoda", "Columna", "Espejo", 
+            "Copa", "Asiento", "Otro artículo"
+        ], index=[
+            "Mesa", "Consola", "Buffet", "Biblioteca", 
+            "Armario", "Cómoda", "Columna", "Espejo", 
+            "Copa", "Asiento", "Otro artículo"
+        ].index(mueble[8] if mueble[8] else "Otro artículo"))
+        
+        # Campos de medidas
+        st.markdown("**Medidas:**")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            largo = st.number_input("Largo (cm)", min_value=0, value=int(mueble[9]) if mueble[9] else 0, key=f"largo_{mueble_id}")
+            alto = st.number_input("Alto (cm)", min_value=0, value=int(mueble[10]) if mueble[10] else 0, key=f"alto_{mueble_id}")
+            diametro_base = st.number_input("Diámetro base (cm)", min_value=0, value=int(mueble[11]) if mueble[11] else 0, key=f"diam_base_{mueble_id}")
             
-            nombre = st.text_input("Nombre de la antigüedad*", value=mueble[1])
-            precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0, value=mueble[2])
-            descripcion = st.text_area("Descripción", value=mueble[3] if mueble[3] else "")
-            tipo = st.selectbox("Tipo de mueble*", [
-                "Mesa", "Consola", "Buffet", "Biblioteca", 
-                "Armario", "Cómoda", "Columna", "Espejo", 
-                "Copa", "Asiento", "Otro artículo"
-            ], index=[
-                "Mesa", "Consola", "Buffet", "Biblioteca", 
-                "Armario", "Cómoda", "Columna", "Espejo", 
-                "Copa", "Asiento", "Otro artículo"
-            ].index(mueble[8]))
+        with col2:
+            ancho = st.number_input("Ancho (cm)", min_value=0, value=int(mueble[12]) if mueble[12] else 0, key=f"ancho_{mueble_id}")
+            fondo = st.number_input("Fondo (cm)", min_value=0, value=int(mueble[13]) if mueble[13] else 0, key=f"fondo_{mueble_id}")
+            diametro_boca = st.number_input("Diámetro boca (cm)", min_value=0, value=int(mueble[14]) if mueble[14] else 0, key=f"diam_boca_{mueble_id}")
             
-            # Campos de medidas (similar al formulario original)
-            st.markdown("**Medidas (actualizadas):**")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                largo = st.number_input("Largo (cm)", min_value=0, value=int(mueble[9]) if mueble[9] else 0, key=f"largo_{mueble_id}")
-                alto = st.number_input("Alto (cm)", min_value=0, value=int(mueble[10]) if mueble[10] else 0, key=f"alto_{mueble_id}")
-            with col2:
-                ancho = st.number_input("Ancho (cm)", min_value=0, value=int(mueble[11]) if mueble[11] else 0, key=f"ancho_{mueble_id}")
-                fondo = st.number_input("Fondo (cm)", min_value=0, value=int(mueble[12]) if mueble[12] else 0, key=f"fondo_{mueble_id}")
-            
-            # Mostrar imágenes actuales
-            st.markdown("**Imágenes actuales:**")
-            cols = st.columns(min(3, len(imagenes)))
-            for i, img_path in enumerate(imagenes):
-                try:
-                    with cols[i % 3]:
-                        img = Image.open(img_path)
-                        st.image(img, use_container_width=True, caption=f"Foto {i+1}")
-                        if st.button(f"❌ Eliminar esta imagen", key=f"del_img_{mueble_id}_{i}"):
-                            os.remove(img_path)
-                            c.execute("DELETE FROM imagenes_muebles WHERE ruta_imagen = ?", (img_path,))
-                            conn.commit()
-                            st.rerun()
-                except:
-                    st.warning(f"No se pudo cargar la imagen {i+1}")
-            
-            # Permitir añadir nuevas imágenes
-            nuevas_imagenes = st.file_uploader("Añadir nuevas imágenes", 
-                                             type=["jpg", "jpeg", "png"], 
-                                             accept_multiple_files=True,
-                                             key=f"nuevas_imgs_{mueble_id}")
-            
-            submitted = st.form_submit_button("Guardar cambios")
-            if submitted:
-                if nombre and precio > 0 and tipo:
-                    # Actualizar datos del mueble
-                    c.execute("""
-                        UPDATE muebles SET
-                            nombre = ?,
-                            precio = ?,
-                            descripcion = ?,
-                            vendido = ?,
-                            tienda = ?,
-                            tipo = ?,
-                            medida1 = ?,
-                            medida2 = ?,
-                            medida3 = ?,
-                            medida4 = ?
-                        WHERE id = ?
-                    """, (
-                        nombre, precio, descripcion, 
-                        int(vendido), tienda, tipo,
-                        largo, alto, ancho, fondo,
-                        mueble_id
-                    ))
-                    
-                    # Añadir nuevas imágenes si las hay
-                    if nuevas_imagenes:
-                        for i, imagen in enumerate(nuevas_imagenes):
-                            nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{mueble_id}_{i}_{imagen.name}"
-                            ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
-                            
-                            with open(ruta_imagen, "wb") as f:
-                                f.write(imagen.getbuffer())
-                            
-                            c.execute("""
-                                INSERT INTO imagenes_muebles (mueble_id, ruta_imagen, es_principal)
-                                VALUES (?, ?, ?)
-                            """, (mueble_id, ruta_imagen, 0))  # Nuevas imágenes no son principales
-                    
-                    conn.commit()
-                    st.success("✅ ¡Cambios guardados!")
-                    st.session_state.pop('editar_mueble_id', None)
-                    st.rerun()
-                else:
-                    st.warning("⚠️ Completa los campos obligatorios (*)")
-            
-            if st.form_submit_button("Cancelar"):
+        with col3:
+            lados_base = st.number_input("Lados base", min_value=3, max_value=8, 
+                                       value=int(mueble[15]) if mueble[15] else 4, 
+                                       key=f"lados_{mueble_id}")
+        
+        # Botones del formulario
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.form_submit_button("💾 Guardar cambios"):
+                # Validación básica
+                if not nombre or precio <= 0:
+                    st.error("Nombre y precio son campos obligatorios")
+                    st.stop()
+                
+                # Actualizar en la base de datos
+                c.execute("""
+                    UPDATE muebles SET
+                        nombre = ?,
+                        precio = ?,
+                        descripcion = ?,
+                        tienda = ?,
+                        vendido = ?,
+                        tipo = ?,
+                        medida1 = ?,
+                        medida2 = ?,
+                        medida3 = ?
+                    WHERE id = ?
+                """, (
+                    nombre, precio, descripcion, tienda, int(vendido), tipo,
+                    largo if largo > 0 else None,
+                    alto if alto > 0 else None,
+                    ancho if ancho > 0 else None,
+                    mueble_id
+                ))
+                conn.commit()
+                st.success("¡Cambios guardados correctamente!")
+                st.session_state.pop('editar_mueble_id', None)
+                st.rerun()
+        
+        with col2:
+            if st.form_submit_button("❌ Cancelar"):
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
 
@@ -659,7 +636,7 @@ with tab1:
         orden = st.selectbox("Ordenar por", options=["Más reciente", "Más antiguo", "Precio (↑)", "Precio (↓)"])
     
     # Construimos la consulta SQL
-    query = "SELECT id, nombre, precio, descripcion, ruta_imagen, fecha, tienda, tipo, medida1, medida2, medida3 FROM muebles WHERE vendido = 0"
+    query = "SELECT * FROM muebles WHERE vendido = 0"
     
     # Aplicamos filtros
     if filtro_tienda != "Todas":
@@ -767,12 +744,7 @@ with tab1:
 if st.session_state.es_admin:
     with tab2:
         st.markdown("## ✔️ Muebles vendidos")
-        c.execute("""
-            SELECT id, nombre, precio, descripcion, ruta_imagen, fecha, tienda, tipo, medida1, medida2, medida3 
-            FROM muebles 
-            WHERE vendido = 1 
-            ORDER BY fecha DESC
-        """)
+        c.execute("SELECT * FROM muebles WHERE vendido = 1 ORDER BY fecha DESC")
         muebles_vendidos = c.fetchall()
         
         if not muebles_vendidos:
