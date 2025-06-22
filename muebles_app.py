@@ -510,87 +510,101 @@ def mostrar_formulario_edicion(mueble_id):
     c.execute("SELECT * FROM muebles WHERE id = ?", (mueble_id,))
     mueble = c.fetchone()
     
+    # Obtener imágenes actuales
+    c.execute("SELECT ruta_imagen, es_principal FROM imagenes_muebles WHERE mueble_id = ? ORDER BY es_principal DESC", (mueble_id,))
+    imagenes_actuales = c.fetchall()
+    
     with st.form(key=f"form_editar_{mueble_id}"):
         st.markdown(f"### Editando: {mueble[1]}")
         
-        # Sección de información básica
+        # Sección 1: Información básica
         col1, col2 = st.columns(2)
         with col1:
             tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], 
-                            index=0 if mueble[7] == "El Rastro" else 1,
-                            horizontal=True)
+                             index=0 if mueble[7] == "El Rastro" else 1)
         with col2:
             vendido = st.checkbox("Marcar como vendido", value=bool(mueble[6]))
         
-        nombre = st.text_input("Nombre de la antigüedad*", value=mueble[1])
-        precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0, value=mueble[2])
+        nombre = st.text_input("Nombre*", value=mueble[1])
+        precio = st.number_input("Precio (€)*", min_value=0.0, value=mueble[2])
         descripcion = st.text_area("Descripción", value=mueble[3])
         
-        tipos_disponibles = [
-            "Mesa", "Consola", "Buffet", "Biblioteca", 
-            "Armario", "Cómoda", "Columna", "Espejo", 
-            "Copa", "Asiento", "Otro artículo"
-        ]
-        tipo_index = tipos_disponibles.index(mueble[8]) if mueble[8] in tipos_disponibles else 10
-        tipo = st.selectbox("Tipo de mueble*", tipos_disponibles, index=tipo_index)
+        # Sección 2: Imágenes
+        st.markdown("### Imágenes actuales")
+        if imagenes_actuales:
+            cols = st.columns(min(3, len(imagenes_actuales)))
+            for i, (ruta_imagen, es_principal) in enumerate(imagenes_actuales):
+                with cols[i % 3]:
+                    try:
+                        img = Image.open(ruta_imagen)
+                        st.image(img, caption=f"{'✅ Principal' if es_principal else 'Secundaria'} - Imagen {i+1}")
+                        if st.button(f"❌ Eliminar esta imagen", key=f"del_img_{i}_{mueble_id}"):
+                            os.remove(ruta_imagen)
+                            c.execute("DELETE FROM imagenes_muebles WHERE ruta_imagen = ?", (ruta_imagen,))
+                            conn.commit()
+                            st.rerun()
+                    except:
+                        st.warning("Imagen no encontrada")
+        else:
+            st.warning("Este mueble no tiene imágenes aún")
         
-        # Sección de medidas (solo las 3 medidas básicas que tienes en tu BD)
-        st.markdown("**Medidas:**")
+        st.markdown("### Añadir nuevas imágenes")
+        nuevas_imagenes = st.file_uploader("Seleccionar imágenes", 
+                                         type=["jpg", "jpeg", "png"], 
+                                         accept_multiple_files=True,
+                                         key=f"uploader_{mueble_id}")
+        
+        # Sección 3: Medidas (adaptada a tu estructura actual)
+        st.markdown("### Medidas")
         col1, col2, col3 = st.columns(3)
-        
         with col1:
-            medida1 = st.number_input("Medida 1 (cm)", min_value=0, value=int(mueble[9]) if mueble[9] else 0, key=f"medida1_{mueble_id}")
-        
+            medida1 = st.number_input("Largo/Alto (cm)", min_value=0, value=int(mueble[9]) if mueble[9] else 0)
         with col2:
-            medida2 = st.number_input("Medida 2 (cm)", min_value=0, value=int(mueble[10]) if mueble[10] else 0, key=f"medida2_{mueble_id}")
-        
+            medida2 = st.number_input("Ancho (cm)", min_value=0, value=int(mueble[10]) if mueble[10] else 0)
         with col3:
-            medida3 = st.number_input("Medida 3 (cm)", min_value=0, value=int(mueble[11]) if mueble[11] else 0, key=f"medida3_{mueble_id}")
+            medida3 = st.number_input("Fondo/Diámetro (cm)", min_value=0, value=int(mueble[11]) if mueble[11] else 0)
         
-        # Botones de acción - TODOS deben ser form_submit_button
+        # Botones de acción
         col1, col2 = st.columns(2)
         with col1:
             if st.form_submit_button("💾 Guardar cambios"):
-                # Validación
-                if not nombre.strip() or precio <= 0:
-                    st.error("Nombre y precio son obligatorios")
-                    st.stop()
+                # Actualizar datos básicos
+                c.execute("""
+                    UPDATE muebles SET
+                        nombre = ?, precio = ?, descripcion = ?,
+                        tienda = ?, vendido = ?, 
+                        medida1 = ?, medida2 = ?, medida3 = ?
+                    WHERE id = ?
+                """, (
+                    nombre, precio, descripcion, tienda, int(vendido),
+                    medida1 if medida1 > 0 else None,
+                    medida2 if medida2 > 0 else None,
+                    medida3 if medida3 > 0 else None,
+                    mueble_id
+                ))
                 
-                try:
-                    c.execute("""
-                        UPDATE muebles SET
-                            nombre = ?,
-                            precio = ?,
-                            descripcion = ?,
-                            tienda = ?,
-                            vendido = ?,
-                            tipo = ?,
-                            medida1 = ?,
-                            medida2 = ?,
-                            medida3 = ?
-                        WHERE id = ?
-                    """, (
-                        nombre.strip(),
-                        precio,
-                        descripcion.strip(),
-                        tienda,
-                        int(vendido),
-                        tipo,
-                        medida1 if medida1 > 0 else None,
-                        medida2 if medida2 > 0 else None,
-                        medida3 if medida3 > 0 else None,
-                        mueble_id
-                    ))
-                    conn.commit()
-                    st.success("¡Cambios guardados!")
-                    st.session_state.pop('editar_mueble_id', None)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Error al guardar: {str(e)}")
-                    conn.rollback()
+                # Añadir nuevas imágenes
+                if nuevas_imagenes:
+                    for img in nuevas_imagenes:
+                        nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{mueble_id}_{img.name}"
+                        ruta = os.path.join(CARPETA_IMAGENES, nombre_archivo)
+                        with open(ruta, "wb") as f:
+                            f.write(img.getbuffer())
+                        
+                        # La primera imagen se marca como principal si no hay imágenes
+                        es_principal = 0 if imagenes_actuales else 1
+                        c.execute("""
+                            INSERT INTO imagenes_muebles (mueble_id, ruta_imagen, es_principal)
+                            VALUES (?, ?, ?)
+                        """, (mueble_id, ruta, es_principal))
+                
+                conn.commit()
+                st.success("¡Cambios guardados!")
+                st.session_state.pop('editar_mueble_id', None)
+                st.rerun()
         
         with col2:
-            if st.form_submit_button("❌ Cancelar"):
+            if st.form_submit_button("❌ Cancelar edición"):
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
 
