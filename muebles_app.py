@@ -564,14 +564,19 @@ with tab1:
 
     if not muebles:
         st.info("No hay muebles disponibles")
-                else:
+                                else:
                     for mueble in muebles:
                         with st.container(border=True):
                             col_img, col_info = st.columns([1, 3])
                             with col_img:
                                 try:
                                     # Obtener la imagen principal
-                                    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ? AND es_principal = 1 LIMIT 1", (mueble[0],))
+                                    c.execute("""
+                                        SELECT ruta_imagen 
+                                        FROM imagenes_muebles 
+                                        WHERE mueble_id = ? AND es_principal = 1 
+                                        LIMIT 1
+                                    """, (mueble[0],))
                                     img_principal = c.fetchone()
                                     
                                     if img_principal:
@@ -581,50 +586,50 @@ with tab1:
                                         st.warning("Sin imagen principal")
                                 except Exception as e:
                                     st.warning(f"Error al cargar imagen: {str(e)}")
-                
-                with col_info:
-                    st.markdown(f"### {mueble[1]}")
-                    st.markdown(f"**Tipo:** {mueble[7]}")
-                    st.markdown(f"**Precio:** {mueble[2]} €")
-                    st.markdown(f"**Tienda:** {mueble[6]}")
-                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
-                    st.markdown(f"**Fecha registro:** {mueble[5]}")
-                    
-                    if mueble[3]:
-                        st.markdown(f"**Descripción:** {mueble[3]}")
-                    mostrar_detalle_mueble(mueble[0])
-                    
-                    # --- CONTROLES SOLO PARA ADMIN ---
-                    # --- CONTROLES SOLO PARA ADMIN ---
-                    if st.session_state.es_admin:
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
-                                if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                    # Eliminar primero las imágenes asociadas
-                                    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
-                                    imagenes = c.fetchall()
-                                    for img in imagenes:
-                                        if img[0] and os.path.exists(img[0]):
-                                            os.remove(img[0])
-                                    c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
-                                    
-                                    # Luego eliminar el mueble
-                                    c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
-                                    conn.commit()
-                                    st.rerun()
-                                else:
-                                    st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
-                                    st.rerun()
                             
-                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
-                        
-                        with col2:
-                            if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
-                                c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
-                                conn.commit()
-                                st.rerun()
+                            with col_info:
+                                st.markdown(f"### {mueble[1]}")
+                                st.markdown(f"**Tipo:** {mueble[7]}")
+                                st.markdown(f"**Precio:** {mueble[2]} €")
+                                st.markdown(f"**Tienda:** {mueble[6]}")
+                                st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
+                                st.markdown(f"**Fecha registro:** {mueble[5]}")
+                                
+                                if mueble[3]:
+                                    st.markdown(f"**Descripción:** {mueble[3]}")
+                                
+                                mostrar_detalle_mueble(mueble[0])
+                                
+                                # --- CONTROLES SOLO PARA ADMIN ---
+                                if st.session_state.es_admin:
+                                    col1, col2 = st.columns(2)
+                                    with col1:
+                                        if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
+                                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                                                # Eliminar imágenes asociadas
+                                                c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                                imagenes = c.fetchall()
+                                                for img in imagenes:
+                                                    if img[0] and os.path.exists(img[0]):
+                                                        os.remove(img[0])
+                                                c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                                
+                                                # Eliminar mueble
+                                                c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
+                                                conn.commit()
+                                                st.rerun()
+                                            else:
+                                                st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
+                                                st.rerun()
+                                        
+                                        if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                                            st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
+                                    
+                                    with col2:
+                                        if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
+                                            c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
+                                            conn.commit()
+                                            st.rerun()
 
 # Pestaña 2: Vendidos - solo visible para admin
 if st.session_state.es_admin:
@@ -640,47 +645,72 @@ if st.session_state.es_admin:
         
         if not muebles_vendidos:
             st.info("No hay muebles vendidos registrados")
-        else:
-            for mueble in muebles_vendidos:
-                with st.container(border=True):
-                    st.markdown(f"### {mueble[1]} ({mueble[6]})")
-                    st.markdown(f"**Tipo:** {mueble[7]}")
-                    st.markdown(f"**Precio de venta:** {mueble[2]} €")
-                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
-                    st.markdown(f"**Fecha de venta:** {mueble[5]}")
-                    
-                    col1, col2 = st.columns(2)
-                    with col1:
-                                            # --- CONTROLES SOLO PARA ADMIN ---
-                    if st.session_state.es_admin:
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
-                                if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                    # Eliminar primero las imágenes asociadas
-                                    c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
-                                    imagenes = c.fetchall()
-                                    for img in imagenes:
-                                        if img[0] and os.path.exists(img[0]):
-                                            os.remove(img[0])
-                                    c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                        else:
+                    for mueble in muebles:
+                        with st.container(border=True):
+                            col_img, col_info = st.columns([1, 3])
+                            with col_img:
+                                try:
+                                    # Obtener la imagen principal
+                                    c.execute("""
+                                        SELECT ruta_imagen 
+                                        FROM imagenes_muebles 
+                                        WHERE mueble_id = ? AND es_principal = 1 
+                                        LIMIT 1
+                                    """, (mueble[0],))
+                                    img_principal = c.fetchone()
                                     
-                                    # Luego eliminar el mueble
-                                    c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
-                                    conn.commit()
-                                    st.rerun()
-                                else:
-                                    st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
-                                    st.rerun()
+                                    if img_principal:
+                                        imagen = Image.open(img_principal[0])
+                                        st.image(imagen, use_container_width=True)
+                                    else:
+                                        st.warning("Sin imagen principal")
+                                except Exception as e:
+                                    st.warning(f"Error al cargar imagen: {str(e)}")
                             
-                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
-                        
-                        with col2:
-                            if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
-                                c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
-                                conn.commit()
-                                st.rerun()
+                            with col_info:
+                                st.markdown(f"### {mueble[1]}")
+                                st.markdown(f"**Tipo:** {mueble[7]}")
+                                st.markdown(f"**Precio:** {mueble[2]} €")
+                                st.markdown(f"**Tienda:** {mueble[6]}")
+                                st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
+                                st.markdown(f"**Fecha registro:** {mueble[5]}")
+                                
+                                if mueble[3]:
+                                    st.markdown(f"**Descripción:** {mueble[3]}")
+                                
+                                mostrar_detalle_mueble(mueble[0])
+                                
+                                # --- CONTROLES SOLO PARA ADMIN ---
+                                if st.session_state.es_admin:
+                                    col1, col2 = st.columns(2)
+                                    with col1:
+                                        if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
+                                            if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                                                # Eliminar imágenes asociadas
+                                                c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                                imagenes = c.fetchall()
+                                                for img in imagenes:
+                                                    if img[0] and os.path.exists(img[0]):
+                                                        os.remove(img[0])
+                                                c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                                
+                                                # Eliminar mueble
+                                                c.execute("DELETE FROM muebles WHERE id = ?", (mueble[0],))
+                                                conn.commit()
+                                                st.rerun()
+                                            else:
+                                                st.session_state[f'confirm_eliminar_{mueble[0]}'] = True
+                                                st.rerun()
+                                        
+                                        if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
+                                            st.warning("¿Confirmar eliminación? Pulsa Eliminar nuevamente")
+                                    
+                                    with col2:
+                                        if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
+                                            c.execute("UPDATE muebles SET vendido = 1 WHERE id = ?", (mueble[0],))
+                                            conn.commit()
+                                            st.rerun()
 else:
     # Para clientes, mostrar solo un mensaje en la pestaña Vendidos
     with tab2:
