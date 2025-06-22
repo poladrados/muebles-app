@@ -164,15 +164,7 @@ st.markdown("""
             margin: 6px 0 !important;
         }
     }
-    st.markdown("""
-    <style>
-    /* ESTILOS GENERALES */
-    .stApp > header {
-        display: none;
-    }
     
-    /* ... (tus otros estilos existentes) ... */
-
     /* Estilos para el carrusel de imágenes */
     .image-carousel {
         display: flex;
