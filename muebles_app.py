@@ -517,109 +517,82 @@ def mostrar_formulario_edicion(mueble_id):
         col1, col2 = st.columns(2)
         with col1:
             tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], 
-                             index=0 if mueble[7] == "El Rastro" else 1,
-                             horizontal=True)
+                            index=0 if mueble[7] == "El Rastro" else 1,
+                            horizontal=True)
         with col2:
             vendido = st.checkbox("Marcar como vendido", value=bool(mueble[6]))
         
         nombre = st.text_input("Nombre de la antigüedad*", value=mueble[1])
         precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0, value=mueble[2])
         descripcion = st.text_area("Descripción", value=mueble[3])
-        tipo = st.selectbox("Tipo de mueble*", [
-            "Mesa", "Consola", "Buffet", "Biblioteca", 
-            "Armario", "Cómoda", "Columna", "Espejo", 
-            "Copa", "Asiento", "Otro artículo"
-        ], index=[
-            "Mesa", "Consola", "Buffet", "Biblioteca", 
-            "Armario", "Cómoda", "Columna", "Espejo", 
-            "Copa", "Asiento", "Otro artículo"
-        ].index(mueble[8] if mueble[8] in [
-            "Mesa", "Consola", "Buffet", "Biblioteca", 
-            "Armario", "Cómoda", "Columna", "Espejo", 
-            "Copa", "Asiento"
-        ] else 10))  # Default a "Otro artículo" si no está en la lista
         
-        # Sección de medidas
+        tipos_disponibles = [
+            "Mesa", "Consola", "Buffet", "Biblioteca", 
+            "Armario", "Cómoda", "Columna", "Espejo", 
+            "Copa", "Asiento", "Otro artículo"
+        ]
+        tipo_index = tipos_disponibles.index(mueble[8]) if mueble[8] in tipos_disponibles else 10
+        tipo = st.selectbox("Tipo de mueble*", tipos_disponibles, index=tipo_index)
+        
+        # Sección de medidas (solo las 3 medidas básicas que tienes en tu BD)
         st.markdown("**Medidas:**")
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            largo = st.number_input("Largo (cm)", min_value=0, value=int(mueble[9]) if mueble[9] else 0, key=f"largo_{mueble_id}")
-            alto = st.number_input("Alto (cm)", min_value=0, value=int(mueble[10]) if mueble[10] else 0, key=f"alto_{mueble_id}")
-            diametro_base = st.number_input("Diámetro base (cm)", min_value=0, value=int(mueble[11]) if mueble[11] else 0, key=f"diam_base_{mueble_id}")
-            
-        with col2:
-            ancho = st.number_input("Ancho (cm)", min_value=0, value=int(mueble[12]) if mueble[12] else 0, key=f"ancho_{mueble_id}")
-            fondo = st.number_input("Fondo (cm)", min_value=0, value=int(mueble[13]) if mueble[13] else 0, key=f"fondo_{mueble_id}")
-            diametro_boca = st.number_input("Diámetro boca (cm)", min_value=0, value=int(mueble[14]) if mueble[14] else 0, key=f"diam_boca_{mueble_id}")
-            
-        with col3:
-            lados_base = st.number_input("Lados base", min_value=3, max_value=8, 
-                                       value=int(mueble[15]) if mueble[15] else 4, 
-                                       key=f"lados_{mueble_id}")
+            medida1 = st.number_input("Medida 1 (cm)", min_value=0, value=int(mueble[9]) if mueble[9] else 0, key=f"medida1_{mueble_id}")
         
-        # Botones de acción
-        col1, col2, col3 = st.columns(3)
+        with col2:
+            medida2 = st.number_input("Medida 2 (cm)", min_value=0, value=int(mueble[10]) if mueble[10] else 0, key=f"medida2_{mueble_id}")
+        
+        with col3:
+            medida3 = st.number_input("Medida 3 (cm)", min_value=0, value=int(mueble[11]) if mueble[11] else 0, key=f"medida3_{mueble_id}")
+        
+        # Botones de acción - TODOS deben ser form_submit_button
+        col1, col2 = st.columns(2)
         with col1:
-            guardar = st.form_submit_button("💾 Guardar cambios")
-        with col2:
-            cancelar = st.form_submit_button("❌ Cancelar")
-        with col3:
-            # Botón opcional para ver imágenes si necesitas
-            pass
+            if st.form_submit_button("💾 Guardar cambios"):
+                # Validación
+                if not nombre.strip() or precio <= 0:
+                    st.error("Nombre y precio son obligatorios")
+                    st.stop()
+                
+                try:
+                    c.execute("""
+                        UPDATE muebles SET
+                            nombre = ?,
+                            precio = ?,
+                            descripcion = ?,
+                            tienda = ?,
+                            vendido = ?,
+                            tipo = ?,
+                            medida1 = ?,
+                            medida2 = ?,
+                            medida3 = ?
+                        WHERE id = ?
+                    """, (
+                        nombre.strip(),
+                        precio,
+                        descripcion.strip(),
+                        tienda,
+                        int(vendido),
+                        tipo,
+                        medida1 if medida1 > 0 else None,
+                        medida2 if medida2 > 0 else None,
+                        medida3 if medida3 > 0 else None,
+                        mueble_id
+                    ))
+                    conn.commit()
+                    st.success("¡Cambios guardados!")
+                    st.session_state.pop('editar_mueble_id', None)
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error al guardar: {str(e)}")
+                    conn.rollback()
         
-        if guardar:
-            # Validación de campos obligatorios
-            if not nombre.strip():
-                st.error("El nombre es obligatorio")
-                st.stop()
-            if precio <= 0:
-                st.error("El precio debe ser mayor que 0")
-                st.stop()
-            
-            # Actualizar en la base de datos
-            try:
-                c.execute("""
-                    UPDATE muebles SET
-                        nombre = ?,
-                        precio = ?,
-                        descripcion = ?,
-                        tienda = ?,
-                        vendido = ?,
-                        tipo = ?,
-                        medida1 = ?,
-                        medida2 = ?,
-                        medida3 = ?,
-                        medida4 = ?,
-                        medida5 = ?,
-                        medida6 = ?
-                    WHERE id = ?
-                """, (
-                    nombre.strip(),
-                    precio,
-                    descripcion.strip() if descripcion else None,
-                    tienda,
-                    int(vendido),
-                    tipo,
-                    largo if largo > 0 else None,
-                    alto if alto > 0 else None,
-                    ancho if ancho > 0 else None,
-                    fondo if fondo > 0 else None,
-                    diametro_base if diametro_base > 0 else None,
-                    diametro_boca if diametro_boca > 0 else None,
-                    mueble_id
-                ))
-                conn.commit()
-                st.success("¡Cambios guardados correctamente!")
+        with col2:
+            if st.form_submit_button("❌ Cancelar"):
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
-            except Exception as e:
-                st.error(f"Error al guardar cambios: {str(e)}")
-                conn.rollback()
-        
-        if cancelar:
-            st.session_state.pop('editar_mueble_id', None)
-            st.rerun()
 
 # --- Pestañas ---
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
