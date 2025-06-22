@@ -607,7 +607,7 @@ TIPOS_PLURAL = {
 
 # Pestaña 1: En venta
 with tab1:
-    st.markdown("## 🏷️ Muebles disponibles")
+    st.markdown('<h2 class="muebles-disponibles-title">🏷️ Muebles disponibles</h2>', unsafe_allow_html=True)
     
     col_filtros = st.columns(4)
     with col_filtros[0]:
@@ -751,7 +751,7 @@ with tab1:
 # Pestaña 2: Vendidos - solo visible para admin
 if st.session_state.es_admin:
     with tab2:
-        st.markdown("## ✔️ Muebles vendidos")
+        st.markdown('<h2 class="vendidos-title">✔️ Muebles vendidos</h2>', unsafe_allow_html=True)
         c.execute("SELECT * FROM muebles WHERE vendido = 1 ORDER BY fecha DESC")
         muebles_vendidos = c.fetchall()
         
