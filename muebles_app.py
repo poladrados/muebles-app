@@ -263,7 +263,6 @@ c.execute("""
     )
 """)
 conn.commit()
-conn.commit()
 
 # --- Formulario solo visible para admin ---
 if st.session_state.es_admin:
