@@ -16,10 +16,26 @@ ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b48677
 def init_session():
     if 'es_admin' not in st.session_state:
         st.session_state.es_admin = False
+    check_admin_token()  # Verificar token al inicio
 
 def verificar_admin(password):
     hash_input = hashlib.sha256(password.encode()).hexdigest()
-    return hash_input == ADMIN_PASSWORD_HASH
+    if hash_input == ADMIN_PASSWORD_HASH:
+        # Guardar un token seguro en session_state y en el navegador
+        token_admin = hashlib.sha256(f"{ADMIN_PASSWORD_HASH}-{datetime.now().timestamp()}".encode()).hexdigest()
+        st.session_state.admin_token = token_admin
+        st.experimental_set_query_params(admin_token=token_admin)
+        return True
+    return False
+
+def check_admin_token():
+    if 'admin_token' not in st.session_state:
+        query_params = st.experimental_get_query_params()
+        if 'admin_token' in query_params:
+            token = query_params['admin_token'][0]
+            # Aquí podrías añadir validación adicional del token si lo deseas
+            st.session_state.admin_token = token
+            st.session_state.es_admin = True
 
 
 # --- Inicialización de sesión ---
@@ -35,7 +51,14 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
-
+st.markdown("""
+    <style>
+    /* Ocultar parámetros de URL */
+    .stApp > iframe {
+        display: none;
+    }
+    </style>
+""", unsafe_allow_html=True)
 # --- ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
@@ -220,6 +243,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- Barra lateral para login de admin ---
+# --- Barra lateral para login de admin ---
 with st.sidebar:
     if not st.session_state.es_admin:
         with st.expander("🔑 Acceso Administradores", expanded=False):
@@ -232,10 +256,15 @@ with st.sidebar:
                 else:
                     st.error("Contraseña incorrecta")
     else:
+        # NUEVO CÓDIGO PARA LOGOUT (CON LIMPIEZA DE TOKEN)
         st.success("Modo administrador activo")
         if st.button("🚪 Salir del modo admin"):
             st.session_state.es_admin = False
+            st.session_state.pop('admin_token', None)  # Limpiar token de sesión
+            st.experimental_set_query_params()  # Limpiar parámetros de URL
             st.rerun()
+            
+    # ... (el resto de tu código del sidebar, estadísticas, etc)
             
     # --- Estadísticas ---
     st.markdown("## 📊 Estadísticas")
