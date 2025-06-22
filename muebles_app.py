@@ -647,22 +647,35 @@ with tab1:
                 col_img, col_info = st.columns([1, 3])
                 with col_img:
                     try:
-                        # Obtener la imagen principal
+                        # Obtener TODAS las imágenes del mueble (no solo la principal)
                         c.execute("""
-                            SELECT ruta_imagen 
+                            SELECT ruta_imagen, es_principal 
                             FROM imagenes_muebles 
-                            WHERE mueble_id = ? AND es_principal = 1 
-                            LIMIT 1
+                            WHERE mueble_id = ?
+                            ORDER BY es_principal DESC  # La principal primero
                         """, (mueble[0],))
-                        img_principal = c.fetchone()
+                        imagenes_mueble = c.fetchall()
                         
-                        if img_principal:
-                            imagen = Image.open(img_principal[0])
-                            st.image(imagen, use_container_width=True)
+                        if imagenes_mueble:
+                            # Mostrar la imagen principal más grande
+                            imagen_principal = Image.open(imagenes_mueble[0][0])
+                            st.image(imagen_principal, use_container_width=True, caption="Imagen principal")
+                            
+                            # Mostrar miniaturas de las imágenes secundarias si existen
+                            if len(imagenes_mueble) > 1:
+                                st.markdown("**Más imágenes:**")
+                                cols = st.columns(min(3, len(imagenes_mueble)-1))
+                                for i, (ruta_img, es_principal) in enumerate(imagenes_mueble[1:], 1):
+                                    with cols[i-1]:
+                                        try:
+                                            img = Image.open(ruta_img)
+                                            st.image(img, width=100, caption=f"Imagen {i+1}")
+                                        except:
+                                            st.warning(f"Error al cargar imagen {i+1}")
                         else:
-                            st.warning("Sin imagen principal")
+                            st.warning("Este mueble no tiene imágenes")
                     except Exception as e:
-                        st.warning(f"Error al cargar imagen: {str(e)}")
+                        st.warning(f"Error al cargar imágenes: {str(e)}")
                 
                 with col_info:
                     st.markdown(f"### {mueble[1]}")  # nombre
@@ -734,22 +747,35 @@ if st.session_state.es_admin:
                     col_img, col_info = st.columns([1, 3])
                     with col_img:
                         try:
-                            # Obtener la imagen principal
+                            # Obtener TODAS las imágenes del mueble (no solo la principal)
                             c.execute("""
-                                SELECT ruta_imagen 
+                                SELECT ruta_imagen, es_principal 
                                 FROM imagenes_muebles 
-                                WHERE mueble_id = ? AND es_principal = 1 
-                                LIMIT 1
+                                WHERE mueble_id = ?
+                                ORDER BY es_principal DESC  # La principal primero
                             """, (mueble[0],))
-                            img_principal = c.fetchone()
+                            imagenes_mueble = c.fetchall()
                             
-                            if img_principal:
-                                imagen = Image.open(img_principal[0])
-                                st.image(imagen, use_container_width=True)
+                            if imagenes_mueble:
+                                # Mostrar la imagen principal más grande
+                                imagen_principal = Image.open(imagenes_mueble[0][0])
+                                st.image(imagen_principal, use_container_width=True, caption="Imagen principal")
+                                
+                                # Mostrar miniaturas de las imágenes secundarias si existen
+                                if len(imagenes_mueble) > 1:
+                                    st.markdown("**Más imágenes:**")
+                                    cols = st.columns(min(3, len(imagenes_mueble)-1))
+                                    for i, (ruta_img, es_principal) in enumerate(imagenes_mueble[1:], 1):
+                                        with cols[i-1]:
+                                            try:
+                                                img = Image.open(ruta_img)
+                                                st.image(img, width=100, caption=f"Imagen {i+1}")
+                                            except:
+                                                st.warning(f"Error al cargar imagen {i+1}")
                             else:
-                                st.warning("Sin imagen principal")
+                                st.warning("Este mueble no tiene imágenes")
                         except Exception as e:
-                            st.warning(f"Error al cargar imagen: {str(e)}")
+                            st.warning(f"Error al cargar imágenes: {str(e)}")
                     
                     with col_info:
                         st.markdown(f"### {mueble[1]}")  # nombre
