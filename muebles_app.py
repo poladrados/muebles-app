@@ -564,7 +564,7 @@ with tab1:
 
     if not muebles:
         st.info("No hay muebles disponibles")
-                                else:
+    else:
                     for mueble in muebles:
                         with st.container(border=True):
                             col_img, col_info = st.columns([1, 3])
