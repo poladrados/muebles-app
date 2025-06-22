@@ -426,14 +426,14 @@ def mostrar_medidas(tipo, m1, m2, m3):
         partes = []
         for nombre, valor in [("largo", m1), ("alto", m2), ("fondo", m3)]:
             if valor not in [None, 0]:
-                partes.append(f"{valor}cm ({nombre})")
+                partes.append(f"{valor}cm")
         return " × ".join(partes) if partes else "Sin medidas"
     
     elif tipo in ["Biblioteca", "Armario"]:
         partes = []
         for nombre, valor in [("alto", m1), ("ancho", m2), ("fondo", m3)]:
             if valor not in [None, 0]:
-                partes.append(f"{valor}cm ({nombre})")
+                partes.append(f"{valor}cm")
         return " × ".join(partes) if partes else "Sin medidas"
     
     elif tipo == "Columna":
@@ -468,8 +468,6 @@ def mostrar_medidas(tipo, m1, m2, m3):
     if m2 not in [None, 0]: partes.append(f"{m2}cm")
     if m3 not in [None, 0]: partes.append(f"{m3}cm")
     return " × ".join(partes) if partes else "Sin medidas registradas"
-
-# Busca la función mostrar_medidas() y AÑADE JUSTO DESPUÉS esta nueva función:
 
 
 def mostrar_formulario_edicion(mueble_id):
@@ -667,14 +665,14 @@ with tab1:
                         st.warning(f"Error al cargar imagen: {str(e)}")
                 
                 with col_info:
-                    st.markdown(f"### {mueble[1]}")
-                    st.markdown(f"**Tipo:** {mueble[7]}")
-                    st.markdown(f"**Precio:** {mueble[2]} €")
-                    st.markdown(f"**Tienda:** {mueble[6]}")
-                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
-                    st.markdown(f"**Fecha registro:** {mueble[5]}")
+                    st.markdown(f"### {mueble[1]}")  # nombre
+                    st.markdown(f"**Tipo:** {mueble[8]}")  # tipo (antes era 7)
+                    st.markdown(f"**Precio:** {mueble[2]} €")  # precio
+                    st.markdown(f"**Tienda:** {mueble[7]}")  # tienda (antes era 6)
+                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")  # medidas (índices actualizados)
+                    st.markdown(f"**Fecha registro:** {mueble[5]}")  # fecha
                     
-                    if mueble[3]:
+                    if mueble[3]:  # descripción
                         st.markdown(f"**Descripción:** {mueble[3]}")
                     
                     # --- NUEVO: Bloque de edición ---
@@ -754,14 +752,14 @@ if st.session_state.es_admin:
                             st.warning(f"Error al cargar imagen: {str(e)}")
                     
                     with col_info:
-                        st.markdown(f"### {mueble[1]}")
-                        st.markdown(f"**Tipo:** {mueble[7]}")
-                        st.markdown(f"**Precio:** {mueble[2]} €")
-                        st.markdown(f"**Tienda:** {mueble[6]}")
-                        st.markdown(f"**Medidas:** {mostrar_medidas(mueble[7], mueble[8], mueble[9], mueble[10])}")
-                        st.markdown(f"**Fecha registro:** {mueble[5]}")
+                        st.markdown(f"### {mueble[1]}")  # nombre
+                        st.markdown(f"**Tipo:** {mueble[8]}")  # tipo (antes era 7)
+                        st.markdown(f"**Precio:** {mueble[2]} €")  # precio
+                        st.markdown(f"**Tienda:** {mueble[7]}")  # tienda (antes era 6)
+                        st.markdown(f"**Medidas:** {mostrar_medidas(mueble[8], mueble[9], mueble[10], mueble[11])}")  # medidas (índices actualizados)
+                        st.markdown(f"**Fecha registro:** {mueble[5]}")  # fecha
                         
-                        if mueble[3]:
+                        if mueble[3]:  # descripción
                             st.markdown(f"**Descripción:** {mueble[3]}")
                         
                         # --- NUEVO: Bloque de edición ---
