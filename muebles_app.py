@@ -114,16 +114,6 @@ st.markdown("""
     }
 
     /* ESTILOS MÓVIL */
-div[data-testid="stTabs"] button {
-    color: #000000 !important;
-    background: #E6F0F8 !important;
-    border: 1px solid #023e8a !important;
-    font-weight: 600 !important;
-}
-div[data-testid="stTabs"] button[aria-selected="true"] {
-    color: white !important;
-    background: #023e8a !important;
-}
     @media (max-width: 768px) {
         .custom-header h1.header-title {
             font-size: 1.5rem !important;
@@ -148,12 +138,21 @@ div[data-testid="stTabs"] button[aria-selected="true"] {
             width: 100% !important;
             margin: 6px 0 !important;
         }
+        
+        /* NUEVAS REGLAS PARA OCULTAR EL INDICADOR DE MODO */
+        .mode-indicator {
+            display: none !important;
+        }
+        
+        .custom-header {
+            justify-content: center !important;
+        }
     }
     
-   </style>
+    </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER modificado con indicador de modo ---
+# --- HEADER modificado con indicador de modo (oculto en móvil) ---
 st.markdown(f"""
     <div class="custom-header">
         <div class="header-logo">
@@ -162,7 +161,7 @@ st.markdown(f"""
         <div class="header-title-container">
             <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
         </div>
-        <div style="margin-left: auto; display: flex; align-items: center; margin-right: 20px; color: {'#023e8a' if st.session_state.es_admin else 'gray'}">
+        <div class="mode-indicator" style="margin-left: auto; display: flex; align-items: center; margin-right: 20px; color: {'#023e8a' if st.session_state.es_admin else 'gray'}">
             {'🔓 Modo Admin' if st.session_state.es_admin else '🔒 Modo Cliente'}
         </div>
     </div>
