@@ -33,54 +33,38 @@ def base64_to_image(base64_str):
 # --- Conexión a la base de datos ---
 def get_db_connection():
     try:
-        # Verifica primero que los secretos existen
+        if "postgres" not in st.secrets:
+            st.error("❌ No se encontró la sección [postgres] en secrets.toml")
+            st.stop()
+
         required_keys = ["host", "dbname", "user", "password", "port", "sslmode"]
-        if not all(key in st.secrets["postgres"] for key in required_keys):
-            st.error("Faltan configuraciones en secrets.toml")
+        postgres_secrets = st.secrets["postgres"]
+
+        if not all(key in postgres_secrets for key in required_keys):
+            st.error("❌ Faltan configuraciones dentro de [postgres] en secrets.toml")
             st.stop()
 
         conn = psycopg2.connect(
-            host=st.secrets["postgres"]["host"],
-            dbname=st.secrets["postgres"]["dbname"],
-            user=st.secrets["postgres"]["user"],
-            password=st.secrets["postgres"]["password"],
-            port=st.secrets["postgres"]["port"],
-            sslmode=st.secrets["postgres"]["sslmode"],
+            host=postgres_secrets["host"],
+            dbname=postgres_secrets["dbname"],
+            user=postgres_secrets["user"],
+            password=postgres_secrets["password"],
+            port=postgres_secrets["port"],
+            sslmode=postgres_secrets["sslmode"],
             cursor_factory=RealDictCursor
         )
         
+        # Crear tablas si no existen
         with conn.cursor() as c:
-            # Tabla de muebles
-            c.execute("""
-                CREATE TABLE IF NOT EXISTS muebles (
-                    id SERIAL PRIMARY KEY,
-                    nombre TEXT,
-                    precio REAL,
-                    descripcion TEXT,
-                    fecha TEXT,
-                    vendido BOOLEAN DEFAULT FALSE,
-                    tienda TEXT,
-                    tipo TEXT DEFAULT 'Otro',
-                    medida1 REAL,
-                    medida2 REAL,
-                    medida3 REAL
-                )
-            """)
-            
-            # Tabla de imágenes (almacena Base64)
-            c.execute("""
-                CREATE TABLE IF NOT EXISTS imagenes_muebles (
-                    id SERIAL PRIMARY KEY,
-                    mueble_id INTEGER REFERENCES muebles(id) ON DELETE CASCADE,
-                    imagen_base64 TEXT,
-                    es_principal BOOLEAN DEFAULT FALSE
-                )
-            """)
-            
+            c.execute("""CREATE TABLE IF NOT EXISTS muebles (...)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS imagenes_muebles (...)""")
+        
         return conn
+
     except Exception as e:
         st.error(f"🚨 Error de conexión a la base de datos: {str(e)}")
         st.stop()
+
 
 # --- Autenticación y sesión ---
 def init_session():
