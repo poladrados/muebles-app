@@ -819,7 +819,7 @@ with tab1:
                         # Columna 3: Marcar como vendido
                         with col3:
                             if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble[0]}"):
-                                c.execute("UPDATE muebles SET vendido = 1 WHERE id = %s", (mueble[0],))
+                                c.execute("UPDATE muebles SET vendido = TRUE WHERE id = %s", (mueble[0],))
                                 conn.commit()
                                 st.rerun()
 
@@ -919,7 +919,7 @@ if st.session_state.es_admin:
                             # Columna 3: Revertir a disponible
                             with col3:
                                 if st.button(f"↩️ Marcar como disponible", key=f"revertir_{mueble[0]}"):
-                                    c.execute("UPDATE muebles SET vendido = 0 WHERE id = %s", (mueble[0],))
+                                    c.execute("UPDATE muebles SET vendido = FALSE WHERE id = %s", (mueble[0],))
                                     conn.commit()
                                     st.rerun()
 else:
