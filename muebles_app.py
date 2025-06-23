@@ -478,23 +478,20 @@ if st.session_state.es_admin:
                     """, (
                         nombre, precio, descripcion, 
                         datetime.now().strftime("%Y-%m-%d"), 
-                        vendido, tienda, tipo,  # <- Cambiado
+                        vendido, tienda, tipo,
                         medida1, medida2, medida3
                     ))
                     c.execute("SELECT LASTVAL()")
                     mueble_id = c.fetchone()[0]
                     
-                    # Guardar las imágenes
+                    # Guardar las imágenes como Base64
                     for i, imagen in enumerate(imagenes):
-                        nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{mueble_id}_{i}_{imagen.name}"
-                        image_url = upload_to_s3(imagen, mueble_id, nombre_archivo)  # Sube a S3
-                        
-                        # Guarda la URL en la BD (no la ruta local)
+                        img_base64 = image_to_base64(imagen)  # Convertir a Base64
                         es_principal = 1 if i == 0 else 0
                         c.execute("""
-                            INSERT INTO imagenes_muebles (mueble_id, ruta_imagen, es_principal)
+                            INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
                             VALUES (%s, %s, %s)
-                        """, (mueble_id, image_url, es_principal))
+                        """, (mueble_id, img_base64, es_principal))
                     
                     conn.commit()
                     st.success("✅ ¡Antigüedad registrada con éxito!")
@@ -562,12 +559,8 @@ def mostrar_medidas(tipo, m1, m2, m3):
 
 
 def mostrar_formulario_edicion(mueble_id):
-    # Obtener datos actuales del mueble
-    c.execute("SELECT * FROM muebles WHERE id = %s", (mueble_id,))
-    mueble = c.fetchone()
-    
-    # Obtener imágenes actuales
-    c.execute("SELECT ruta_imagen, es_principal FROM imagenes_muebles WHERE mueble_id = %s ORDER BY es_principal DESC", (mueble_id,))
+    # Obtener imágenes actuales (ahora como Base64)
+    c.execute("SELECT imagen_base64, es_principal FROM imagenes_muebles WHERE mueble_id = %s ORDER BY es_principal DESC", (mueble_id,))
     imagenes_actuales = c.fetchall()
     
     with st.form(key=f"form_editar_{mueble_id}"):
@@ -589,18 +582,17 @@ def mostrar_formulario_edicion(mueble_id):
         st.markdown("### Imágenes actuales")
         if imagenes_actuales:
             cols = st.columns(min(3, len(imagenes_actuales)))
-            for i, (ruta_imagen, es_principal) in enumerate(imagenes_actuales):
+            for i, (img_base64, es_principal) in enumerate(imagenes_actuales):
                 with cols[i % 3]:
                     try:
-                        img = Image.open(ruta_imagen)
+                        img = base64_to_image(img_base64)
                         st.image(img, caption=f"{'✅ Principal' if es_principal else 'Secundaria'} - Imagen {i+1}")
                         if st.button(f"❌ Eliminar esta imagen", key=f"del_img_{i}_{mueble_id}"):
-                            os.remove(ruta_imagen)
-                            c.execute("DELETE FROM imagenes_muebles WHERE ruta_imagen = %s", (ruta_imagen,))
+                            c.execute("DELETE FROM imagenes_muebles WHERE imagen_base64 = %s", (img_base64,))
                             conn.commit()
                             st.rerun()
                     except:
-                        st.warning("Imagen no encontrada")
+                        st.warning("Error al cargar imagen")
         else:
             st.warning("Este mueble no tiene imágenes aún")
         
@@ -737,36 +729,29 @@ with tab1:
             with st.container(border=True):
                 col_img, col_info = st.columns([1, 3])
                 with col_img:
-                    try:
-                        # Obtener TODAS las imágenes del mueble
-                        c.execute("""
-                            SELECT ruta_imagen, es_principal 
-                            FROM imagenes_muebles 
-                            WHERE mueble_id = %s
-                            ORDER BY es_principal DESC
-                        """, (mueble[0],))
-                        imagenes_mueble = c.fetchall()
+                    # Obtener imágenes como Base64
+                    c.execute("""
+                        SELECT imagen_base64, es_principal 
+                        FROM imagenes_muebles 
+                        WHERE mueble_id = %s
+                        ORDER BY es_principal DESC
+                    """, (mueble[0],))
+                    imagenes_mueble = c.fetchall()
+                    
+                    if imagenes_mueble:
+                        # Mostrar imagen principal
+                        img_principal = base64_to_image(imagenes_mueble[0][0])
+                        st.image(img_principal, use_container_width=True)
                         
-                        if imagenes_mueble:
-                            # Mostrar la imagen principal
-                            imagen_principal = Image.open(imagenes_mueble[0][0])
-                            st.image(imagen_principal, use_container_width=True, caption="Imagen principal")
-                            
-                            # Mostrar miniaturas de imágenes secundarias con posibilidad de ampliación
-                            if len(imagenes_mueble) > 1:
-                                with st.expander(f"📸 Ver más imágenes ({len(imagenes_mueble)-1})"):
-                                    for i, (ruta_img, es_principal) in enumerate(imagenes_mueble[1:], 1):
-                                        try:
-                                            from io import BytesIO
-                                        import requests
-                                        
-                                        response = requests.get(ruta_imagen)  # ruta_imagen ahora es una URL de S3
-                                        img = Image.open(BytesIO(response.content))
-                                            st.image(img, 
-                                                   use_container_width=True,
-                                                   caption=f"Imagen {i+1}")
-                                        except Exception as img_error:
-                                            st.warning(f"Error al cargar imagen {i+1}")
+                        # Mostrar más imágenes si existen
+                        if len(imagenes_mueble) > 1:
+                            with st.expander(f"📸 Ver más imágenes ({len(imagenes_mueble)-1})"):
+                                for i, (img_base64, _) in enumerate(imagenes_mueble[1:], 1):
+                                    try:
+                                        st.image(base64_to_image(img_base64), 
+                                               caption=f"Imagen {i+1}")
+                                    except:
+                                        st.warning(f"Error al cargar imagen {i+1}")
                         else:
                             st.warning("Este mueble no tiene imágenes")
                     except Exception as e:
