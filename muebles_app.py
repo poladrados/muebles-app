@@ -33,6 +33,12 @@ def base64_to_image(base64_str):
 # --- Conexión a la base de datos ---
 def get_db_connection():
     try:
+        # Verifica primero que los secretos existen
+        required_keys = ["host", "dbname", "user", "password", "port", "sslmode"]
+        if not all(key in st.secrets["postgres"] for key in required_keys):
+            st.error("Faltan configuraciones en secrets.toml")
+            st.stop()
+
         conn = psycopg2.connect(
             host=st.secrets["postgres"]["host"],
             dbname=st.secrets["postgres"]["dbname"],
@@ -84,7 +90,7 @@ def init_session():
     # Verificar token en localStorage via query params
     query_params = st.query_params.to_dict()
     if 'admin_token' in query_params:
-        token = query_params['admin_token'][0]
+        token = query_params['admin_token']
         if token == ADMIN_PASSWORD_HASH:
             st.session_state.es_admin = True
             st.session_state.admin_token = token
