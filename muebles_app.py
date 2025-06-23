@@ -37,11 +37,11 @@ def get_db_connection():
             st.error("❌ No se encontró la sección [postgres] en secrets.toml")
             st.stop()
 
-        required_keys = ["host", "dbname", "user", "password", "port", "sslmode"]
         postgres_secrets = st.secrets["postgres"]
+        required_keys = ["host", "dbname", "user", "password", "port", "sslmode"]
 
         if not all(key in postgres_secrets for key in required_keys):
-            st.error("❌ Faltan configuraciones dentro de [postgres] en secrets.toml")
+            st.error("❌ Faltan claves dentro del bloque [postgres] en secrets.toml")
             st.stop()
 
         conn = psycopg2.connect(
@@ -53,17 +53,18 @@ def get_db_connection():
             sslmode=postgres_secrets["sslmode"],
             cursor_factory=RealDictCursor
         )
-        
+
         # Crear tablas si no existen
         with conn.cursor() as c:
             c.execute("""CREATE TABLE IF NOT EXISTS muebles (...)""")
             c.execute("""CREATE TABLE IF NOT EXISTS imagenes_muebles (...)""")
-        
+
         return conn
 
     except Exception as e:
         st.error(f"🚨 Error de conexión a la base de datos: {str(e)}")
         st.stop()
+
 
 
 # --- Autenticación y sesión ---
