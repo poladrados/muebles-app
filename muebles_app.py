@@ -35,33 +35,32 @@ def get_db_connection():
     try:
         conn = psycopg2.connect(
             host=st.secrets["postgres"]["host"],
-            database=st.secrets["postgres"]["dbname"],
+            dbname=st.secrets["postgres"]["dbname"],
             user=st.secrets["postgres"]["user"],
             password=st.secrets["postgres"]["password"],
             port=st.secrets["postgres"]["port"],
             sslmode=st.secrets["postgres"]["sslmode"]
         )
         
-        with conn.cursor() as c:
-            # Versión corregida de la consulta
-            c.execute("""
+        with conn.cursor() as cur:
+            # Versión corregida de las consultas SQL
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS muebles (
                     id SERIAL PRIMARY KEY,
                     nombre TEXT NOT NULL,
-                    precio DECIMAL(10,2) NOT NULL,
+                    precio NUMERIC(10,2) NOT NULL,
                     descripcion TEXT,
                     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     vendido BOOLEAN DEFAULT FALSE,
                     tienda TEXT NOT NULL,
                     tipo TEXT DEFAULT 'Otro',
-                    medida1 DECIMAL(10,2),
-                    medida2 DECIMAL(10,2),
-                    medida3 DECIMAL(10,2)
+                    medida1 NUMERIC(10,2),
+                    medida2 NUMERIC(10,2),
+                    medida3 NUMERIC(10,2)
                 )
             """)
             
-            # Asegúrate de que la tabla de imágenes también use sintaxis correcta
-            c.execute("""
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS imagenes_muebles (
                     id SERIAL PRIMARY KEY,
                     mueble_id INTEGER REFERENCES muebles(id) ON DELETE CASCADE,
@@ -72,7 +71,7 @@ def get_db_connection():
             
         return conn
     except Exception as e:
-        st.error(f"🚨 Error de conexión: {str(e)}")
+        st.error(f"🚨 Error de conexión: {e}")
         st.stop()
 
 # --- Autenticación y sesión ---
