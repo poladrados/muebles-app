@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv  # Para manejar variables de entorno
 load_dotenv()  # Carga las variables de entorno del archivo .env
 import streamlit as st
-import sqlite3
 import os
 import hashlib  # Usamos hashlib en lugar de passlib
 from PIL import Image
@@ -358,7 +357,7 @@ with st.sidebar:
         st.metric("🔴 En Regueros", en_regueros)
         st.metric("💰 Vendidos", vendidos)
         
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         st.error("Error al cargar estadísticas")
         st.metric("🔵 En El Rastro", 0)
         st.metric("🔴 En Regueros", 0)
@@ -475,10 +474,11 @@ if st.session_state.es_admin:
                     """, (
                         nombre, precio, descripcion, 
                         datetime.now().strftime("%Y-%m-%d"), 
-                        int(vendido), tienda, tipo, 
+                        vendido, tienda, tipo,  # <- Cambiado
                         medida1, medida2, medida3
                     ))
-                    mueble_id = SELECT LASTVAL()
+                    c.execute("SELECT LASTVAL()")
+                    mueble_id = c.fetchone()[0]
                     
                     # Guardar las imágenes
                     for i, imagen in enumerate(imagenes):
@@ -493,7 +493,7 @@ if st.session_state.es_admin:
                         
                         c.execute("""
                             INSERT INTO imagenes_muebles (mueble_id, ruta_imagen, es_principal)
-                            VALUES (?, ?, ?)
+                            VALUES (%s, %s, %s)
                         """, (mueble_id, ruta_imagen, es_principal))
                     
                     conn.commit()
@@ -742,7 +742,7 @@ with tab1:
                         c.execute("""
                             SELECT ruta_imagen, es_principal 
                             FROM imagenes_muebles 
-                            WHERE mueble_id = ?
+                            WHERE mueble_id = %s
                             ORDER BY es_principal DESC
                         """, (mueble[0],))
                         imagenes_mueble = c.fetchall()
@@ -898,12 +898,12 @@ if st.session_state.es_admin:
                                 if st.button(f"🗑️ Eliminar", key=f"eliminar_v_{mueble[0]}"):
                                     if st.session_state.get(f'confirm_eliminar_v_{mueble[0]}'):
                                         # Eliminar imágenes asociadas
-                                        c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                        c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = %s", (mueble[0],))
                                         imagenes = c.fetchall()
                                         for img in imagenes:
                                             if img[0] and os.path.exists(img[0]):
                                                 os.remove(img[0])
-                                        c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = ?", (mueble[0],))
+                                        c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = %s", (mueble[0],))
                                         
                                         # Eliminar mueble
                                         c.execute("DELETE FROM muebles WHERE id = %s", (mueble[0],))
