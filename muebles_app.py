@@ -1,28 +1,36 @@
-import psycopg2  # Reemplaza sqlite3
+import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
-from dotenv import load_dotenv  # Para manejar variables de entorno
-load_dotenv()  # Carga las variables de entorno del archivo .env
+from dotenv import load_dotenv
+load_dotenv()
 import streamlit as st
-import os
-import hashlib  # Usamos hashlib en lugar de passlib
+import hashlib
 from PIL import Image
 from datetime import datetime
-import boto3  # Añade esto al inicio con los otros imports
+from io import BytesIO
+import base64  # Nuevo import para manejo de imágenes
 
-# Configuración AWS S3 (usa st.secrets)
-AWS_ACCESS_KEY = st.secrets["aws"]["access_key"]
-AWS_SECRET_KEY = st.secrets["aws"]["secret_key"]
-S3_BUCKET = st.secrets["aws"]["bucket_name"]
-
-def upload_to_s3(file, mueble_id, filename):
-    s3 = boto3.client(
-        's3',
-        aws_access_key_id=AWS_ACCESS_KEY,
-os.makedirs(CARPETA_IMAGENES, exist_ok=True)
+# Eliminamos todas las referencias a AWS S3
 ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b486778be2110"
 
-# --- Función de conexión a BD ---
+# --- Función para manejar imágenes como Base64 ---
+def image_to_base64(image, max_size=800, quality=85):
+    """Convierte imagen a Base64 redimensionándola para que ocupe menos de 1MB"""
+    img = Image.open(image)
+    
+    # Redimensionar si es necesario
+    if max(img.size) > max_size:
+        img.thumbnail((max_size, max_size))
+    
+    buffered = BytesIO()
+    img.save(buffered, format="WEBP", quality=quality)  # WEBP ocupa menos espacio
+    return base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+def base64_to_image(base64_str):
+    """Convierte Base64 a imagen PIL"""
+    return Image.open(BytesIO(base64.b64decode(base64_str)))
+
+# --- Función de conexión a BD (modificada para imágenes) ---
 def get_db_connection():
     try:
         conn = psycopg2.connect(
@@ -32,18 +40,17 @@ def get_db_connection():
             password=st.secrets["postgres"]["password"],
             port=st.secrets["postgres"]["port"],
             sslmode=st.secrets["postgres"]["sslmode"],
-            cursor_factory=RealDictCursor  # Para obtener resultados como diccionarios
+            cursor_factory=RealDictCursor
         )
         
-        # Verifica/crea las tablas
         with conn.cursor() as c:
+            # Tabla de muebles (sin cambios)
             c.execute("""
                 CREATE TABLE IF NOT EXISTS muebles (
                     id SERIAL PRIMARY KEY,
                     nombre TEXT,
                     precio REAL,
                     descripcion TEXT,
-                    ruta_imagen TEXT,
                     fecha TEXT,
                     vendido BOOLEAN DEFAULT FALSE,
                     tienda TEXT,
@@ -54,25 +61,14 @@ def get_db_connection():
                 )
             """)
             
+            # Tabla de imágenes modificada para Base64
             c.execute("""
                 CREATE TABLE IF NOT EXISTS imagenes_muebles (
                     id SERIAL PRIMARY KEY,
                     mueble_id INTEGER REFERENCES muebles(id) ON DELETE CASCADE,
-                    ruta_imagen TEXT,
+                    imagen_base64 TEXT,  -- Cambiado de ruta_imagen a imagen_base64
                     es_principal BOOLEAN DEFAULT FALSE
                 )
-            """)
-            
-            # Asegura que las columnas existen (Neon usa PostgreSQL)
-            c.execute("""
-                DO $$
-                BEGIN
-                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                                  WHERE table_name='muebles' AND column_name='tipo') THEN
-                        ALTER TABLE muebles ADD COLUMN tipo TEXT DEFAULT 'Otro';
-                    END IF;
-                    -- Repite para otras columnas...
-                END $$;
             """)
             
         return conn
