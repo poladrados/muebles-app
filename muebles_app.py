@@ -139,6 +139,11 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
+st.write("🔍 Debug - secrets cargados:", list(st.secrets.keys()))
+if "postgres" in st.secrets:
+    st.write("🔍 Debug - postgres keys:", list(st.secrets["postgres"].keys()))
+else:
+    st.error("❌ No se encontró la clave 'postgres' en st.secrets")
 
 # --- Estilos CSS ---
 st.markdown("""
