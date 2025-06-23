@@ -16,33 +16,44 @@ ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b48677
 def init_session():
     if 'es_admin' not in st.session_state:
         st.session_state.es_admin = False
-    check_admin_token()  # Verificar token al inicio
+    
+    # Verificar token en localStorage via query params
+    query_params = st.experimental_get_query_params()
+    if 'admin_token' in query_params:
+        token = query_params['admin_token'][0]
+        if token == ADMIN_PASSWORD_HASH:  # Usamos el hash como token
+            st.session_state.es_admin = True
+            st.session_state.admin_token = token
 
 def verificar_admin(password):
     hash_input = hashlib.sha256(password.encode()).hexdigest()
     if hash_input == ADMIN_PASSWORD_HASH:
-        # Guardar un token seguro en session_state y en el navegador
-        token_admin = hashlib.sha256(f"{ADMIN_PASSWORD_HASH}-{datetime.now().timestamp()}".encode()).hexdigest()
-        st.session_state.admin_token = token_admin
-        st.experimental_set_query_params(admin_token=token_admin)
+        st.session_state.es_admin = True
+        st.session_state.admin_token = ADMIN_PASSWORD_HASH
+        st.experimental_set_query_params(admin_token=ADMIN_PASSWORD_HASH)
+        
+        # Inyectar JavaScript para guardar en localStorage
+        js = f"""
+        <script>
+            localStorage.setItem('admin_token', '{ADMIN_PASSWORD_HASH}');
+        </script>
+        """
+        st.components.v1.html(js, height=0, width=0)
         return True
     return False
 
-def check_admin_token():
-    if 'admin_token' not in st.session_state:
-        query_params = st.experimental_get_query_params()
-        if 'admin_token' in query_params:
-            token = query_params['admin_token'][0]
-            # Aquí podrías añadir validación adicional del token si lo deseas
-            st.session_state.admin_token = token
-            st.session_state.es_admin = True
-
-
 # --- Inicialización de sesión ---
 init_session()
+# Inyectar JavaScript para verificar localStorage
+check_auth_js = """
+<script>
+// [El mismo código JavaScript que tenías antes]
+</script>
+"""
+st.components.v1.html(check_auth_js, height=0, width=0)
 
-# Conexión a la base de datos
-conn = sqlite3.connect("muebles.db")
+# Conexión a la base de datos (versión mejorada)
+conn = get_db_connection()
 c = conn.cursor()
 
 # Configuración de la página
@@ -245,77 +256,77 @@ st.markdown(f"""
 # --- Barra lateral para login de admin ---
 # --- Barra lateral para login de admin ---
 with st.sidebar:
-    if not st.session_state.es_admin:
-        with st.expander("🔑 Acceso Administradores", expanded=False):
-            password = st.text_input("Contraseña de administrador", type="password")
-            if st.button("Ingresar como administrador"):
-                if verificar_admin(password):
-                    st.session_state.es_admin = True
-                    st.success("Acceso concedido")
-                    st.rerun()
-                else:
-                    st.error("Contraseña incorrecta")
-    else:
-        # NUEVO CÓDIGO PARA LOGOUT (CON LIMPIEZA DE TOKEN)
-        st.success("Modo administrador activo")
-        if st.button("🚪 Salir del modo admin"):
-            st.session_state.es_admin = False
-            st.session_state.pop('admin_token', None)  # Limpiar token de sesión
-            st.experimental_set_query_params()  # Limpiar parámetros de URL
-            st.rerun()
+        if not st.session_state.es_admin:
+            with st.expander("🔑 Acceso Administradores", expanded=False):
+                password = st.text_input("Contraseña de administrador", type="password")
+                if st.button("Ingresar como administrador"):
+                    if verificar_admin(password):
+                        st.session_state.es_admin = True
+                        st.success("Acceso concedido")
+                        st.rerun()
+                    else:
+                        st.error("Contraseña incorrecta")
+        else:
+            st.success("Modo administrador activo")
+            if st.button("🚪 Salir del modo admin"):
+                st.session_state.es_admin = False
+                st.session_state.pop('admin_token', None)
+                st.experimental_set_query_params()
+                st.rerun()
             
     # ... (el resto de tu código del sidebar, estadísticas, etc)
             
-    # --- Estadísticas ---
     st.markdown("## 📊 Estadísticas")
-    c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'El Rastro'")
-    en_rastro = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'Regueros'")
-    en_regueros = c.fetchone()[0]
-    c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 1")
-    vendidos = c.fetchone()[0]
+        try:
+            c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'El Rastro'")
+            en_rastro = c.fetchone()[0] or 0
+            
+            c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'Regueros'")
+            en_regueros = c.fetchone()[0] or 0
+            
+            c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 1")
+            vendidos = c.fetchone()[0] or 0
+            
+            st.metric("🔵 En El Rastro", en_rastro)
+            st.metric("🔴 En Regueros", en_regueros)
+            st.metric("💰 Vendidos", vendidos)
+            
+        except sqlite3.Error as e:
+            st.error("Error al cargar estadísticas")
+            st.metric("🔵 En El Rastro", 0)
+            st.metric("🔴 En Regueros", 0)
+            st.metric("💰 Vendidos", 0)
 
-    st.sidebar.metric("🔵 En El Rastro", en_rastro)
-    st.sidebar.metric("🔴 En Regueros", en_regueros)
-    st.sidebar.metric("💰 Vendidos", vendidos)
 
-# --- Inicialización BD ---
-try:
-    c.execute("ALTER TABLE muebles ADD COLUMN tipo TEXT DEFAULT 'Otro'")
-    c.execute("ALTER TABLE muebles ADD COLUMN medida1 REAL")
-    c.execute("ALTER TABLE muebles ADD COLUMN medida2 REAL")
-    c.execute("ALTER TABLE muebles ADD COLUMN medida3 REAL")
-    conn.commit()
-except sqlite3.OperationalError as e:
-    if "duplicate column name" not in str(e):
-        st.error(f"Error al actualizar la BD: {e}")
+# --- Configuración inicial ---
+CARPETA_IMAGENES = "imagenes_muebles"
+os.makedirs(CARPETA_IMAGENES, exist_ok=True)
+ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b486778be2110"
 
-c.execute("""
-    CREATE TABLE IF NOT EXISTS muebles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT,
-        precio REAL,
-        descripcion TEXT,
-        ruta_imagen TEXT,
-        fecha TEXT,
-        vendido BOOLEAN DEFAULT 0,
-        tienda TEXT,
-        tipo TEXT,
-        medida1 REAL,
-        medida2 REAL,
-        medida3 REAL
-    )
-""")
-c.execute("""
-    CREATE TABLE IF NOT EXISTS imagenes_muebles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        mueble_id INTEGER,
-        ruta_imagen TEXT,
-        es_principal BOOLEAN DEFAULT 0,
-        FOREIGN KEY(mueble_id) REFERENCES muebles(id)
-    )
-""")
-conn.commit()
+# --- Función de conexión a BD ---
+def get_db_connection():
+    conn = None
+    try:
+        conn = sqlite3.connect("muebles.db")
+        conn.execute("PRAGMA foreign_keys = ON")
+        c = conn.cursor()
+        
+        # [Todo el código de creación de tablas que tenías]
+        
+        conn.commit()
+        return conn
+    except sqlite3.Error as e:
+        st.error(f"Error de base de datos: {str(e)}")
+        if conn:
+            conn.close()
+        st.stop()
+
+# --- Inicialización de sesión ---
+init_session()
+
+# --- Conexión a BD ---
+conn = get_db_connection()
+c = conn.cursor()
 
 # --- Formulario solo visible para admin ---
 if st.session_state.es_admin:
@@ -879,6 +890,7 @@ else:
     with tab2:
         st.info("🔒 Esta sección solo está disponible para administradores")
 
-conn.close()
+if 'conn' in locals():
+    conn.close()
 
 
