@@ -1,2 +1,4 @@
-﻿streamlit
+streamlit
 pillow
+psycopg2-binary
+python-dotenv
