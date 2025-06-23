@@ -294,10 +294,7 @@ st.markdown("""
         border-radius: 8px;
         object-fit: cover;
     }
-    </style>
-""", unsafe_allow_html=True)
-st.markdown("""
-    <style>
+    
     /* Estilo para botones de edición */
     .btn-editar {
         background-color: #4CAF50 !important;
