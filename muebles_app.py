@@ -18,13 +18,12 @@ ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b48677
 # --- Función de conexión a BD ---
 def get_db_connection():
     try:
-        # Usa tu cadena de conexión de Neon (guárdala en .env)
+        # Conexión usando variable de entorno
         conn = psycopg2.connect(
-            os.getenv("postgresql://neondb_owner:npg_C7MzRnTpuQY4@ep-raspy-leaf-a84tkg06-pooler.eastus2.azure.neon.tech/neondb?sslmode=require"),  # Cadena de conexión desde variables de entorno
+            os.getenv("DATABASE_URL"),  # Esto debe venir de tus secrets/variables de entorno
             sslmode="require"
         )
         
-        # Creación de tablas
         with conn.cursor() as c:
             # Tabla muebles
             c.execute("""
