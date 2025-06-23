@@ -35,7 +35,7 @@ def get_db_connection():
     try:
         conn = psycopg2.connect(
             host=st.secrets["postgres"]["host"],
-            database=st.secrets["postgres"]["dbname"],
+            dbname=st.secrets["postgres"]["dbname"],
             user=st.secrets["postgres"]["user"],
             password=st.secrets["postgres"]["password"],
             port=st.secrets["postgres"]["port"],
@@ -44,7 +44,7 @@ def get_db_connection():
         )
         
         with conn.cursor() as cur:
-            # CONSULTA CORREGIDA (elimina los ...)
+            # Consulta CORREGIDA (sin puntos suspensivos)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS muebles (
                     id SERIAL PRIMARY KEY,
@@ -61,7 +61,6 @@ def get_db_connection():
                 )
             """)
             
-            # Consulta para la tabla de imágenes
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS imagenes_muebles (
                     id SERIAL PRIMARY KEY,
