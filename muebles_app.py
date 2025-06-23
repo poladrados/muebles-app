@@ -8,9 +8,17 @@ import os
 import hashlib  # Usamos hashlib en lugar de passlib
 from PIL import Image
 from datetime import datetime
+import boto3  # Añade esto al inicio con los otros imports
 
-# --- Configuración inicial ---
-CARPETA_IMAGENES = "imagenes_muebles"
+# Configuración AWS S3 (usa st.secrets)
+AWS_ACCESS_KEY = st.secrets["aws"]["access_key"]
+AWS_SECRET_KEY = st.secrets["aws"]["secret_key"]
+S3_BUCKET = st.secrets["aws"]["bucket_name"]
+
+def upload_to_s3(file, mueble_id, filename):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY,
 os.makedirs(CARPETA_IMAGENES, exist_ok=True)
 ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b486778be2110"
 
@@ -483,18 +491,14 @@ if st.session_state.es_admin:
                     # Guardar las imágenes
                     for i, imagen in enumerate(imagenes):
                         nombre_archivo = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{mueble_id}_{i}_{imagen.name}"
-                        ruta_imagen = os.path.join(CARPETA_IMAGENES, nombre_archivo)
+                        image_url = upload_to_s3(imagen, mueble_id, nombre_archivo)  # Sube a S3
                         
-                        with open(ruta_imagen, "wb") as f:
-                            f.write(imagen.getbuffer())
-                        
-                        # La primera imagen es la principal
+                        # Guarda la URL en la BD (no la ruta local)
                         es_principal = 1 if i == 0 else 0
-                        
                         c.execute("""
                             INSERT INTO imagenes_muebles (mueble_id, ruta_imagen, es_principal)
                             VALUES (%s, %s, %s)
-                        """, (mueble_id, ruta_imagen, es_principal))
+                        """, (mueble_id, image_url, es_principal))
                     
                     conn.commit()
                     st.success("✅ ¡Antigüedad registrada con éxito!")
@@ -757,7 +761,11 @@ with tab1:
                                 with st.expander(f"📸 Ver más imágenes ({len(imagenes_mueble)-1})"):
                                     for i, (ruta_img, es_principal) in enumerate(imagenes_mueble[1:], 1):
                                         try:
-                                            img = Image.open(ruta_img)
+                                            from io import BytesIO
+                                        import requests
+                                        
+                                        response = requests.get(ruta_imagen)  # ruta_imagen ahora es una URL de S3
+                                        img = Image.open(BytesIO(response.content))
                                             st.image(img, 
                                                    use_container_width=True,
                                                    caption=f"Imagen {i+1}")
@@ -796,16 +804,15 @@ with tab1:
                         # Columna 2: Eliminar
                         with col2:
                             if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble[0]}"):
-                                if st.session_state.get(f'confirm_eliminar_{mueble[0]}'):
-                                    # Eliminar imágenes asociadas
+                                    # Primero borra las imágenes de S3
                                     c.execute("SELECT ruta_imagen FROM imagenes_muebles WHERE mueble_id = %s", (mueble[0],))
-                                    imagenes = c.fetchall()
-                                    for img in imagenes:
-                                        if img[0] and os.path.exists(img[0]):
-                                            os.remove(img[0])
-                                    c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = %s", (mueble[0],))
+                                    for img in c.fetchall():
+                                        if "s3.amazonaws.com" in img[0]:  # Si es una URL de S3
+                                            key = img[0].split(f"https://{S3_BUCKET}.s3.amazonaws.com/")[1]
+                                            s3.delete_object(Bucket=S3_BUCKET, Key=key)
                                     
-                                    # Eliminar mueble
+                                    # Luego borra de la BD
+                                    c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = %s", (mueble[0],))
                                     c.execute("DELETE FROM muebles WHERE id = %s", (mueble[0],))
                                     conn.commit()
                                     st.rerun()
@@ -857,7 +864,11 @@ if st.session_state.es_admin:
                                     with st.expander(f"📸 Ver más imágenes ({len(imagenes_mueble)-1})"):
                                         for i, (ruta_img, es_principal) in enumerate(imagenes_mueble[1:], 1):
                                             try:
-                                                img = Image.open(ruta_img)
+                                                from io import BytesIO
+                                                import requests
+                                                
+                                                response = requests.get(ruta_imagen)  # ruta_imagen ahora es una URL de S3
+                                                img = Image.open(BytesIO(response.content))
                                                 st.image(img, 
                                                        use_container_width=True,
                                                        caption=f"Imagen {i+1}")
