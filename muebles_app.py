@@ -320,47 +320,47 @@ st.markdown(f"""
 
 # --- Barra lateral para login de admin ---
 # --- Barra lateral para login de admin ---
+# --- Barra lateral para login de admin ---
 with st.sidebar:
-        if not st.session_state.es_admin:
-            with st.expander("🔑 Acceso Administradores", expanded=False):
-                password = st.text_input("Contraseña de administrador", type="password")
-                if st.button("Ingresar como administrador"):
-                    if verificar_admin(password):
-                        st.session_state.es_admin = True
-                        st.success("Acceso concedido")
-                        st.rerun()
-                    else:
-                        st.error("Contraseña incorrecta")
-        else:
-            st.success("Modo administrador activo")
-            if st.button("🚪 Salir del modo admin"):
-                st.session_state.es_admin = False
-                st.session_state.pop('admin_token', None)
-                st.experimental_set_query_params()
-                st.rerun()
-            
-    # ... (el resto de tu código del sidebar, estadísticas, etc)
-            
+    if not st.session_state.es_admin:
+        with st.expander("🔑 Acceso Administradores", expanded=False):
+            password = st.text_input("Contraseña de administrador", type="password")
+            if st.button("Ingresar como administrador"):
+                if verificar_admin(password):
+                    st.session_state.es_admin = True
+                    st.success("Acceso concedido")
+                    st.rerun()
+                else:
+                    st.error("Contraseña incorrecta")
+    else:
+        st.success("Modo administrador activo")
+        if st.button("🚪 Salir del modo admin"):
+            st.session_state.es_admin = False
+            st.session_state.pop('admin_token', None)
+            st.experimental_set_query_params()
+            st.rerun()
+    
+    # Estadísticas (¡Asegúrate de que esta parte esté correctamente indentada!)
     st.markdown("## 📊 Estadísticas")
-        try:
-            c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'El Rastro'")
-            en_rastro = c.fetchone()[0] or 0
-            
-            c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'Regueros'")
-            en_regueros = c.fetchone()[0] or 0
-            
-            c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 1")
-            vendidos = c.fetchone()[0] or 0
-            
-            st.metric("🔵 En El Rastro", en_rastro)
-            st.metric("🔴 En Regueros", en_regueros)
-            st.metric("💰 Vendidos", vendidos)
-            
-        except sqlite3.Error as e:
-            st.error("Error al cargar estadísticas")
-            st.metric("🔵 En El Rastro", 0)
-            st.metric("🔴 En Regueros", 0)
-            st.metric("💰 Vendidos", 0)
+    try:
+        c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'El Rastro'")
+        en_rastro = c.fetchone()[0] or 0
+        
+        c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 0 AND tienda = 'Regueros'")
+        en_regueros = c.fetchone()[0] or 0
+        
+        c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = 1")
+        vendidos = c.fetchone()[0] or 0
+        
+        st.metric("🔵 En El Rastro", en_rastro)
+        st.metric("🔴 En Regueros", en_regueros)
+        st.metric("💰 Vendidos", vendidos)
+        
+    except sqlite3.Error as e:
+        st.error("Error al cargar estadísticas")
+        st.metric("🔵 En El Rastro", 0)
+        st.metric("🔴 En Regueros", 0)
+        st.metric("💰 Vendidos", 0)
 
 
 # --- Formulario solo visible para admin ---
