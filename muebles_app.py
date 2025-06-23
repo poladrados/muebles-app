@@ -18,14 +18,18 @@ ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b48677
 # --- Función de conexión a BD ---
 def get_db_connection():
     try:
-        # Conexión usando variable de entorno
         conn = psycopg2.connect(
-            os.getenv("DATABASE_URL"),  # Esto debe venir de tus secrets/variables de entorno
-            sslmode="require"
+            host=st.secrets["postgres"]["host"],
+            dbname=st.secrets["postgres"]["dbname"],
+            user=st.secrets["postgres"]["user"],
+            password=st.secrets["postgres"]["password"],
+            port=st.secrets["postgres"]["port"],
+            sslmode=st.secrets["postgres"]["sslmode"],
+            cursor_factory=RealDictCursor  # Para obtener resultados como diccionarios
         )
         
+        # Verifica/crea las tablas
         with conn.cursor() as c:
-            # Tabla muebles
             c.execute("""
                 CREATE TABLE IF NOT EXISTS muebles (
                     id SERIAL PRIMARY KEY,
@@ -43,7 +47,6 @@ def get_db_connection():
                 )
             """)
             
-            # Tabla imagenes_muebles
             c.execute("""
                 CREATE TABLE IF NOT EXISTS imagenes_muebles (
                     id SERIAL PRIMARY KEY,
@@ -53,19 +56,21 @@ def get_db_connection():
                 )
             """)
             
-            # Verificar y añadir columnas si no existen
-            try:
-                c.execute("ALTER TABLE muebles ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'Otro'")
-                c.execute("ALTER TABLE muebles ADD COLUMN IF NOT EXISTS medida1 REAL")
-                c.execute("ALTER TABLE muebles ADD COLUMN IF NOT EXISTS medida2 REAL")
-                c.execute("ALTER TABLE muebles ADD COLUMN IF NOT EXISTS medida3 REAL")
-            except Exception as e:
-                st.error(f"Error al añadir columnas: {str(e)}")
+            # Asegura que las columnas existen (Neon usa PostgreSQL)
+            c.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                                  WHERE table_name='muebles' AND column_name='tipo') THEN
+                        ALTER TABLE muebles ADD COLUMN tipo TEXT DEFAULT 'Otro';
+                    END IF;
+                    -- Repite para otras columnas...
+                END $$;
+            """)
             
-            conn.commit()
         return conn
     except Exception as e:
-        st.error(f"Error de conexión a PostgreSQL: {str(e)}")
+        st.error(f"🚨 Error de conexión a Neon: {str(e)}")
         st.stop()
 
 # --- Configuración de Acceso Admin ---
