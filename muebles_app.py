@@ -43,6 +43,7 @@ def get_db_connection():
         if not all(key in postgres_secrets for key in required_keys):
             st.error("❌ Faltan claves dentro del bloque [postgres] en secrets.toml")
             st.stop()
+        st.write("🔍 st.secrets = ", st.secrets)
 
         conn = psycopg2.connect(
             host=postgres_secrets["host"],
