@@ -82,7 +82,7 @@ def init_session():
         st.session_state.es_admin = False
     
     # Verificar token en localStorage via query params
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params.to_dict()
     if 'admin_token' in query_params:
         token = query_params['admin_token'][0]
         if token == ADMIN_PASSWORD_HASH:
@@ -94,7 +94,8 @@ def verificar_admin(password):
     if hash_input == ADMIN_PASSWORD_HASH:
         st.session_state.es_admin = True
         st.session_state.admin_token = ADMIN_PASSWORD_HASH
-        st.experimental_set_query_params(admin_token=ADMIN_PASSWORD_HASH)
+        st.query_params.clear()
+        st.query_params["admin_token"] = ADMIN_PASSWORD_HASH
         
         # Guardar en localStorage
         js = f"""
