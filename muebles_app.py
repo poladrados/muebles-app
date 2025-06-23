@@ -8,11 +8,68 @@ from datetime import datetime
 # --- Configuración inicial ---
 CARPETA_IMAGENES = "imagenes_muebles"
 os.makedirs(CARPETA_IMAGENES, exist_ok=True)
-
-# --- Configuración de Acceso Admin ---
-# Contraseña: "admin123" (cámbiala después)
 ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b486778be2110"
 
+# --- Función de conexión a BD ---
+def get_db_connection():
+    conn = None
+    try:
+        conn = sqlite3.connect("muebles.db")
+        conn.execute("PRAGMA foreign_keys = ON")
+        c = conn.cursor()
+        
+        # Creación de tablas
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS muebles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT,
+                precio REAL,
+                descripcion TEXT,
+                ruta_imagen TEXT,
+                fecha TEXT,
+                vendido BOOLEAN DEFAULT 0,
+                tienda TEXT,
+                tipo TEXT DEFAULT 'Otro',
+                medida1 REAL,
+                medida2 REAL,
+                medida3 REAL
+            )
+        """)
+        
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS imagenes_muebles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                mueble_id INTEGER,
+                ruta_imagen TEXT,
+                es_principal BOOLEAN DEFAULT 0,
+                FOREIGN KEY(mueble_id) REFERENCES muebles(id) ON DELETE CASCADE
+            )
+        """)
+        
+        # Añadir columnas si no existen
+        columns_to_add = [
+            ('tipo', 'TEXT DEFAULT "Otro"'),
+            ('medida1', 'REAL'),
+            ('medida2', 'REAL'),
+            ('medida3', 'REAL')
+        ]
+        
+        for col, col_type in columns_to_add:
+            try:
+                c.execute(f"ALTER TABLE muebles ADD COLUMN {col} {col_type}")
+            except sqlite3.OperationalError as e:
+                if "duplicate column name" not in str(e):
+                    st.error(f"Error al añadir columna {col}: {str(e)}")
+        
+        conn.commit()
+        return conn
+    except sqlite3.Error as e:
+        st.error(f"Error de base de datos: {str(e)}")
+        if conn:
+            conn.close()
+        st.stop()
+
+# --- Configuración de Acceso Admin ---
 def init_session():
     if 'es_admin' not in st.session_state:
         st.session_state.es_admin = False
@@ -21,7 +78,7 @@ def init_session():
     query_params = st.experimental_get_query_params()
     if 'admin_token' in query_params:
         token = query_params['admin_token'][0]
-        if token == ADMIN_PASSWORD_HASH:  # Usamos el hash como token
+        if token == ADMIN_PASSWORD_HASH:
             st.session_state.es_admin = True
             st.session_state.admin_token = token
 
@@ -44,17 +101,28 @@ def verificar_admin(password):
 
 # --- Inicialización de sesión ---
 init_session()
+
 # Inyectar JavaScript para verificar localStorage
 check_auth_js = """
 <script>
-// [El mismo código JavaScript que tenías antes]
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+if (!getQueryParam('admin_token') && localStorage.getItem('admin_token')) {
+    window.location.search = '?admin_token=' + localStorage.getItem('admin_token');
+}
 </script>
 """
 st.components.v1.html(check_auth_js, height=0, width=0)
 
-# Conexión a la base de datos (versión mejorada)
+# --- Conexión a BD ---
 conn = get_db_connection()
 c = conn.cursor()
+
+# Resto de tu configuración de página y estilos...
+# [Todo el resto de tu código permanece igual desde aquí]
 
 # Configuración de la página
 st.set_page_config(
@@ -297,36 +365,6 @@ with st.sidebar:
             st.metric("🔴 En Regueros", 0)
             st.metric("💰 Vendidos", 0)
 
-
-# --- Configuración inicial ---
-CARPETA_IMAGENES = "imagenes_muebles"
-os.makedirs(CARPETA_IMAGENES, exist_ok=True)
-ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b486778be2110"
-
-# --- Función de conexión a BD ---
-def get_db_connection():
-    conn = None
-    try:
-        conn = sqlite3.connect("muebles.db")
-        conn.execute("PRAGMA foreign_keys = ON")
-        c = conn.cursor()
-        
-        # [Todo el código de creación de tablas que tenías]
-        
-        conn.commit()
-        return conn
-    except sqlite3.Error as e:
-        st.error(f"Error de base de datos: {str(e)}")
-        if conn:
-            conn.close()
-        st.stop()
-
-# --- Inicialización de sesión ---
-init_session()
-
-# --- Conexión a BD ---
-conn = get_db_connection()
-c = conn.cursor()
 
 # --- Formulario solo visible para admin ---
 if st.session_state.es_admin:
