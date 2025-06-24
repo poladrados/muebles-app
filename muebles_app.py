@@ -336,10 +336,12 @@ def mostrar_medidas_extendido(mueble):
     }
     partes = []
     for clave, nombre in etiquetas.items():
-        valor = mueble.get(clave)
+        valor = mueble[clave] if clave in mueble else None
         if valor not in [None, 0]:
             partes.append(f"{nombre}: {valor}cm")
     return " · ".join(partes) if partes else "Sin medidas"
+
+# --- Variables de medidas ---
 medidas = {
     "alto": st.number_input("Alto (cm)", min_value=0.0),
     "largo": st.number_input("Largo (cm)", min_value=0.0),
