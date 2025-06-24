@@ -174,10 +174,6 @@ st.components.v1.html(check_auth_js, height=0, width=0)
 
 conn = get_db_connection()
 c = conn.cursor()
-
-[... CÓDIGO ANTERIOR ...]
-
-# Inserta aquí el nuevo bloque que permite a los administradores añadir nuevos muebles
 if st.session_state.es_admin:
     with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         with st.form(key="form_nuevo_mueble"):
