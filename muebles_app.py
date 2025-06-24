@@ -359,26 +359,70 @@ with st.sidebar:
 
 
 # --- Funciones auxiliares ---
-def mostrar_galeria_imagenes(imagenes):
+def mostrar_slider_imagenes(imagenes):
     if not imagenes:
         return
-    thumbs_html = "".join([
-        f'<img src="data:image/webp;base64,{img['imagen_base64']}" onclick="mostrarModal(this.src)" />'
+
+    slides = "".join([
+        f'<img class="slide" src="data:image/webp;base64,{img["imagen_base64"]}">'
         for img in imagenes
     ])
-    galeria_html = f"""
-    <div class="galeria-mini">{thumbs_html}</div>
-    <div id="galeriaModal" class="galeria-modal" style="display:none" onclick="this.style.display='none'">
-        <img id="galeriaModalImg" />
+
+    html_content = f"""
+    <style>
+    .slider-container {{
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        margin-top: 10px;
+    }}
+    .slide {{
+        display: none;
+        width: 100%;
+        border-radius: 8px;
+    }}
+    .slide.active {{
+        display: block;
+    }}
+    .arrow {{
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0,0,0,0.5);
+        color: white;
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 50%;
+        font-size: 18px;
+    }}
+    .left-arrow {{ left: 0; }}
+    .right-arrow {{ right: 0; }}
+    </style>
+
+    <div class="slider-container">
+        {slides}
+        <div class="arrow left-arrow" onclick="changeSlide(-1)">❮</div>
+        <div class="arrow right-arrow" onclick="changeSlide(1)">❯</div>
     </div>
+
     <script>
-        function mostrarModal(src) {{
-            document.getElementById('galeriaModalImg').src = src;
-            document.getElementById('galeriaModal').style.display = 'flex';
-        }}
+    let currentSlide = 0;
+    const slides = window.parent.document.querySelectorAll('.slider-container .slide');
+    function showSlide(index) {{
+        slides.forEach((img, i) => {{
+            img.classList.remove('active');
+            if (i === index) img.classList.add('active');
+        }});
+    }}
+    function changeSlide(n) {{
+        currentSlide = (currentSlide + n + slides.length) % slides.length;
+        showSlide(currentSlide);
+    }}
+    if (slides.length) showSlide(currentSlide);
     </script>
     """
-    html(galeria_html, height=130)
+
+    html(html_content, height=300)
 def es_nuevo(fecha_str):
     formatos_posibles = [
         "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
