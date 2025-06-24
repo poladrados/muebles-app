@@ -248,10 +248,6 @@ if st.session_state.es_admin:
                 "diametro_base": st.number_input("Ø Base (cm)", min_value=0.0),
                 "diametro_boca": st.number_input("Ø Boca (cm)", min_value=0.0)
             }
-            # Después de definir medidas
-            imagenes = st.file_uploader("Seleccionar imágenes", 
-                            type=["jpg", "jpeg", "png"], 
-                            accept_multiple_files=True)
 
 
 
@@ -271,6 +267,9 @@ if st.session_state.es_admin:
             }
 
             st.caption(f"ℹ️ Medidas requeridas para {tipo}: {', '.join(medidas_requeridas[tipo]) if medidas_requeridas[tipo] else 'Opcionales'}")
+            imagenes = st.file_uploader("Seleccionar imágenes", 
+                                type=["jpg", "jpeg", "png"], 
+                                accept_multiple_files=True)
 
             guardar = st.form_submit_button("Guardar")
             if guardar:
