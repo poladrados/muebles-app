@@ -296,14 +296,15 @@ with st.sidebar:
     # Estadísticas
     st.markdown("## 📊 Estadísticas")
     try:
-        c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = FALSE AND tienda = 'El Rastro'")
-        en_rastro = c.fetchone()[0] or 0
+        c.execute("SELECT COUNT(*) as count FROM muebles WHERE vendido = FALSE AND tienda = 'El Rastro'")
+        en_rastro = c.fetchone()["count"] or 0
         
-        c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = FALSE AND tienda = 'Regueros'")
-        en_regueros = c.fetchone()[0] or 0
+        c.execute("SELECT COUNT(*) as count FROM muebles WHERE vendido = FALSE AND tienda = 'Regueros'")
+        en_regueros = c.fetchone()["count"] or 0
         
-        c.execute("SELECT COUNT(*) FROM muebles WHERE vendido = TRUE")
-        vendidos = c.fetchone()[0] or 0
+        c.execute("SELECT COUNT(*) as count FROM muebles WHERE vendido = TRUE")
+        vendidos = c.fetchone()["count"] or 0
+
         
         st.metric("🔵 En El Rastro", en_rastro)
         st.metric("🔴 En Regueros", en_regueros)
