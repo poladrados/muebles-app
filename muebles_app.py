@@ -106,6 +106,10 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
+import logging
+logging.getLogger('streamlit').setLevel(logging.WARNING)
+st.set_option('client.showErrorDetails', False)
+st.set_option('client.showWarningMessages', False)
 # --- Estilos CSS ---
 st.markdown("""
     <style>
