@@ -404,8 +404,6 @@ def mostrar_formulario_edicion(mueble_id):
             if st.form_submit_button("❌ Cancelar edición"):
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
-[... CÓDIGO ANTERIOR ...]
-
 # Galería de imágenes mejorada con miniaturas y ampliación visual
 from streamlit.components.v1 import html
 
