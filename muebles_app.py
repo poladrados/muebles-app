@@ -411,8 +411,6 @@ def mostrar_formulario_edicion(mueble_id):
             if st.form_submit_button("❌ Cancelar edición"):
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
-# Galería de imágenes mejorada con miniaturas y ampliación visual
-from streamlit.components.v1 import html
 
 # Galería de imágenes mejorada con miniaturas, ampliación visual y scroll horizontal
 from streamlit.components.v1 import html
@@ -537,11 +535,7 @@ st.markdown("""
     <button class="floating-button" onclick="window.scrollTo(0, 0)">＋</button>
 """, unsafe_allow_html=True)
 
-# --- MODIFICAR BLOQUE DE MOSTRAR INFO DE MUEBLES ---
-# Dentro del tab "En venta" y "Vendidos", dentro del bloque `with col_info:`
-# añade esto justo debajo de `st.markdown(f"### {mueble['nombre']}")`
-if es_nuevo(mueble['fecha']):
-    st.markdown("<span style='color: green; font-size: 1.2em;'>🆕 Nuevo</span>", unsafe_allow_html=True)
+
 
 # --- MODIFICACIÓN DEL FORMULARIO DE EDICIÓN ---
 # Dentro del bucle de imágenes actuales, debajo del `st.image(...)`, añade:
@@ -627,6 +621,8 @@ with tab1:
                 
                 with col_info:
                     st.markdown(f"### {mueble['nombre']}")
+                    if es_nuevo(mueble['fecha']):
+                        st.markdown("<span style='color: green; font-size: 1.2em;'>🆕 Nuevo</span>", unsafe_allow_html=True)
                     st.markdown(f"**Tipo:** {mueble['tipo']}")
                     st.markdown(f"**Precio:** {mueble['precio']} €")
                     st.markdown(f"**Tienda:** {mueble['tienda']}")
@@ -703,6 +699,8 @@ with tab2:
                     
                     with col_info:
                         st.markdown(f"### {mueble['nombre']}")
+                        if es_nuevo(mueble['fecha']):
+                            st.markdown("<span style='color: green; font-size: 1.2em;'>🆕 Nuevo</span>", unsafe_allow_html=True)
                         st.markdown(f"**Tipo:** {mueble['tipo']}")
                         st.markdown(f"**Precio:** {mueble['precio']} €")
                         st.markdown(f"**Tienda:** {mueble['tienda']}")
