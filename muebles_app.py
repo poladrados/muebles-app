@@ -113,6 +113,22 @@ st.set_option('client.showWarningMessages', False)
 # --- Estilos CSS ---
 st.markdown("""
     <style>
+    /* Añadir esto al inicio de tus estilos CSS */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+    
+    .header-title,
+    .muebles-disponibles-title,
+    .vendidos-title {
+        font-family: 'Playfair Display', serif !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+    }
+    
+    /* Mantén todos tus otros estilos exactamente igual */
+    </style>
+""", unsafe_allow_html=True)
+st.markdown("""
+    <style>
     /* Estilos generales */
     .stApp > header { display: none; }
     .stApp { background-color: #E6F0F8; padding: 2rem; }
