@@ -273,7 +273,10 @@ if st.session_state.es_admin:
 
             guardar = st.form_submit_button("Guardar")
             if guardar:
-                if not nombre or precio <= 0:
+                if not nombre or precio <= 0 or not imagenes:
+                    st.warning("Por favor, rellena todos los campos obligatorios, incluyendo al menos una imagen.")
+                    st.stop()
+
                     st.warning("Por favor, rellena todos los campos obligatorios.")
                     st.stop()
             
