@@ -39,10 +39,12 @@ st.markdown("""
     .header-title,
     .muebles-disponibles-title,
     .vendidos-title {
+        font-family: 'Playfair Display', serif !important;
         font-weight: 700 !important;
         letter-spacing: 1px !important;
         color: #023e8a !important;
         margin-bottom: 1rem !important;
+        text-align: center !important;
     }
 
     .stApp > header { display: none; }
@@ -51,6 +53,7 @@ st.markdown("""
     .custom-header {
         display: flex;
         align-items: center;
+        justify-content: center;
         background-color: white;
         padding: 1rem 2rem;
         border-radius: 8px;
@@ -62,8 +65,8 @@ st.markdown("""
     .header-title { font-size: 2.5rem !important; }
 
     @media (max-width: 768px) {
-        .custom-header { padding: 0.8rem 1rem !important; }
-        .header-title { font-size: 1.5rem !important; }
+        .custom-header { padding: 0.8rem 1rem !important; flex-direction: column; }
+        .header-title { font-size: 1.5rem !important; text-align: center; }
         .header-logo img { height: 50px !important; }
     }
     </style>
@@ -166,6 +169,7 @@ st.components.v1.html(check_auth_js, height=0, width=0)
 
 conn = get_db_connection()
 c = conn.cursor()
+
 
 
 # --- Barra lateral ---
