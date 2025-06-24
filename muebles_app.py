@@ -31,6 +31,52 @@ if 'editar_mueble_id' not in st.session_state:
 # --- Estilos CSS unificados y globales ---
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Playfair Display', serif !important;
+    }
+
+    .header-title,
+    .muebles-disponibles-title,
+    .vendidos-title {
+        font-family: 'Playfair Display', serif !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+        color: #023e8a !important;
+        margin-bottom: 1rem !important;
+        text-align: center !important;
+    }
+
+    .stApp > header { display: none; }
+    .stApp { background-color: #E6F0F8; padding: 2rem; }
+
+    .custom-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .header-logo {
+        margin-right: 1.5rem;
+    }
+
+    .header-logo img { height: 80px; width: auto; }
+    .header-title { font-size: 2.5rem !important; }
+
+    @media (max-width: 768px) {
+        .custom-header { padding: 0.8rem 1rem !important; flex-direction: column; }
+        .header-logo { margin-right: 0 !important; margin-bottom: 1rem; }
+        .header-title { font-size: 1.5rem !important; text-align: center; }
+        .header-logo img { height: 50px !important; }
+    }
+
+    /* Slider personalizado */
     .slider-container {
         position: relative;
         width: 100%;
@@ -78,6 +124,7 @@ st.markdown("""
         </div>
     </div>
 """, unsafe_allow_html=True)
+
 
 # --- Configuración de seguridad ---
 ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b486778be2110"
