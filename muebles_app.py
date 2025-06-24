@@ -18,6 +18,7 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
+orden = "Más reciente"
 
 # --- Inicialización segura de variables de sesión ---
 if 'es_admin' not in st.session_state:
