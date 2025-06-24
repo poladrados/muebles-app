@@ -1,3 +1,4 @@
+# --- Configuraciones iniciales ---
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
@@ -30,52 +31,6 @@ if 'editar_mueble_id' not in st.session_state:
 # --- Estilos CSS unificados y globales ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Playfair Display', serif !important;
-    }
-
-    .header-title,
-    .muebles-disponibles-title,
-    .vendidos-title {
-        font-family: 'Playfair Display', serif !important;
-        font-weight: 700 !important;
-        letter-spacing: 1px !important;
-        color: #023e8a !important;
-        margin-bottom: 1rem !important;
-        text-align: center !important;
-    }
-
-    .stApp > header { display: none; }
-    .stApp { background-color: #E6F0F8; padding: 2rem; }
-
-    .custom-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-    }
-
-    .header-logo {
-        margin-right: 1.5rem;
-    }
-
-    .header-logo img { height: 80px; width: auto; }
-    .header-title { font-size: 2.5rem !important; }
-
-    @media (max-width: 768px) {
-        .custom-header { padding: 0.8rem 1rem !important; flex-direction: column; }
-        .header-logo { margin-right: 0 !important; margin-bottom: 1rem; }
-        .header-title { font-size: 1.5rem !important; text-align: center; }
-        .header-logo img { height: 50px !important; }
-    }
-
-    /* Slider personalizado */
     .slider-container {
         position: relative;
         width: 100%;
@@ -387,38 +342,37 @@ with st.sidebar:
 
 
 # --- Funciones auxiliares ---
-def mostrar_slider_imagenes(imagenes):
+def mostrar_slider_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
 
     slides_html = "".join([
-        f'<img src="data:image/webp;base64,{img["imagen_base64"]}" class="slide">'
-        for img in imagenes
+        f'<img src="data:image/webp;base64,{img["imagen_base64"]}" class="slide_{mueble_id}">' for img in imagenes
     ])
 
-    script = """
+    script = f"""
     <script>
-    let current = 0;
-    function showSlide(n) {
-        const slides = window.parent.document.querySelectorAll('.slider-container .slide');
+    let current_{mueble_id} = 0;
+    function showSlide_{mueble_id}(n) {{
+        const slides = window.parent.document.querySelectorAll('.slide_{mueble_id}');
         if (slides.length === 0) return;
         slides.forEach((img, i) => img.classList.remove('active'));
         slides[n].classList.add('active');
-    }
-    function plusSlides(n) {
-        const slides = window.parent.document.querySelectorAll('.slider-container .slide');
-        current = (current + n + slides.length) % slides.length;
-        showSlide(current);
-    }
-    showSlide(current);
+    }}
+    function plusSlides_{mueble_id}(n) {{
+        const slides = window.parent.document.querySelectorAll('.slide_{mueble_id}');
+        current_{mueble_id} = (current_{mueble_id} + n + slides.length) % slides.length;
+        showSlide_{mueble_id}(current_{mueble_id});
+    }}
+    showSlide_{mueble_id}(current_{mueble_id});
     </script>
     """
 
     html(f"""
         <div class="slider-container">
             {slides_html}
-            <div class="slider-arrow left" onclick="plusSlides(-1)">&#10094;</div>
-            <div class="slider-arrow right" onclick="plusSlides(1)">&#10095;</div>
+            <div class="slider-arrow left" onclick="plusSlides_{mueble_id}(-1)">&#10094;</div>
+            <div class="slider-arrow right" onclick="plusSlides_{mueble_id}(1)">&#10095;</div>
         </div>
         {script}
     """, height=320)
