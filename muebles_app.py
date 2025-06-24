@@ -1,3 +1,4 @@
+# --- Configuraciones iniciales ---
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
@@ -12,7 +13,6 @@ import base64
 import logging
 from streamlit import config as _config
 
-# --- Configuraciones iniciales ---
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
@@ -326,13 +326,29 @@ with st.sidebar:
 
 
 # --- Funciones auxiliares ---
-def mostrar_medidas(tipo, m1, m2, m3):
-    medidas = []
-    if m1 not in [None, 0]: medidas.append(f"{m1}cm")
-    if m2 not in [None, 0]: medidas.append(f"{m2}cm")
-    if m3 not in [None, 0]: medidas.append(f"{m3}cm")
-    return " × ".join(medidas) if medidas else "Sin medidas"
-
+def mostrar_medidas_extendido(mueble):
+    etiquetas = {
+        'alto': "Alto",
+        'largo': "Largo",
+        'fondo': "Fondo",
+        'diametro': "Diámetro",
+        'diametro_base': "Ø Base",
+        'diametro_boca': "Ø Boca"
+    }
+    partes = []
+    for clave, nombre in etiquetas.items():
+        valor = mueble.get(clave)
+        if valor not in [None, 0]:
+            partes.append(f"{nombre}: {valor}cm")
+    return " · ".join(partes) if partes else "Sin medidas"
+medidas = {
+    "alto": st.number_input("Alto (cm)", min_value=0.0),
+    "largo": st.number_input("Largo (cm)", min_value=0.0),
+    "fondo": st.number_input("Fondo (cm)", min_value=0.0),
+    "diametro": st.number_input("Diámetro (cm)", min_value=0.0),
+    "diametro_base": st.number_input("Ø Base (cm)", min_value=0.0),
+    "diametro_boca": st.number_input("Ø Boca (cm)", min_value=0.0)
+}
 def es_nuevo(fecha_str):
     try:
         fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")
@@ -407,9 +423,20 @@ def mostrar_formulario_edicion(mueble_id):
                         img_base64 = image_to_base64(img)
                         es_principal = 0 if imagenes_actuales else 1
                         c.execute("""
-                            INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
-                            VALUES (%s, %s, %s)
-                        """, (mueble_id, img_base64, es_principal))
+                            INSERT INTO muebles (nombre, precio, descripcion, tienda, vendido, tipo, fecha,
+                                alto, largo, fondo, diametro, diametro_base, diametro_boca)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s,
+                                %s, %s, %s, %s, %s, %s)
+                        """, (
+                            nombre, precio, descripcion, tienda, vendido, tipo, datetime.now(),
+                            medidas["alto"] or None,
+                            medidas["largo"] or None,
+                            medidas["fondo"] or None,
+                            medidas["diametro"] or None,
+                            medidas["diametro_base"] or None,
+                            medidas["diametro_boca"] or None
+                        ))
+
                 
                 conn.commit()
                 st.success("¡Cambios guardados!")
