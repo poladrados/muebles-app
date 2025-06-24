@@ -544,18 +544,6 @@ st.markdown("""
     <button class="floating-button" onclick="window.scrollTo(0, 0)">＋</button>
 """, unsafe_allow_html=True)
 
-
-
-# --- MODIFICACIÓN DEL FORMULARIO DE EDICIÓN ---
-# Dentro del bucle de imágenes actuales, debajo del `st.image(...)`, añade:
-if st.radio("Marcar como principal", ["Sí", "No"], index=0 if es_principal else 1, key=f"principal_{i}_{mueble_id}") == "Sí":
-    c.execute("UPDATE imagenes_muebles SET es_principal = FALSE WHERE mueble_id = %s", (mueble_id,))
-    c.execute("UPDATE imagenes_muebles SET es_principal = TRUE WHERE mueble_id = %s AND imagen_base64 = %s", (mueble_id, img_base64))
-    conn.commit()
-    st.rerun()
-
-
-
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
 # Pestaña 1: En venta
