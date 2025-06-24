@@ -394,6 +394,93 @@ def mostrar_formulario_edicion(mueble_id):
             if st.form_submit_button("❌ Cancelar edición"):
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
+[... CÓDIGO ANTERIOR ...]
+
+# Galería de imágenes mejorada con miniaturas y ampliación visual
+from streamlit.components.v1 import html
+
+def mostrar_galeria_imagenes(imagenes):
+    st.markdown("""
+        <style>
+            .galeria-mini {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .galeria-mini img {
+                width: 100px;
+                height: auto;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            .galeria-mini img:hover {
+                transform: scale(1.05);
+            }
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 999;
+                padding-top: 60px;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.8);
+            }
+            .modal-content {
+                margin: auto;
+                display: block;
+                max-width: 80%;
+                max-height: 80%;
+                border-radius: 8px;
+            }
+            .close {
+                position: absolute;
+                top: 20px;
+                right: 35px;
+                color: #fff;
+                font-size: 40px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+        </style>
+        <div class="galeria-mini">
+    """, unsafe_allow_html=True)
+
+    js_script = """
+        <script>
+        function openModal(src) {
+            const modal = document.getElementById('modalImage');
+            const img = document.getElementById('modalContent');
+            modal.style.display = "block";
+            img.src = src;
+        }
+        function closeModal() {
+            const modal = document.getElementById('modalImage');
+            modal.style.display = "none";
+        }
+        </script>
+    """
+
+    modal_html = """
+        </div>
+        <div id="modalImage" class="modal" onclick="closeModal()">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="modalContent">
+        </div>
+    """
+
+    html(js_script + "".join([
+        f'<img src="data:image/webp;base64,{img['imagen_base64']}" onclick="openModal(this.src)" />'
+        for img in imagenes
+    ]) + modal_html, height=400)
+
+# Uso: dentro de los tabs, reemplaza la parte del expander de imágenes secundarias por:
+# mostrar_galeria_imagenes(imagenes_mueble[1:])
+
 
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
@@ -462,13 +549,8 @@ with tab1:
                             st.image(img_principal, use_container_width=True)
                             
                             if len(imagenes_mueble) > 1:
-                                with st.expander(f"📸 Ver más imágenes ({len(imagenes_mueble)-1})"):
-                                    for i, img_data in enumerate(imagenes_mueble[1:], 1):
-                                        try:
-                                            st.image(base64_to_image(img_data['imagen_base64']), 
-                                                   caption=f"Imagen {i+1}")
-                                        except:
-                                            st.warning(f"Error al cargar imagen {i+1}")
+                                mostrar_galeria_imagenes(imagenes_mueble[1:])
+
                         except:
                             st.warning("Error al cargar imagen principal")
                 
@@ -543,13 +625,8 @@ with tab2:
                                 st.image(img_principal, use_container_width=True)
                                 
                                 if len(imagenes_mueble) > 1:
-                                    with st.expander(f"📸 Ver más imágenes ({len(imagenes_mueble)-1})"):
-                                        for i, img_data in enumerate(imagenes_mueble[1:], 1):
-                                            try:
-                                                st.image(base64_to_image(img_data['imagen_base64']), 
-                                                       caption=f"Imagen {i+1}")
-                                            except:
-                                                st.warning(f"Error al cargar imagen {i+1}")
+                                    mostrar_galeria_imagenes(imagenes_mueble[1:])
+
                             except:
                                 st.warning("Error al cargar imagen principal")
                     
