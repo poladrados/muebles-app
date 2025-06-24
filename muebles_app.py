@@ -313,8 +313,9 @@ if st.session_state.es_admin:
                     medidas["diametro_boca"] or None
                 ))
 
-                c.execute("SELECT LASTVAL()")
-                mueble_id = c.fetchone()[0]
+                c.execute("SELECT LASTVAL() AS lastval")
+                mueble_id = c.fetchone()['lastval']
+
 
                 # Insertar imágenes
                 for i, imagen in enumerate(imagenes):
