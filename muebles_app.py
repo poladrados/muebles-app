@@ -354,10 +354,14 @@ medidas = {
 }
 def es_nuevo(fecha_str):
     try:
-        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")
-    except:
-        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d")
-    return (datetime.now() - fecha).days <= 1
+        # Intenta primero con fecha y hora
+        return (datetime.now() - datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")).days <= 1
+    except ValueError:
+        try:
+            # Intenta solo con la fecha
+            return (datetime.now() - datetime.strptime(str(fecha_str), "%Y-%m-%d")).days <= 1
+        except:
+            return False
 
 def mostrar_formulario_edicion(mueble_id):
     c.execute("SELECT * FROM muebles WHERE id = %s", (mueble_id,))
