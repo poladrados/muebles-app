@@ -248,6 +248,11 @@ if st.session_state.es_admin:
                 "diametro_base": st.number_input("Ø Base (cm)", min_value=0.0),
                 "diametro_boca": st.number_input("Ø Boca (cm)", min_value=0.0)
             }
+            # Después de definir medidas
+            imagenes = st.file_uploader("Seleccionar imágenes", 
+                            type=["jpg", "jpeg", "png"], 
+                            accept_multiple_files=True)
+
 
 
             # Reglas de validación por tipo
