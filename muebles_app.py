@@ -315,6 +315,16 @@ with st.sidebar:
         st.metric("🔴 En Regueros", 0)
         st.metric("💰 Vendidos", 0)
 
+    if st.session_state.es_admin:
+        if st.button("⬇️ Exportar inventario CSV"):
+            c.execute("SELECT * FROM muebles")
+            data = c.fetchall()
+            if data:
+                import pandas as pd
+                df = pd.DataFrame(data)
+                st.download_button("Descargar CSV", df.to_csv(index=False).encode(), "muebles.csv", "text/csv")
+
+
 # --- Funciones auxiliares ---
 def mostrar_medidas(tipo, m1, m2, m3):
     medidas = []
