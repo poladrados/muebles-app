@@ -174,7 +174,6 @@ st.components.v1.html(check_auth_js, height=0, width=0)
 
 conn = get_db_connection()
 c = conn.cursor()
-# --- Pestañas principales ---
 TIPOS_PLURAL = {
     "Mesa": "Mesas",
     "Consola": "Consolas",
@@ -188,6 +187,7 @@ TIPOS_PLURAL = {
     "Asiento": "Asientos",
     "Otro artículo": "Otros artículos"
 }
+
 
 if st.session_state.es_admin:
     with st.expander("📥 Añadir nueva antigüedad", expanded=False):
