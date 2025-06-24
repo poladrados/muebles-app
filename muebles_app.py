@@ -363,19 +363,28 @@ def mostrar_formulario_edicion(mueble_id):
         
         st.markdown("### Imágenes actuales")
         if imagenes_actuales:
-            cols = st.columns(min(3, len(imagenes_actuales)))
-            for i, (img_base64, es_principal) in enumerate(imagenes_actuales):
-                with cols[i % 3]:
-                    try:
-                        img = base64_to_image(img_base64)
-                        st.image(img, caption=f"{'✅ Principal' if es_principal else 'Secundaria'} - Imagen {i+1}")
-                        if st.button(f"❌ Eliminar esta imagen", key=f"del_img_{i}_{mueble_id}"):
-                            c.execute("DELETE FROM imagenes_muebles WHERE imagen_base64 = %s", (img_base64,))
-                            conn.commit()
-                            st.rerun()
-                    except:
-                        st.warning("Error al cargar imagen")
-        
+    cols = st.columns(min(3, len(imagenes_actuales)))
+    for i, img_dict in enumerate(imagenes_actuales):
+        img_base64 = img_dict['imagen_base64']
+        es_principal = img_dict['es_principal']
+        with cols[i % 3]:
+            try:
+                img = base64_to_image(img_base64)
+                st.image(img, caption=f"{'✅ Principal' if es_principal else 'Secundaria'} - Imagen {i+1}")
+
+                if st.radio("Marcar como principal", ["Sí", "No"], index=0 if es_principal else 1, key=f"principal_{i}_{mueble_id}") == "Sí":
+                    c.execute("UPDATE imagenes_muebles SET es_principal = FALSE WHERE mueble_id = %s", (mueble_id,))
+                    c.execute("UPDATE imagenes_muebles SET es_principal = TRUE WHERE mueble_id = %s AND imagen_base64 = %s", (mueble_id, img_base64))
+                    conn.commit()
+                    st.rerun()
+
+                if st.button(f"❌ Eliminar esta imagen", key=f"del_img_{i}_{mueble_id}"):
+                    c.execute("DELETE FROM imagenes_muebles WHERE imagen_base64 = %s", (img_base64,))
+                    conn.commit()
+                    st.rerun()
+            except:
+                st.warning("Error al cargar imagen")
+
         st.markdown("### Añadir nuevas imágenes")
         nuevas_imagenes = st.file_uploader("Seleccionar imágenes", 
                                          type=["jpg", "jpeg", "png"], 
