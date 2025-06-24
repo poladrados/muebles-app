@@ -106,10 +106,28 @@ st.set_page_config(
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
+# --- Configuración de la página ---
+st.set_page_config(
+    page_title="Inventario El Jueves",
+    page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
+    layout="wide"
+)
+
+# --- Deshabilitar TODOS los mensajes automáticos ---
 import logging
-logging.getLogger('streamlit').setLevel(logging.WARNING)
-st.set_option('client.showErrorDetails', False)
-st.set_option('client.showWarningMessages', False)
+import os
+from streamlit import config as _config
+
+# Configuración avanzada para desactivar mensajes
+os.environ['STREAMLIT_HIDE_DEBUG'] = "true"
+os.environ['STREAMLIT_SERVER_LIFECYCLE'] = "false"
+_config.set_option('client.showErrorDetails', False)
+_config.set_option('client.showWarningMessages', False)
+_config.set_option('logger.level', 'error')
+logging.getLogger('streamlit').setLevel(logging.ERROR)
+logging.getLogger('streamlit.runtime').setLevel(logging.ERROR)
+logging.getLogger('streamlit.delta_generator').setLevel(logging.ERROR)
+
 # --- Estilos CSS ---
 st.markdown("""
     <style>
