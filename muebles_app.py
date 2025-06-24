@@ -587,7 +587,7 @@ with tab1:
     
     with col_filtros[1]:
         c.execute("SELECT DISTINCT tipo FROM muebles")
-        tipos_db = [tipo[0] for tipo in c.fetchall()]
+        tipos_db = [tipo["tipo"] for tipo in c.fetchall()]
         opciones_filtro = ["Todos"] + [TIPOS_PLURAL.get(tipo, tipo) for tipo in tipos_db]
         filtro_tipo_plural = st.selectbox("Filtrar por tipo", opciones_filtro)
         tipo_para_consulta = next((k for k, v in TIPOS_PLURAL.items() if v == filtro_tipo_plural), filtro_tipo_plural) if filtro_tipo_plural != "Todos" else None
