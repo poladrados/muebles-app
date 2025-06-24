@@ -507,6 +507,55 @@ if filtro_nombre:
     query += " AND LOWER(nombre) LIKE %s"
     params.append(f"%{filtro_nombre.lower()}%")
 
+# --- NUEVO: etiqueta 🆕 para muebles recientes ---
+def es_nuevo(fecha_str):
+    try:
+        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")
+    except:
+        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d")
+    return (datetime.now() - fecha).days <= 1
+
+# --- NUEVO: botón flotante para añadir mueble (solo en móvil/admin) ---
+st.markdown("""
+    <style>
+    .floating-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #023e8a;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        z-index: 1000;
+        cursor: pointer;
+    }
+    @media (min-width: 768px) {
+        .floating-button { display: none; }
+    }
+    </style>
+    <button class="floating-button" onclick="window.scrollTo(0, 0)">＋</button>
+""", unsafe_allow_html=True)
+
+# --- MODIFICAR BLOQUE DE MOSTRAR INFO DE MUEBLES ---
+# Dentro del tab "En venta" y "Vendidos", dentro del bloque `with col_info:`
+# añade esto justo debajo de `st.markdown(f"### {mueble['nombre']}")`
+if es_nuevo(mueble['fecha']):
+    st.markdown("<span style='color: green; font-size: 1.2em;'>🆕 Nuevo</span>", unsafe_allow_html=True)
+
+# --- MODIFICACIÓN DEL FORMULARIO DE EDICIÓN ---
+# Dentro del bucle de imágenes actuales, debajo del `st.image(...)`, añade:
+if st.radio("Marcar como principal", ["Sí", "No"], index=0 if es_principal else 1, key=f"principal_{i}_{mueble_id}") == "Sí":
+    c.execute("UPDATE imagenes_muebles SET es_principal = FALSE WHERE mueble_id = %s", (mueble_id,))
+    c.execute("UPDATE imagenes_muebles SET es_principal = TRUE WHERE mueble_id = %s AND imagen_base64 = %s", (mueble_id, img_base64))
+    conn.commit()
+    st.rerun()
+
+
 
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
