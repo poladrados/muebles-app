@@ -333,6 +333,13 @@ def mostrar_medidas(tipo, m1, m2, m3):
     if m3 not in [None, 0]: medidas.append(f"{m3}cm")
     return " × ".join(medidas) if medidas else "Sin medidas"
 
+def es_nuevo(fecha_str):
+    try:
+        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")
+    except:
+        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d")
+    return (datetime.now() - fecha).days <= 1
+
 def mostrar_formulario_edicion(mueble_id):
     c.execute("SELECT * FROM muebles WHERE id = %s", (mueble_id,))
     mueble = c.fetchone()
@@ -493,12 +500,6 @@ def mostrar_galeria_imagenes(imagenes):
         for img in imagenes
     ]) + modal_html, height=400)
 
-def es_nuevo(fecha_str):
-    try:
-        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")
-    except:
-        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d")
-    return (datetime.now() - fecha).days <= 1
 if 'filtro_nombre' not in st.session_state:
     st.session_state.filtro_nombre = ""
 
