@@ -204,17 +204,15 @@ if st.session_state.es_admin:
             tipo = st.selectbox("Tipo de mueble", list(TIPOS_PLURAL.keys()))
 
             st.markdown("**Medidas (rellena solo las necesarias):**")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                medida1 = st.number_input("Medida 1 (cm)", min_value=0.0)
-            with col2:
-                medida2 = st.number_input("Medida 2 (cm)", min_value=0.0)
-            with col3:
-                medida3 = st.number_input("Medida 3 (cm)", min_value=0.0)
+            medidas = {
+                "alto": st.number_input("Alto (cm)", min_value=0.0),
+                "largo": st.number_input("Largo (cm)", min_value=0.0),
+                "fondo": st.number_input("Fondo (cm)", min_value=0.0),
+                "diametro": st.number_input("Diámetro (cm)", min_value=0.0),
+                "diametro_base": st.number_input("Ø Base (cm)", min_value=0.0),
+                "diametro_boca": st.number_input("Ø Boca (cm)", min_value=0.0)
+            }
 
-            imagenes = st.file_uploader("Sube imágenes* (la primera será la principal)",
-                                        type=["jpg", "jpeg", "png"],
-                                        accept_multiple_files=True)
 
             # Reglas de validación por tipo
             medidas_requeridas = {
@@ -650,7 +648,8 @@ with tab1:
                     st.markdown(f"**Tipo:** {mueble['tipo']}")
                     st.markdown(f"**Precio:** {mueble['precio']} €")
                     st.markdown(f"**Tienda:** {mueble['tienda']}")
-                    st.markdown(f"**Medidas:** {mostrar_medidas(mueble['tipo'], mueble['medida1'], mueble['medida2'], mueble['medida3'])}")
+                    st.markdown(f"**Medidas:** {mostrar_medidas_extendido(mueble)}")
+
                     st.markdown(f"**Fecha registro:** {mueble['fecha']}")
                     
                     if mueble['descripcion']:
@@ -728,7 +727,8 @@ with tab2:
                         st.markdown(f"**Tipo:** {mueble['tipo']}")
                         st.markdown(f"**Precio:** {mueble['precio']} €")
                         st.markdown(f"**Tienda:** {mueble['tienda']}")
-                        st.markdown(f"**Medidas:** {mostrar_medidas(mueble['tipo'], mueble['medida1'], mueble['medida2'], mueble['medida3'])}")
+                        st.markdown(f"**Medidas:** {mostrar_medidas_extendido(mueble)}")
+
                         st.markdown(f"**Fecha registro:** {mueble['fecha']}")
                         
                         if mueble['descripcion']:
