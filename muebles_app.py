@@ -1,4 +1,3 @@
-# --- Configuraciones iniciales ---
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
@@ -12,13 +11,13 @@ from io import BytesIO
 import base64
 import logging
 from streamlit import config as _config
+from streamlit.components.v1 import html
 
 st.set_page_config(
     page_title="Inventario El Jueves",
     page_icon="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png",
     layout="wide"
 )
-orden = "Más reciente"
 
 # --- Inicialización segura de variables de sesión ---
 if 'es_admin' not in st.session_state:
@@ -74,6 +73,39 @@ st.markdown("""
         .header-logo { margin-right: 0 !important; margin-bottom: 1rem; }
         .header-title { font-size: 1.5rem !important; text-align: center; }
         .header-logo img { height: 50px !important; }
+    }
+
+    .galeria-mini {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+        padding-top: 8px;
+    }
+    .galeria-mini img {
+        height: 70px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .galeria-mini img:hover {
+        transform: scale(1.05);
+    }
+    .galeria-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .galeria-modal img {
+        max-width: 90%;
+        max-height: 90%;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -462,88 +494,21 @@ def mostrar_formulario_edicion(mueble_id):
 # Galería de imágenes mejorada con miniaturas, ampliación visual y scroll horizontal
 from streamlit.components.v1 import html
 
-def mostrar_galeria_imagenes(imagenes):
-    st.markdown("""
-        <style>
-            .galeria-mini {
-                display: flex;
-                flex-wrap: nowrap;
-                gap: 10px;
-                margin-top: 10px;
-                overflow-x: auto;
-                white-space: nowrap;
-                padding-bottom: 10px;
-            }
-            .galeria-mini img {
-                width: 100px;
-                height: auto;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: transform 0.2s;
-                flex-shrink: 0;
-            }
-            .galeria-mini img:hover {
-                transform: scale(1.05);
-            }
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 999;
-                padding-top: 60px;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgba(0,0,0,0.8);
-            }
-            .modal-content {
-                margin: auto;
-                display: block;
-                max-width: 80%;
-                max-height: 80%;
-                border-radius: 8px;
-            }
-            .close {
-                position: absolute;
-                top: 20px;
-                right: 35px;
-                color: #fff;
-                font-size: 40px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-        </style>
-        <div class="galeria-mini">
-    """, unsafe_allow_html=True)
-
-    js_script = """
-        <script>
-        function openModal(src) {
-            const modal = document.getElementById('modalImage');
-            const img = document.getElementById('modalContent');
-            modal.style.display = "block";
-            img.src = src;
-        }
-        function closeModal() {
-            const modal = document.getElementById('modalImage');
-            modal.style.display = "none";
-        }
-        </script>
-    """
-
-    modal_html = """
-        </div>
-        <div id="modalImage" class="modal" onclick="closeModal()">
-            <span class="close">&times;</span>
-            <img class="modal-content" id="modalContent">
-        </div>
-    """
-
-    html(js_script + "".join([
-        f'<img src="data:image/webp;base64,{img['imagen_base64']}" onclick="openModal(this.src)" />'
-        for img in imagenes
-    ]) + modal_html, height=400)
+def mostrar_medidas_extendido(mueble):
+    etiquetas = {
+        'alto': "Alto",
+        'largo': "Largo",
+        'fondo': "Fondo",
+        'diametro': "Diámetro",
+        'diametro_base': "Ø Base",
+        'diametro_boca': "Ø Boca"
+    }
+    partes = []
+    for clave, nombre in etiquetas.items():
+        valor = mueble.get(clave)
+        if valor not in [None, 0]:
+            partes.append(f"{nombre}: {valor}cm")
+    return " · ".join(partes) if partes else "Sin medidas"
 
 if 'filtro_nombre' not in st.session_state:
     st.session_state.filtro_nombre = ""
