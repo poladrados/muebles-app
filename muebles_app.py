@@ -174,6 +174,21 @@ st.components.v1.html(check_auth_js, height=0, width=0)
 
 conn = get_db_connection()
 c = conn.cursor()
+# --- Pestañas principales ---
+TIPOS_PLURAL = {
+    "Mesa": "Mesas",
+    "Consola": "Consolas",
+    "Buffet": "Buffets",
+    "Biblioteca": "Bibliotecas",
+    "Armario": "Armarios",
+    "Cómoda": "Cómodas",
+    "Columna": "Columnas",
+    "Espejo": "Espejos",
+    "Copa": "Copas",
+    "Asiento": "Asientos",
+    "Otro artículo": "Otros artículos"
+}
+
 if st.session_state.es_admin:
     with st.expander("📥 Añadir nueva antigüedad", expanded=False):
         with st.form(key="form_nuevo_mueble"):
@@ -379,21 +394,6 @@ def mostrar_formulario_edicion(mueble_id):
             if st.form_submit_button("❌ Cancelar edición"):
                 st.session_state.pop('editar_mueble_id', None)
                 st.rerun()
-
-# --- Pestañas principales ---
-TIPOS_PLURAL = {
-    "Mesa": "Mesas",
-    "Consola": "Consolas",
-    "Buffet": "Buffets",
-    "Biblioteca": "Bibliotecas",
-    "Armario": "Armarios",
-    "Cómoda": "Cómodas",
-    "Columna": "Columnas",
-    "Espejo": "Espejos",
-    "Copa": "Copas",
-    "Asiento": "Asientos",
-    "Otro artículo": "Otros artículos"
-}
 
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
