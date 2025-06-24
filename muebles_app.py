@@ -113,7 +113,6 @@ st.set_option('client.showWarningMessages', False)
 # --- Estilos CSS ---
 st.markdown("""
     <style>
-    /* Añadir esto al inicio de tus estilos CSS */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
     
     .header-title,
@@ -122,9 +121,11 @@ st.markdown("""
         font-family: 'Playfair Display', serif !important;
         font-weight: 700 !important;
         letter-spacing: 1px !important;
+        color: #023e8a !important;  /* Asegura el color consistente */
+        margin-bottom: 1rem !important;  /* Espaciado consistente */
     }
     
-    /* Mantén todos tus otros estilos exactamente igual */
+    /* Mantén todos tus otros estilos */
     </style>
 """, unsafe_allow_html=True)
 st.markdown("""
