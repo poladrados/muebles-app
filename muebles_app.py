@@ -493,7 +493,12 @@ def mostrar_galeria_imagenes(imagenes):
         for img in imagenes
     ]) + modal_html, height=400)
 
-# --- Campo de búsqueda ---
+def es_nuevo(fecha_str):
+    try:
+        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")
+    except:
+        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d")
+    return (datetime.now() - fecha).days <= 1
 if 'filtro_nombre' not in st.session_state:
     st.session_state.filtro_nombre = ""
 
@@ -504,14 +509,6 @@ if filtro_nombre != st.session_state.filtro_nombre:
 if filtro_nombre:
     query += " AND LOWER(nombre) LIKE %s"
     params.append(f"%{filtro_nombre.lower()}%")
-
-# --- NUEVO: etiqueta 🆕 para muebles recientes ---
-def es_nuevo(fecha_str):
-    try:
-        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")
-    except:
-        fecha = datetime.strptime(str(fecha_str), "%Y-%m-%d")
-    return (datetime.now() - fecha).days <= 1
 
 # --- NUEVO: botón flotante para añadir mueble (solo en móvil/admin) ---
 st.markdown("""
