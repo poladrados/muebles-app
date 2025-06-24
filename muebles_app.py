@@ -409,14 +409,20 @@ def mostrar_formulario_edicion(mueble_id):
 # Galería de imágenes mejorada con miniaturas y ampliación visual
 from streamlit.components.v1 import html
 
+# Galería de imágenes mejorada con miniaturas, ampliación visual y scroll horizontal
+from streamlit.components.v1 import html
+
 def mostrar_galeria_imagenes(imagenes):
     st.markdown("""
         <style>
             .galeria-mini {
                 display: flex;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
                 gap: 10px;
                 margin-top: 10px;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 10px;
             }
             .galeria-mini img {
                 width: 100px;
@@ -424,6 +430,7 @@ def mostrar_galeria_imagenes(imagenes):
                 border-radius: 5px;
                 cursor: pointer;
                 transition: transform 0.2s;
+                flex-shrink: 0;
             }
             .galeria-mini img:hover {
                 transform: scale(1.05);
@@ -488,8 +495,17 @@ def mostrar_galeria_imagenes(imagenes):
         for img in imagenes
     ]) + modal_html, height=400)
 
-# Uso: dentro de los tabs, reemplaza la parte del expander de imágenes secundarias por:
-# mostrar_galeria_imagenes(imagenes_mueble[1:])
+# --- Campo de búsqueda ---
+if 'filtro_nombre' not in st.session_state:
+    st.session_state.filtro_nombre = ""
+
+filtro_nombre = st.text_input("🔍 Buscar por nombre", value=st.session_state.filtro_nombre)
+if filtro_nombre != st.session_state.filtro_nombre:
+    st.session_state.filtro_nombre = filtro_nombre
+
+if filtro_nombre:
+    query += " AND LOWER(nombre) LIKE %s"
+    params.append(f"%{filtro_nombre.lower()}%")
 
 
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
