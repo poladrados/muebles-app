@@ -274,21 +274,26 @@ if st.session_state.es_admin:
 
             guardar = st.form_submit_button("Guardar")
             if guardar:
-                if not nombre or precio <= 0 or not imagenes:
+                if not nombre or precio <= 0:
                     st.warning("Por favor, rellena todos los campos obligatorios.")
                     st.stop()
-
-                # Validar medidas
+            
+                # Validar medidas requeridas según el tipo
+                claves_medidas = {
+                    "medida1": "alto",
+                    "medida2": "largo",
+                    "medida3": "fondo"
+                }
                 errores = []
-                if "medida1" in medidas_requeridas[tipo] and medida1 <= 0:
-                    errores.append("Medida 1")
-                if "medida2" in medidas_requeridas[tipo] and medida2 <= 0:
-                    errores.append("Medida 2")
-                if "medida3" in medidas_requeridas[tipo] and medida3 <= 0:
-                    errores.append("Medida 3")
+                for requerida in medidas_requeridas[tipo]:
+                    clave = claves_medidas.get(requerida)
+                    if clave and medidas[clave] <= 0:
+                        errores.append(requerida)
+            
                 if errores:
                     st.error(f"Faltan las siguientes medidas requeridas: {', '.join(errores)}")
                     st.stop()
+
 
                 # Insertar en muebles
                 c.execute("""
