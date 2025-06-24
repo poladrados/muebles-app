@@ -61,11 +61,16 @@ st.markdown("""
         margin-bottom: 2rem;
     }
 
+    .header-logo {
+        margin-right: 1.5rem;
+    }
+
     .header-logo img { height: 80px; width: auto; }
     .header-title { font-size: 2.5rem !important; }
 
     @media (max-width: 768px) {
         .custom-header { padding: 0.8rem 1rem !important; flex-direction: column; }
+        .header-logo { margin-right: 0 !important; margin-bottom: 1rem; }
         .header-title { font-size: 1.5rem !important; text-align: center; }
         .header-logo img { height: 50px !important; }
     }
@@ -169,7 +174,6 @@ st.components.v1.html(check_auth_js, height=0, width=0)
 
 conn = get_db_connection()
 c = conn.cursor()
-
 
 
 # --- Barra lateral ---
