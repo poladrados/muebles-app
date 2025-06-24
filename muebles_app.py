@@ -175,6 +175,93 @@ st.components.v1.html(check_auth_js, height=0, width=0)
 conn = get_db_connection()
 c = conn.cursor()
 
+[... CÓDIGO ANTERIOR ...]
+
+# Inserta aquí el nuevo bloque que permite a los administradores añadir nuevos muebles
+if st.session_state.es_admin:
+    with st.expander("📥 Añadir nueva antigüedad", expanded=False):
+        with st.form(key="form_nuevo_mueble"):
+            col1, col2 = st.columns(2)
+            with col1:
+                tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], horizontal=True)
+            with col2:
+                vendido = st.checkbox("Marcar como vendido", value=False)
+
+            nombre = st.text_input("Nombre del mueble*")
+            precio = st.number_input("Precio (€)*", min_value=0.0, step=1.0)
+            descripcion = st.text_area("Descripción")
+            tipo = st.selectbox("Tipo de mueble", list(TIPOS_PLURAL.keys()))
+
+            st.markdown("**Medidas (rellena solo las necesarias):**")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                medida1 = st.number_input("Medida 1 (cm)", min_value=0.0)
+            with col2:
+                medida2 = st.number_input("Medida 2 (cm)", min_value=0.0)
+            with col3:
+                medida3 = st.number_input("Medida 3 (cm)", min_value=0.0)
+
+            imagenes = st.file_uploader("Sube imágenes* (la primera será la principal)",
+                                        type=["jpg", "jpeg", "png"],
+                                        accept_multiple_files=True)
+
+            # Reglas de validación por tipo
+            medidas_requeridas = {
+                "Mesa": ["medida1", "medida2", "medida3"],
+                "Consola": ["medida1", "medida2", "medida3"],
+                "Buffet": ["medida1", "medida2", "medida3"],
+                "Biblioteca": ["medida1", "medida2", "medida3"],
+                "Armario": ["medida1", "medida2", "medida3"],
+                "Cómoda": ["medida1", "medida2", "medida3"],
+                "Columna": ["medida1"],
+                "Espejo": ["medida1", "medida2"],
+                "Copa": ["medida1", "medida2", "medida3"],
+                "Asiento": [],
+                "Otro artículo": []
+            }
+
+            st.caption(f"ℹ️ Medidas requeridas para {tipo}: {', '.join(medidas_requeridas[tipo]) if medidas_requeridas[tipo] else 'Opcionales'}")
+
+            guardar = st.form_submit_button("Guardar")
+            if guardar:
+                if not nombre or precio <= 0 or not imagenes:
+                    st.warning("Por favor, rellena todos los campos obligatorios.")
+                    st.stop()
+
+                # Validar medidas
+                errores = []
+                if "medida1" in medidas_requeridas[tipo] and medida1 <= 0:
+                    errores.append("Medida 1")
+                if "medida2" in medidas_requeridas[tipo] and medida2 <= 0:
+                    errores.append("Medida 2")
+                if "medida3" in medidas_requeridas[tipo] and medida3 <= 0:
+                    errores.append("Medida 3")
+                if errores:
+                    st.error(f"Faltan las siguientes medidas requeridas: {', '.join(errores)}")
+                    st.stop()
+
+                # Insertar en muebles
+                c.execute("""
+                    INSERT INTO muebles (nombre, precio, descripcion, tienda, vendido, tipo, medida1, medida2, medida3, fecha)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (nombre, precio, descripcion, tienda, vendido, tipo, medida1 or None, medida2 or None, medida3 or None, datetime.now()))
+                c.execute("SELECT LASTVAL()")
+                mueble_id = c.fetchone()[0]
+
+                # Insertar imágenes
+                for i, imagen in enumerate(imagenes):
+                    base64_str = image_to_base64(imagen)
+                    es_principal = i == 0
+                    c.execute("""
+                        INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
+                        VALUES (%s, %s, %s)
+                    """, (mueble_id, base64_str, es_principal))
+
+                conn.commit()
+                st.success("✅ ¡Mueble añadido con éxito!")
+                st.rerun()
+
+
 
 # --- Barra lateral ---
 with st.sidebar:
