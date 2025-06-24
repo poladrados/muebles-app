@@ -297,9 +297,22 @@ if st.session_state.es_admin:
 
                 # Insertar en muebles
                 c.execute("""
-                    INSERT INTO muebles (nombre, precio, descripcion, tienda, vendido, tipo, medida1, medida2, medida3, fecha)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """, (nombre, precio, descripcion, tienda, vendido, tipo, medida1 or None, medida2 or None, medida3 or None, datetime.now()))
+                    INSERT INTO muebles (
+                        nombre, precio, descripcion, tienda, vendido, tipo, fecha,
+                        alto, largo, fondo, diametro, diametro_base, diametro_boca
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s, %s, %s, %s)
+                """, (
+                    nombre, precio, descripcion, tienda, vendido, tipo, datetime.now(),
+                    medidas["alto"] or None,
+                    medidas["largo"] or None,
+                    medidas["fondo"] or None,
+                    medidas["diametro"] or None,
+                    medidas["diametro_base"] or None,
+                    medidas["diametro_boca"] or None
+                ))
+
                 c.execute("SELECT LASTVAL()")
                 mueble_id = c.fetchone()[0]
 
