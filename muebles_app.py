@@ -353,15 +353,19 @@ medidas = {
     "diametro_boca": st.number_input("Ø Boca (cm)", min_value=0.0)
 }
 def es_nuevo(fecha_str):
-    try:
-        # Intenta primero con fecha y hora
-        return (datetime.now() - datetime.strptime(str(fecha_str), "%Y-%m-%d %H:%M:%S")).days <= 1
-    except ValueError:
+    formatos_posibles = [
+        "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
+        "%Y-%m-%d %H:%M:%S",     # con segundos
+        "%Y-%m-%d"               # solo fecha
+    ]
+    for formato in formatos_posibles:
         try:
-            # Intenta solo con la fecha
-            return (datetime.now() - datetime.strptime(str(fecha_str), "%Y-%m-%d")).days <= 1
-        except:
-            return False
+            fecha = datetime.strptime(str(fecha_str), formato)
+            return (datetime.now() - fecha).days <= 1
+        except ValueError:
+            continue
+    return False  # Si ninguno de los formatos funcionó
+
 
 def mostrar_formulario_edicion(mueble_id):
     c.execute("SELECT * FROM muebles WHERE id = %s", (mueble_id,))
