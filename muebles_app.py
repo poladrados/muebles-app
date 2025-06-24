@@ -22,6 +22,10 @@ st.set_page_config(
 # --- Inicialización segura de variables de sesión ---
 if 'es_admin' not in st.session_state:
     st.session_state.es_admin = False
+if 'admin_token' not in st.session_state:
+    st.session_state.admin_token = None
+if 'editar_mueble_id' not in st.session_state:
+    st.session_state.editar_mueble_id = None
 
 # --- Estilos CSS unificados y globales ---
 st.markdown("""
@@ -82,6 +86,7 @@ logging.getLogger('streamlit.delta_generator').setLevel(logging.ERROR)
 # (no modifiqué esa parte porque está bien y no interfiere con los estilos o debug)
 
 # Elimina cualquier st.write(...) que uses para depurar st.secrets u otros objetos si ya confirmaste que todo funciona.
+
 
 
 
