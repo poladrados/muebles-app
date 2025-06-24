@@ -174,7 +174,8 @@ if (!getQueryParam('admin_token') && localStorage.getItem('admin_token')) {
 st.components.v1.html(check_auth_js, height=0, width=0)
 
 conn = get_db_connection()
-c = conn.cursor()
+c = conn.cursor(cursor_factory=RealDictCursor)
+
 TIPOS_PLURAL = {
     "Mesa": "Mesas",
     "Consola": "Consolas",
