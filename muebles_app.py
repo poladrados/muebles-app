@@ -363,66 +363,37 @@ def mostrar_slider_imagenes(imagenes):
     if not imagenes:
         return
 
-    slides = "".join([
-        f'<img class="slide" src="data:image/webp;base64,{img["imagen_base64"]}">'
+    slides_html = "".join([
+        f'<img src="data:image/webp;base64,{img["imagen_base64"]}" class="slide">'
         for img in imagenes
     ])
 
-    html_content = f"""
-    <style>
-    .slider-container {{
-        position: relative;
-        width: 100%;
-        max-width: 400px;
-        margin-top: 10px;
-    }}
-    .slide {{
-        display: none;
-        width: 100%;
-        border-radius: 8px;
-    }}
-    .slide.active {{
-        display: block;
-    }}
-    .arrow {{
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0,0,0,0.5);
-        color: white;
-        padding: 8px;
-        cursor: pointer;
-        border-radius: 50%;
-        font-size: 18px;
-    }}
-    .left-arrow {{ left: 0; }}
-    .right-arrow {{ right: 0; }}
-    </style>
-
-    <div class="slider-container">
-        {slides}
-        <div class="arrow left-arrow" onclick="changeSlide(-1)">❮</div>
-        <div class="arrow right-arrow" onclick="changeSlide(1)">❯</div>
-    </div>
-
+    script = """
     <script>
-    let currentSlide = 0;
-    const slides = window.parent.document.querySelectorAll('.slider-container .slide');
-    function showSlide(index) {{
-        slides.forEach((img, i) => {{
-            img.classList.remove('active');
-            if (i === index) img.classList.add('active');
-        }});
-    }}
-    function changeSlide(n) {{
-        currentSlide = (currentSlide + n + slides.length) % slides.length;
-        showSlide(currentSlide);
-    }}
-    if (slides.length) showSlide(currentSlide);
+    let current = 0;
+    function showSlide(n) {
+        const slides = window.parent.document.querySelectorAll('.slider-container .slide');
+        if (slides.length === 0) return;
+        slides.forEach((img, i) => img.classList.remove('active'));
+        slides[n].classList.add('active');
+    }
+    function plusSlides(n) {
+        const slides = window.parent.document.querySelectorAll('.slider-container .slide');
+        current = (current + n + slides.length) % slides.length;
+        showSlide(current);
+    }
+    showSlide(current);
     </script>
     """
 
-    html(html_content, height=300)
+    html(f"""
+        <div class="slider-container">
+            {slides_html}
+            <div class="slider-arrow left" onclick="plusSlides(-1)">&#10094;</div>
+            <div class="slider-arrow right" onclick="plusSlides(1)">&#10095;</div>
+        </div>
+        {script}
+    """, height=320)
 def es_nuevo(fecha_str):
     formatos_posibles = [
         "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
