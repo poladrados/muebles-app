@@ -69,6 +69,18 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# --- Encabezado principal ---
+st.markdown("""
+    <div class="custom-header">
+        <div class="header-logo">
+            <img src="https://raw.githubusercontent.com/poladrados/muebles-app/main/images/web-app-manifest-192x192.png" alt="Logo">
+        </div>
+        <div class="header-title-container">
+            <h1 class="header-title">Inventario de Antigüedades El Jueves</h1>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
 # --- Configuración de seguridad ---
 ADMIN_PASSWORD_HASH = "c1c560d0e2bf0d3c36c85714d22c16be0be30efc9f480eff623b486778be2110"
 
