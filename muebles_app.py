@@ -75,37 +75,39 @@ st.markdown("""
         .header-logo img { height: 50px !important; }
     }
 
-    .galeria-mini {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 8px;
-        padding-top: 8px;
-    }
-    .galeria-mini img {
-        height: 70px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: transform 0.2s;
-    }
-    .galeria-mini img:hover {
-        transform: scale(1.05);
-    }
-    .galeria-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
+    /* Slider personalizado */
+    .slider-container {
+        position: relative;
         width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
+        max-width: 400px;
+        margin: 10px auto;
+        overflow: hidden;
+        border-radius: 8px;
     }
-    .galeria-modal img {
-        max-width: 90%;
-        max-height: 90%;
+    .slider-container img {
+        width: 100%;
+        display: none;
+    }
+    .slider-container img.active {
+        display: block;
+    }
+    .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 8px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 2;
+        font-size: 20px;
+    }
+    .slider-arrow.left {
+        left: 10px;
+    }
+    .slider-arrow.right {
+        right: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
