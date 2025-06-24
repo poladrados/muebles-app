@@ -82,12 +82,78 @@ logging.getLogger('streamlit').setLevel(logging.ERROR)
 logging.getLogger('streamlit.runtime').setLevel(logging.ERROR)
 logging.getLogger('streamlit.delta_generator').setLevel(logging.ERROR)
 
-# Aquí continúa tu lógica de conexión, autenticación y resto de la app...
-# (no modifiqué esa parte porque está bien y no interfiere con los estilos o debug)
+# --- Funciones faltantes que se habían omitido ---
+def image_to_base64(image, max_size=800, quality=85):
+    img = Image.open(image)
+    if max(img.size) > max_size:
+        img.thumbnail((max_size, max_size))
+    buffered = BytesIO()
+    img.save(buffered, format="WEBP", quality=quality)
+    return base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-# Elimina cualquier st.write(...) que uses para depurar st.secrets u otros objetos si ya confirmaste que todo funciona.
+def base64_to_image(base64_str):
+    return Image.open(BytesIO(base64.b64decode(base64_str)))
 
+def get_db_connection():
+    try:
+        conn = psycopg2.connect(
+            host=st.secrets["postgres"]["host"],
+            dbname=st.secrets["postgres"]["dbname"],
+            user=st.secrets["postgres"]["user"],
+            password=st.secrets["postgres"]["password"],
+            port=st.secrets["postgres"]["port"],
+            sslmode="require",
+            connect_timeout=3
+        )
+        return conn
+    except Exception as e:
+        st.error(f"Error de conexión: {str(e)}")
+        st.stop()
 
+def init_session():
+    if 'es_admin' not in st.session_state:
+        st.session_state.es_admin = False
+    query_params = st.query_params.to_dict()
+    if 'admin_token' in query_params:
+        token = query_params['admin_token']
+        if token == ADMIN_PASSWORD_HASH:
+            st.session_state.es_admin = True
+            st.session_state.admin_token = token
+
+def verificar_admin(password):
+    hash_input = hashlib.sha256(password.encode()).hexdigest()
+    if hash_input == ADMIN_PASSWORD_HASH:
+        st.session_state.es_admin = True
+        st.session_state.admin_token = ADMIN_PASSWORD_HASH
+        st.query_params.clear()
+        st.query_params["admin_token"] = ADMIN_PASSWORD_HASH
+        js = f"""
+        <script>
+            localStorage.setItem('admin_token', '{ADMIN_PASSWORD_HASH}');
+        </script>
+        """
+        st.components.v1.html(js, height=0, width=0)
+        return True
+    return False
+
+init_session()
+
+check_auth_js = """
+<script>
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+if (!getQueryParam('admin_token') && localStorage.getItem('admin_token')) {
+    window.location.search = '?admin_token=' + localStorage.getItem('admin_token');
+}
+</script>
+"""
+st.components.v1.html(check_auth_js, height=0, width=0)
+
+conn = get_db_connection()
+c = conn.cursor()
 
 
 # --- Barra lateral ---
