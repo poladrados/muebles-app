@@ -39,45 +39,12 @@ def get_db_connection():
             user=st.secrets["postgres"]["user"],
             password=st.secrets["postgres"]["password"],
             port=st.secrets["postgres"]["port"],
-            sslmode="require",  # ¡Forzar SSL!
-            connect_timeout=3  # Timeout más corto para debug
+            sslmode="require",
+            connect_timeout=3
         )
-        
-        # Verificación EXPRÉS de tablas (sin intentar crearlas)
-        with conn.cursor() as cur:
-            cur.execute("""
-                SELECT EXISTS (
-                    SELECT FROM pg_tables 
-                    WHERE tablename = 'muebles'
-                ) AS muebles_existe,
-                EXISTS (
-                    SELECT FROM pg_tables 
-                    WHERE tablename = 'imagenes_muebles'
-                ) AS imagenes_existe;
-            """)
-            tablas = cur.fetchone()
-            
-            if not all(tablas):
-                st.error(f"""
-                ❌ Tablas faltantes en Neon:
-                - muebles: {'✅' if tablas[0] else '❌'}
-                - imagenes_muebles: {'✅' if tablas[1] else '❌'}
-                """)
-                st.stop()
-                
         return conn
-        
     except Exception as e:
-        st.error(f"""
-        🚨 Error de conexión CRÍTICO:
-        {str(e)}
-        
-        Pasos para solucionar:
-        1. Verifica que ambas tablas existen (usa el SQL que te envié)
-        2. Revisa que 'secrets.toml' tenga exactamente estos nombres:
-           - host, dbname, user, password, port, sslmode
-        3. Prueba conectarte con psql nuevamente
-        """)
+        st.error(f"Error de conexión: {str(e)}")
         st.stop()
 
 # --- Autenticación y sesión ---
