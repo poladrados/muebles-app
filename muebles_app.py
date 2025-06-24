@@ -653,7 +653,7 @@ with tab1:
                             st.image(img_principal, use_container_width=True)
                             
                             if len(imagenes_mueble) > 1:
-                                mostrar_galeria_imagenes(imagenes_mueble[1:])
+                                mostrar_slider_imagenes(imagenes_mueble[1:])
 
                         except:
                             st.warning("Error al cargar imagen principal")
@@ -732,7 +732,8 @@ with tab2:
                                 st.image(img_principal, use_container_width=True)
                                 
                                 if len(imagenes_mueble) > 1:
-                                    mostrar_galeria_imagenes(imagenes_mueble[1:])
+                                    mostrar_slider_imagenes(imagenes_mueble[1:])
+
 
                             except:
                                 st.warning("Error al cargar imagen principal")
