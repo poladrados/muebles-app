@@ -290,7 +290,7 @@ with st.sidebar:
         if st.button("🚪 Salir del modo admin"):
             st.session_state.es_admin = False
             st.session_state.pop('admin_token', None)
-            st.experimental_set_query_params()
+            st.query_params.clear()
             st.rerun()
     
     # Estadísticas
