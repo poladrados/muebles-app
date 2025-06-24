@@ -359,31 +359,26 @@ with st.sidebar:
 
 
 # --- Funciones auxiliares ---
-def mostrar_medidas_extendido(mueble):
-    etiquetas = {
-        'alto': "Alto",
-        'largo': "Largo",
-        'fondo': "Fondo",
-        'diametro': "Diámetro",
-        'diametro_base': "Ø Base",
-        'diametro_boca': "Ø Boca"
-    }
-    partes = []
-    for clave, nombre in etiquetas.items():
-        valor = mueble[clave] if clave in mueble else None
-        if valor not in [None, 0]:
-            partes.append(f"{nombre}: {valor}cm")
-    return " · ".join(partes) if partes else "Sin medidas"
-
-# --- Variables de medidas ---
-medidas = {
-    "alto": st.number_input("Alto (cm)", min_value=0.0),
-    "largo": st.number_input("Largo (cm)", min_value=0.0),
-    "fondo": st.number_input("Fondo (cm)", min_value=0.0),
-    "diametro": st.number_input("Diámetro (cm)", min_value=0.0),
-    "diametro_base": st.number_input("Ø Base (cm)", min_value=0.0),
-    "diametro_boca": st.number_input("Ø Boca (cm)", min_value=0.0)
-}
+def mostrar_galeria_imagenes(imagenes):
+    if not imagenes:
+        return
+    thumbs_html = "".join([
+        f'<img src="data:image/webp;base64,{img['imagen_base64']}" onclick="mostrarModal(this.src)" />'
+        for img in imagenes
+    ])
+    galeria_html = f"""
+    <div class="galeria-mini">{thumbs_html}</div>
+    <div id="galeriaModal" class="galeria-modal" style="display:none" onclick="this.style.display='none'">
+        <img id="galeriaModalImg" />
+    </div>
+    <script>
+        function mostrarModal(src) {{
+            document.getElementById('galeriaModalImg').src = src;
+            document.getElementById('galeriaModal').style.display = 'flex';
+        }}
+    </script>
+    """
+    html(galeria_html, height=130)
 def es_nuevo(fecha_str):
     formatos_posibles = [
         "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
