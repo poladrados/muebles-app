@@ -389,40 +389,55 @@ with st.sidebar:
 
 
 # --- Funciones auxiliares ---
-def mostrar_slider_imagenes(imagenes, mueble_id):
+def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
-
-    slides_html = "".join([
-        f'<img src="data:image/webp;base64,{img["imagen_base64"]}" class="slide_{mueble_id}">' for img in imagenes
-    ])
-
-    script = f"""
-    <script>
-    let current_{mueble_id} = 0;
-    function showSlide_{mueble_id}(n) {{
-        const slides = window.parent.document.querySelectorAll('.slide_{mueble_id}');
-        if (slides.length === 0) return;
-        slides.forEach((img, i) => img.classList.remove('active'));
-        slides[n].classList.add('active');
-    }}
-    function plusSlides_{mueble_id}(n) {{
-        const slides = window.parent.document.querySelectorAll('.slide_{mueble_id}');
-        current_{mueble_id} = (current_{mueble_id} + n + slides.length) % slides.length;
-        showSlide_{mueble_id}(current_{mueble_id});
-    }}
-    showSlide_{mueble_id}(current_{mueble_id});
-    </script>
+    
+    # Mostrar la imagen principal con posibilidad de ampliación
+    img_principal_base64 = imagenes[0]['imagen_base64']
+    html_code = f"""
+    <div style="cursor: pointer;" onclick="
+        document.getElementById('img-{mueble_id}').style.display = 'block';
+        document.getElementById('img-{mueble_id}-content').src = 'data:image/webp;base64,{img_principal_base64}';
+    ">
+        <img src="data:image/webp;base64,{img_principal_base64}" style="width: 100%; border-radius: 8px;">
+    </div>
+    <div id="img-{mueble_id}" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        z-index: 1000;
+        text-align: center;
+        cursor: pointer;
+    " onclick="this.style.display='none'">
+        <img id="img-{mueble_id}-content" style="
+            max-height: 90%;
+            max-width: 90%;
+            margin-top: 5vh;
+        ">
+    </div>
     """
-
-    html(f"""
-        <div class="slider-container">
-            {slides_html}
-            <div class="slider-arrow left" onclick="plusSlides_{mueble_id}(-1)">&#10094;</div>
-            <div class="slider-arrow right" onclick="plusSlides_{mueble_id}(1)">&#10095;</div>
-        </div>
-        {script}
-    """, height=320)
+    st.markdown(html_code, unsafe_allow_html=True)
+    
+    # Si hay más imágenes, mostrar un desplegable
+    if len(imagenes) > 1:
+        with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})"):
+            cols = st.columns(3)  # Mostrar 3 imágenes por fila
+            for i, img_dict in enumerate(imagenes[1:], 1):
+                with cols[(i-1) % 3]:
+                    img_base64 = img_dict['imagen_base64']
+                    st.markdown(f"""
+                    <div style="cursor: pointer;" onclick="
+                        document.getElementById('img-{mueble_id}').style.display = 'block';
+                        document.getElementById('img-{mueble_id}-content').src = 'data:image/webp;base64,{img_base64}';
+                    ">
+                        <img src="data:image/webp;base64,{img_base64}" style="width: 100%; border-radius: 8px;">
+                    </div>
+                    """, unsafe_allow_html=True)
 def es_nuevo(fecha_str):
     formatos_posibles = [
         "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
@@ -649,14 +664,9 @@ with tab1:
                     
                     if imagenes_mueble:
                         try:
-                            img_principal = base64_to_image(imagenes_mueble[0]['imagen_base64'])
-                            st.image(img_principal, use_container_width=True)
-                            
-                            if len(imagenes_mueble) > 1:
-                                mostrar_slider_imagenes(imagenes_mueble[1:], mueble['id'])
-
+                            mostrar_galeria_imagenes(imagenes_mueble, mueble['id'])
                         except:
-                            st.warning("Error al cargar imagen principal")
+                            st.warning("Error al cargar imágenes")
                 
                 with col_info:
                     st.markdown(f"### {mueble['nombre']}")
@@ -728,16 +738,9 @@ with tab2:
                         
                         if imagenes_mueble:
                             try:
-                                img_principal = base64_to_image(imagenes_mueble[0]['imagen_base64'])
-                                st.image(img_principal, use_container_width=True)
-                                
-                                if len(imagenes_mueble) > 1:
-                                    mostrar_slider_imagenes(imagenes_mueble[1:], mueble['id'])
-
-
-
+                                mostrar_galeria_imagenes(imagenes_mueble, mueble['id'])
                             except:
-                                st.warning("Error al cargar imagen principal")
+                                st.warning("Error al cargar imágenes")
                     
                     with col_info:
                         st.markdown(f"### {mueble['nombre']}")
