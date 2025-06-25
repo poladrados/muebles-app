@@ -324,6 +324,17 @@ if (!getQueryParam('admin_token') && localStorage.getItem('admin_token')) {
 st.components.v1.html(check_auth_js, height=0, width=0)
 
 conn = get_db_connection()
+# Detectar el parámetro ?id=... en la URL
+query_params = st.query_params.to_dict()
+id_param = query_params.get("id")
+
+if id_param:
+    try:
+        mueble_id_destacado = int(id_param)
+        st.session_state['mueble_destacado'] = mueble_id_destacado
+    except:
+        st.warning("El ID proporcionado no es válido.")
+
 c = conn.cursor(cursor_factory=RealDictCursor)
 
 TIPOS_PLURAL = {
@@ -688,7 +699,12 @@ with tab1:
     if not muebles:
         st.info("No hay muebles disponibles")
     else:
+        mueble_destacado = st.session_state.get('mueble_destacado')
+
         for mueble in muebles:
+            if mueble_destacado and mueble['id'] != mueble_destacado:
+                continue  # solo mostrar el mueble solicitado por parámetro ?id=
+
             with st.container(border=True):
                 col_img, col_info = st.columns([1, 3])
                 
@@ -715,12 +731,11 @@ with tab1:
                     st.markdown(f"**Precio:** {mueble['precio']} €")
                     st.markdown(f"**Tienda:** {mueble['tienda']}")
                     st.markdown(f"**Medidas:** {mostrar_medidas_extendido(mueble)}")
-
                     st.markdown(f"**Fecha registro:** {mueble['fecha']}")
-                    
+
                     desc = mueble['descripcion']
                     if desc:
-                        if desc and len(desc) > 200:
+                        if len(desc) > 200:
                             resumen = desc[:200] + "..."
                             if st.button(f"🔎 Ver más", key=f"desc_{mueble['id']}"):
                                 st.markdown(f"**Descripción completa:** {desc}")
@@ -729,43 +744,48 @@ with tab1:
                         else:
                             st.markdown(f"**Descripción:** {desc}")
 
+                    import urllib.parse
                     share_url = f"https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/?id={mueble['id']}"
                     mensaje = f"Mira este mueble: {share_url}"
                     mensaje_codificado = urllib.parse.quote(mensaje)
                     whatsapp_url = f"https://wa.me/?text={mensaje_codificado}"
                     st.markdown(f"[📱 Compartir por WhatsApp]({whatsapp_url})", unsafe_allow_html=True)
 
-                    
                     if st.session_state.get('editar_mueble_id') == mueble['id']:
                         mostrar_formulario_edicion(mueble['id'])
-                    
+
                     if st.session_state.es_admin:
                         col1, col2, col3 = st.columns(3)
-                        
+
                         with col1:
                             if st.button(f"✏️ Editar", key=f"editar_{mueble['id']}"):
                                 st.session_state['editar_mueble_id'] = mueble['id']
                                 st.rerun()
-                        
+
                         with col2:
                             if st.button(f"🗑️ Eliminar", key=f"eliminar_{mueble['id']}"):
-                                if st.session_state.get(f'confirm_eliminar_{mueble['id']}'):
+                                if st.session_state.get(f'confirm_eliminar_{mueble["id"]}'):
                                     c.execute("DELETE FROM imagenes_muebles WHERE mueble_id = %s", (mueble['id'],))
                                     c.execute("DELETE FROM muebles WHERE id = %s", (mueble['id'],))
                                     conn.commit()
                                     st.rerun()
                                 else:
-                                    st.session_state[f'confirm_eliminar_{mueble['id']}'] = True
+                                    st.session_state[f'confirm_eliminar_{mueble["id"]}'] = True
                                     st.rerun()
-                            
-                            if st.session_state.get(f'confirm_eliminar_{mueble['id']}'):
+
+                            if st.session_state.get(f'confirm_eliminar_{mueble["id"]}'):
                                 st.warning("¿Confirmar eliminación?")
-                        
+
                         with col3:
                             if st.button(f"✔️ Marcar como vendido", key=f"vendido_{mueble['id']}"):
                                 c.execute("UPDATE muebles SET vendido = TRUE WHERE id = %s", (mueble['id'],))
                                 conn.commit()
                                 st.rerun()
+
+        # Limpiar el estado tras mostrar el mueble
+        if mueble_destacado:
+            st.session_state.pop('mueble_destacado', None)
+
 
 # Pestaña 2: Vendidos (solo para admin)
 with tab2:
