@@ -54,21 +54,46 @@ html, body, [class*="css"] {
 
 .custom-header {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     background-color: white;
-    padding: 1rem 2rem;
+    padding: 1rem 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     margin-bottom: 2rem;
+    text-align: center;
 }
 
 .header-logo {
-    margin-right: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
-.header-logo img { height: 80px; width: auto; }
-.header-title { font-size: 2.5rem !important; }
+.header-logo img {
+    height: 60px;
+    width: auto;
+}
+
+.header-title {
+    font-size: 1.8rem !important;
+    margin: 0 !important;
+}
+
+/* En pantallas pequeñas (móvil) */
+@media (max-width: 768px) {
+    .header-title {
+        font-size: 1.4rem !important;
+        line-height: 1.4;
+    }
+
+    .header-logo img {
+        height: 50px;
+    }
+
+    .custom-header {
+        padding: 1rem;
+    }
+}
+
 
 .mueble-image-container {
     position: relative;
