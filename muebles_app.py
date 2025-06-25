@@ -336,64 +336,65 @@ if st.session_state.es_admin:
             descripcion = st.text_area("Descripción")
             tipo = st.selectbox("Tipo de mueble", list(TIPOS_PLURAL.keys()))
 
-            st.markdown("**Medidas (rellena solo las necesarias):**")
-            medidas = {
-                "alto": st.number_input("Alto (cm)", min_value=0.0),
-                "largo": st.number_input("Largo (cm)", min_value=0.0),
-                "fondo": st.number_input("Fondo (cm)", min_value=0.0),
-                "diametro": st.number_input("Diámetro (cm)", min_value=0.0),
-                "diametro_base": st.number_input("Ø Base (cm)", min_value=0.0),
-                "diametro_boca": st.number_input("Ø Boca (cm)", min_value=0.0)
+# Mostrar si es redondo para algunos tipos
+            es_redondo = False
+            tipos_redondos = ["Mesa", "Copa", "Otro artículo"]
+            if tipo in tipos_redondos:
+                es_redondo = st.radio("¿Es redondo?", ["No", "Sí"], horizontal=True) == "Sí"
+            
+            # Definir qué medidas mostrar según tipo y forma
+            if tipo == "Mesa":
+                medidas_visibles = ["alto", "diametro"] if es_redondo else ["alto", "largo", "fondo"]
+            elif tipo == "Copa":
+                medidas_visibles = ["alto", "diametro_base", "diametro_boca"]
+            elif tipo == "Columna":
+                medidas_visibles = ["alto"]
+            elif tipo == "Espejo":
+                medidas_visibles = ["alto", "largo"]
+            else:
+                medidas_visibles = []
+            
+            # Mostrar campos
+            st.markdown("**Medidas (rellena las necesarias):**")
+            medidas = {}
+            etiquetas = {
+                "alto": "Alto (cm)",
+                "largo": "Largo (cm)",
+                "fondo": "Fondo (cm)",
+                "diametro": "Diámetro (cm)",
+                "diametro_base": "Ø Base (cm)",
+                "diametro_boca": "Ø Boca (cm)"
             }
+            for clave in etiquetas:
+                if clave in medidas_visibles:
+                    medidas[clave] = st.number_input(etiquetas[clave], min_value=0.0)
+                else:
+                    medidas[clave] = 0.0  # para que exista en la base aunque no se pida
+            
+            if medidas_visibles:
+                st.caption(f"ℹ️ Medidas requeridas para {tipo}: {', '.join([etiquetas[m] for m in medidas_visibles])}")
+            else:
+                st.caption("ℹ️ Todas las medidas son opcionales")
 
-
-
-            # Reglas de validación por tipo
-            medidas_requeridas = {
-                "Mesa": ["medida1", "medida2", "medida3"],
-                "Consola": ["medida1", "medida2", "medida3"],
-                "Buffet": ["medida1", "medida2", "medida3"],
-                "Biblioteca": ["medida1", "medida2", "medida3"],
-                "Armario": ["medida1", "medida2", "medida3"],
-                "Cómoda": ["medida1", "medida2", "medida3"],
-                "Columna": ["medida1"],
-                "Espejo": ["medida1", "medida2"],
-                "Copa": ["medida1", "medida2", "medida3"],
-                "Asiento": [],
-                "Otro artículo": []
-            }
-
-            st.caption(f"ℹ️ Medidas requeridas para {tipo}: {', '.join(medidas_requeridas[tipo]) if medidas_requeridas[tipo] else 'Opcionales'}")
             imagenes = st.file_uploader("Seleccionar imágenes", 
                                 type=["jpg", "jpeg", "png"], 
                                 accept_multiple_files=True)
-
             guardar = st.form_submit_button("Guardar")
             if guardar:
                 if not nombre or precio <= 0 or not imagenes:
                     st.warning("Por favor, rellena todos los campos obligatorios, incluyendo al menos una imagen.")
                     st.stop()
-
-                    st.warning("Por favor, rellena todos los campos obligatorios.")
-                    st.stop()
             
-                # Validar medidas requeridas según el tipo
-                claves_medidas = {
-                    "medida1": "alto",
-                    "medida2": "largo",
-                    "medida3": "fondo"
-                }
+                # Validar solo las medidas visibles
                 errores = []
-                for requerida in medidas_requeridas[tipo]:
-                    clave = claves_medidas.get(requerida)
-                    if clave and medidas[clave] <= 0:
-                        errores.append(requerida)
+                for clave in medidas_visibles:
+                    if medidas[clave] <= 0:
+                        errores.append(etiquetas[clave])
             
                 if errores:
                     st.error(f"Faltan las siguientes medidas requeridas: {', '.join(errores)}")
                     st.stop()
-
-
+            
                 # Insertar en muebles
                 c.execute("""
                     INSERT INTO muebles (
@@ -411,11 +412,10 @@ if st.session_state.es_admin:
                     medidas["diametro_base"] or None,
                     medidas["diametro_boca"] or None
                 ))
-
+            
                 c.execute("SELECT LASTVAL() AS lastval")
                 mueble_id = c.fetchone()['lastval']
-
-
+            
                 # Insertar imágenes
                 for i, imagen in enumerate(imagenes):
                     base64_str = image_to_base64(imagen)
@@ -424,10 +424,11 @@ if st.session_state.es_admin:
                         INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
                         VALUES (%s, %s, %s)
                     """, (mueble_id, base64_str, es_principal))
-
+            
                 conn.commit()
                 st.success("✅ ¡Mueble añadido con éxito!")
                 st.rerun()
+
 
 
 
