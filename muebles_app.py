@@ -69,46 +69,56 @@ st.markdown("""
     .header-logo img { height: 80px; width: auto; }
     .header-title { font-size: 2.5rem !important; }
 
+    /* Estilos para imágenes y modales */
+    .mueble-image {
+        width: 100%;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .mueble-image:hover {
+        transform: scale(1.02);
+    }
+    
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        z-index: 1000;
+        text-align: center;
+    }
+    
+    .modal-content {
+        max-height: 90vh;
+        max-width: 90vw;
+        margin: 5vh auto;
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: white;
+        font-size: 35px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
     @media (max-width: 768px) {
         .custom-header { padding: 0.8rem 1rem !important; flex-direction: column; }
         .header-logo { margin-right: 0 !important; margin-bottom: 1rem; }
         .header-title { font-size: 1.5rem !important; text-align: center; }
         .header-logo img { height: 50px !important; }
-    }
-
-    /* Slider personalizado */
-    .slider-container {
-        position: relative;
-        width: 100%;
-        max-width: 400px;
-        margin: 10px auto;
-        overflow: hidden;
-        border-radius: 8px;
-    }
-    .slider-container img {
-        width: 100%;
-        display: none;
-    }
-    .slider-container img.active {
-        display: block;
-    }
-    .slider-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        padding: 8px;
-        border-radius: 50%;
-        cursor: pointer;
-        z-index: 2;
-        font-size: 20px;
-    }
-    .slider-arrow.left {
-        left: 10px;
-    }
-    .slider-arrow.right {
-        right: 10px;
+        
+        .mueble-image {
+            max-height: 200px;
+            object-fit: cover;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -393,69 +403,32 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
     
-    # --- Imagen principal con modal ---
+    # Imagen principal
     img_principal_base64 = imagenes[0]['imagen_base64']
-    html_code = f"""
-    <div style="cursor: pointer;" onclick="
-        document.getElementById('img-{mueble_id}-0').style.display = 'block';
-        document.getElementById('img-{mueble_id}-0-content').src = 'data:image/webp;base64,{img_principal_base64}';
-    ">
-        <img src="data:image/webp;base64,{img_principal_base64}" style="width: 100%; border-radius: 8px;">
+    st.markdown(f"""
+    <div onclick="document.getElementById('modal-{mueble_id}').style.display='block'">
+        <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image">
     </div>
-    <div id="img-{mueble_id}-0" style="
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.9);
-        z-index: 1000;
-        text-align: center;
-        cursor: pointer;
-    " onclick="this.style.display='none'">
-        <img id="img-{mueble_id}-0-content" style="
-            max-height: 90%;
-            max-width: 90%;
-            margin-top: 5vh;
-        ">
+    <div id="modal-{mueble_id}" class="image-modal" onclick="this.style.display='none'">
+        <span class="close-modal">&times;</span>
+        <img src="data:image/webp;base64,{img_principal_base64}" class="modal-content">
     </div>
-    """
-    st.markdown(html_code, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
-    # --- Imágenes secundarias con su propio modal ---
+    # Imágenes secundarias
     if len(imagenes) > 1:
-        with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})"):
+        with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})", expanded=False):
             cols = st.columns(min(3, len(imagenes)-1))
             for i, img_dict in enumerate(imagenes[1:], start=1):
                 img_base64 = img_dict['imagen_base64']
-                modal_id = f"{mueble_id}-{i}"  # id único para cada imagen
-
                 with cols[(i-1) % len(cols)]:
                     st.markdown(f"""
-                    <div style="cursor: pointer;" onclick="
-                        document.getElementById('img-{modal_id}').style.display = 'block';
-                        document.getElementById('img-{modal_id}-content').src = 'data:image/webp;base64,{img_base64}';
-                    ">
-                        <img src="data:image/webp;base64,{img_base64}" style="width: 100%; border-radius: 8px;">
+                    <div onclick="document.getElementById('modal-{mueble_id}-{i}').style.display='block'">
+                        <img src="data:image/webp;base64,{img_base64}" class="mueble-image">
                     </div>
-                    <div id="img-{modal_id}" style="
-                        display: none;
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background-color: rgba(0,0,0,0.9);
-                        z-index: 1000;
-                        text-align: center;
-                        cursor: pointer;
-                    " onclick="this.style.display='none'">
-                        <img id="img-{modal_id}-content" style="
-                            max-height: 90%;
-                            max-width: 90%;
-                            margin-top: 5vh;
-                        ">
+                    <div id="modal-{mueble_id}-{i}" class="image-modal" onclick="this.style.display='none'">
+                        <span class="close-modal">&times;</span>
+                        <img src="data:image/webp;base64,{img_base64}" class="modal-content">
                     </div>
                     """, unsafe_allow_html=True)
 
