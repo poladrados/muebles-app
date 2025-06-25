@@ -524,56 +524,30 @@ def mostrar_formulario_edicion(mueble_id):
 
         nombre = st.text_input("Nombre*", value=mueble['nombre'])
         precio = st.number_input("Precio (€)*", min_value=0.0, value=float(mueble['precio']))
+
         descripcion = st.text_area("Descripción", value=mueble['descripcion'])
 
         st.markdown("### Medidas")
         medidas = {}
         for clave in etiquetas:
-            valor = mueble.get(clave) or 0.0
-            medidas[clave] = st.number_input(etiquetas[clave], min_value=0.0, step=0.5, value=float(valor), key=f"{clave}_{mueble_id}")
+            valor = mueble.get(clave)
+            medidas[clave] = st.number_input(etiquetas[clave], min_value=0.0, step=0.5, value=float(valor or 0), key=f"{clave}_{mueble_id}")
 
         st.markdown("### Añadir nuevas imágenes")
         nuevas_imagenes = st.file_uploader("Seleccionar imágenes",
                                            type=["jpg", "jpeg", "png"],
                                            accept_multiple_files=True,
                                            key=f"uploader_{mueble_id}")
-        
-        # 🔁 Mover imágenes y botones DENTRO del formulario
-        st.markdown("### Imágenes actuales")
-        if imagenes_actuales:
-            try:
-                mostrar_galeria_imagenes(imagenes_actuales, mueble_id)
-            except:
-                st.warning("Error al cargar la galería de imágenes")
 
-            cols = st.columns(min(3, len(imagenes_actuales)))
-            for i, img_dict in enumerate(imagenes_actuales):
-                img_base64 = img_dict['imagen_base64']
-                es_principal = img_dict['es_principal']
-                with cols[i % len(cols)]:
-                    # Usar form_submit_button para acciones dentro del formulario
-                    if st.form_submit_button(f"❌ Eliminar imagen {i+1}", 
-                                          key=f"del_img_{i}_{mueble_id}"):
-                        c.execute("DELETE FROM imagenes_muebles WHERE imagen_base64 = %s", (img_base64,))
-                        conn.commit()
-                        st.rerun()
+        # SOLO UN SUBMIT BUTTON
+        accion = st.form_submit_button("💾 Guardar cambios")
 
-                    if not es_principal:
-                        if st.form_submit_button(f"⭐️ Principal {i+1}", 
-                                              key=f"principal_{i}_{mueble_id}"):
-                            c.execute("UPDATE imagenes_muebles SET es_principal = FALSE WHERE mueble_id = %s", (mueble_id,))
-                            c.execute("UPDATE imagenes_muebles SET es_principal = TRUE WHERE mueble_id = %s AND imagen_base64 = %s", (mueble_id, img_base64))
-                            conn.commit()
-                            st.rerun()
-
-        guardar = st.form_submit_button("💾 Guardar cambios")
-        cancelar = st.form_submit_button("❌ Cancelar edición")
-
-    if cancelar:
+    # Cancelar edición se gestiona con un botón afuera
+    if st.button("❌ Cancelar edición", key=f"cancelar_{mueble_id}"):
         st.session_state.pop('editar_mueble_id', None)
         st.rerun()
 
-    if guardar:
+    if accion:
         c.execute("""
             UPDATE muebles SET
                 nombre = %s, precio = %s, descripcion = %s,
@@ -595,16 +569,42 @@ def mostrar_formulario_edicion(mueble_id):
         if nuevas_imagenes:
             for img in nuevas_imagenes:
                 img_base64 = image_to_base64(img)
-                es_principal = 0 if imagenes_actuales else 1
+                es_principal = 0 if imagenes_actuales == [] else 1
                 c.execute("""
                     INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
                     VALUES (%s, %s, %s)
-                """, (mueble_id, img_base64, es_principal))  # Corregido: img_base64
+                """, (mueble_id, img_base64, es_principal))
 
         conn.commit()
         st.success("¡Cambios guardados!")
         st.session_state.pop('editar_mueble_id', None)
         st.rerun()
+
+    # 🔁 Mostrar imágenes actuales y botones fuera del form
+    st.markdown("### Imágenes actuales")
+    if imagenes_actuales:
+        try:
+            mostrar_galeria_imagenes(imagenes_actuales, mueble_id)
+        except:
+            st.warning("Error al cargar la galería de imágenes")
+
+        cols = st.columns(min(3, len(imagenes_actuales)))
+        for i, img_dict in enumerate(imagenes_actuales):
+            img_base64 = img_dict['imagen_base64']
+            es_principal = img_dict['es_principal']
+            with cols[i % len(cols)]:
+                if st.button(f"❌ Eliminar imagen {i+1}", key=f"del_img_{i}_{mueble_id}"):
+                    c.execute("DELETE FROM imagenes_muebles WHERE imagen_base64 = %s", (img_base64,))
+                    conn.commit()
+                    st.rerun()
+
+                if not es_principal:
+                    if st.button(f"⭐️ Marcar como principal", key=f"principal_img_{i}_{mueble_id}"):
+                        c.execute("UPDATE imagenes_muebles SET es_principal = FALSE WHERE mueble_id = %s", (mueble_id,))
+                        c.execute("UPDATE imagenes_muebles SET es_principal = TRUE WHERE mueble_id = %s AND imagen_base64 = %s", (mueble_id, img_base64))
+                        conn.commit()
+                        st.rerun()
+
 
 
 
