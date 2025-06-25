@@ -716,7 +716,7 @@ with tab1:
                     
                     desc = mueble['descripcion']
                     if desc:
-                        if len(desc) > 200:
+                        if desc and len(desc) > 200:
                             resumen = desc[:200] + "..."
                             if st.button(f"🔎 Ver más", key=f"desc_{mueble['id']}"):
                                 st.markdown(f"**Descripción completa:** {desc}")
