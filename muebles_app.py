@@ -215,7 +215,7 @@ st.components.v1.html("""
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
+  gtag('config', 'G-66J4H4B3KM');
 </script>
 """, height=0)
 # --- Encabezado principal ---
