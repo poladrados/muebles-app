@@ -540,14 +540,14 @@ def mostrar_formulario_edicion(mueble_id):
                                            key=f"uploader_{mueble_id}")
 
         # SOLO UN SUBMIT BUTTON
-        accion = st.form_submit_button("💾 Guardar cambios")
+        guardar = st.form_submit_button("💾 Guardar cambios")
 
     # Cancelar edición se gestiona con un botón afuera
     if st.button("❌ Cancelar edición", key=f"cancelar_{mueble_id}"):
         st.session_state.pop('editar_mueble_id', None)
         st.rerun()
 
-    if accion:
+    if guardar:
         c.execute("""
             UPDATE muebles SET
                 nombre = %s, precio = %s, descripcion = %s,
