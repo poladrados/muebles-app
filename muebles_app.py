@@ -681,8 +681,17 @@ with tab1:
 
                     st.markdown(f"**Fecha registro:** {mueble['fecha']}")
                     
-                    if mueble['descripcion']:
-                        st.markdown(f"**Descripción:** {mueble['descripcion']}")
+                    desc = mueble['descripcion']
+                    if desc:
+                        if len(desc) > 200:
+                            resumen = desc[:200] + "..."
+                            if st.button(f"🔎 Ver más", key=f"desc_{mueble['id']}"):
+                                st.markdown(f"**Descripción completa:** {desc}")
+                            else:
+                                st.markdown(f"**Descripción:** {resumen}")
+                        else:
+                            st.markdown(f"**Descripción:** {desc}")
+
                     share_url = f"https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/?id={mueble['id']}"
                     whatsapp_url = f"https://wa.me/?text=Mira este mueble: {share_url}"
                     st.markdown(f"[📱 Compartir por WhatsApp]({whatsapp_url})", unsafe_allow_html=True)
