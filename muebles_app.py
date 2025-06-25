@@ -452,14 +452,12 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
 
     html_parts = []
 
-    # CSS + JS (sin f-string, sin errores)
+    # CSS + JS (usando double braces para escapar las llaves en CSS)
     base_html = """
     <style>
     .image-modal {{
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
         width: 100vw;
         height: 100vh;
         background-color: rgba(0,0,0,0.95);
@@ -493,7 +491,7 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     }}
     @keyframes zoom {{
         from {{ transform: scale(0.8); opacity: 0; }}
-        to   {{ transform: scale(1); opacity: 1; }}
+        to {{ transform: scale(1); opacity: 1; }}
     }}
     </style>
     <script>
@@ -525,16 +523,16 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     # Imagen principal
     img_base64 = imagenes[0]['imagen_base64']
     modal_id = f"modal-{mueble_id}-0"
-    html_parts.append("""
+    html_parts.append(f"""
     <div class="mueble-image-container">
-        <img src="data:image/webp;base64,{img}" class="mueble-image" onclick="openModal('{id}', 'data:image/webp;base64,{img}')">
-        <button class="expand-button" onclick="openModal('{id}', 'data:image/webp;base64,{img}')" title="Ampliar imagen">&#x26F6;</button>
+        <img src="data:image/webp;base64,{img_base64}" class="mueble-image" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')">
+        <button class="expand-button" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')" title="Ampliar imagen">&#x26F6;</button>
     </div>
-    <div id="{id}" class="image-modal" onclick="closeModal('{id}')">
-        <span class="close-modal" onclick="closeModal('{id}'); event.stopPropagation();">&times;</span>
+    <div id="{modal_id}" class="image-modal" onclick="closeModal('{modal_id}')">
+        <span class="close-modal" onclick="closeModal('{modal_id}'); event.stopPropagation();">&times;</span>
         <img class="modal-content" onclick="event.stopPropagation();" />
     </div>
-    """.format(id=modal_id, img=img_base64))
+    """)
 
     # Imágenes adicionales (en expander)
     if len(imagenes) > 1:
@@ -543,16 +541,16 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
             for i, img_dict in enumerate(imagenes[1:], start=1):
                 img_b64 = img_dict['imagen_base64']
                 mod_id = f"modal-{mueble_id}-{i}"
-                html_parts.append("""
+                html_parts.append(f"""
                 <div class="mueble-image-container">
-                    <img src="data:image/webp;base64,{img}" class="mueble-image" onclick="openModal('{id}', 'data:image/webp;base64,{img}')">
-                    <button class="expand-button" onclick="openModal('{id}', 'data:image/webp;base64,{img}')" title="Ampliar imagen">&#x26F6;</button>
+                    <img src="data:image/webp;base64,{img_b64}" class="mueble-image" onclick="openModal('{mod_id}', 'data:image/webp;base64,{img_b64}')">
+                    <button class="expand-button" onclick="openModal('{mod_id}', 'data:image/webp;base64,{img_b64}')" title="Ampliar imagen">&#x26F6;</button>
                 </div>
-                <div id="{id}" class="image-modal" onclick="closeModal('{id}')">
-                    <span class="close-modal" onclick="closeModal('{id}'); event.stopPropagation();">&times;</span>
+                <div id="{mod_id}" class="image-modal" onclick="closeModal('{mod_id}')">
+                    <span class="close-modal" onclick="closeModal('{mod_id}'); event.stopPropagation();">&times;</span>
                     <img class="modal-content" onclick="event.stopPropagation();" />
                 </div>
-                """.format(id=mod_id, img=img_b64))
+                """)
 
     # Render final (en un solo iframe)
     st.components.v1.html("".join(html_parts), height=650)
