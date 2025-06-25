@@ -69,13 +69,37 @@ st.markdown("""
     .header-logo img { height: 80px; width: auto; }
     .header-title { font-size: 2.5rem !important; }
 
+    .mueble-image-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
     .mueble-image {
         width: 100%;
         border-radius: 8px;
-        cursor: zoom-in;
+        cursor: pointer;
         transition: transform 0.2s;
-        object-fit: contain;
+        object-fit: cover;
         max-height: 300px;
+    }
+    
+    .expand-button {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background-color: rgba(0,0,0,0.7);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
     }
     
     .image-modal {
@@ -101,11 +125,6 @@ st.markdown("""
         animation: zoom 0.3s;
     }
     
-    @keyframes zoom {
-        from {transform: scale(0.8)}
-        to {transform: scale(1)}
-    }
-    
     .close-modal {
         position: fixed;
         top: 20px;
@@ -118,6 +137,14 @@ st.markdown("""
     }
     
     @media (max-width: 768px) {
+        .expand-button {
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            bottom: 10px;
+            right: 10px;
+        }
+        
         .close-modal {
             top: 10px;
             right: 15px;
@@ -407,7 +434,6 @@ with st.sidebar:
                 st.download_button("Descargar CSV", df.to_csv(index=False).encode(), "muebles.csv", "text/csv")
 
 
-# --- Funciones auxiliares ---
 def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
@@ -417,12 +443,12 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     <script>
     function openModal(id) {
         document.getElementById(id).style.display = "block";
-        document.body.style.overflow = "hidden"; // Deshabilitar scroll
+        document.body.style.overflow = "hidden";
     }
     
     function closeModal(id) {
         document.getElementById(id).style.display = "none";
-        document.body.style.overflow = "auto"; // Habilitar scroll
+        document.body.style.overflow = "auto";
     }
     
     // Cerrar al hacer clic fuera de la imagen
@@ -438,13 +464,14 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     # Imagen principal
     img_principal_base64 = imagenes[0]['imagen_base64']
     st.markdown(f"""
-    <div onclick="openModal('modal-{mueble_id}')" style="cursor: pointer;">
-        <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image">
+    <div class="mueble-image-container">
+        <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image" onclick="openModal('modal-{mueble_id}')">
+        <button class="expand-button" onclick="openModal('modal-{mueble_id}')">⛶</button>
     </div>
     
-    <div id="modal-{mueble_id}" class="image-modal">
+    <div id="modal-{mueble_id}" class="image-modal" onclick="closeModal('modal-{mueble_id}')">
         <span class="close-modal" onclick="closeModal('modal-{mueble_id}')">&times;</span>
-        <img src="data:image/webp;base64,{img_principal_base64}" class="modal-content">
+        <img src="data:image/webp;base64,{img_principal_base64}" class="modal-content" onclick="event.stopPropagation()">
     </div>
     
     {modal_js}
@@ -458,16 +485,16 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
                 img_base64 = img_dict['imagen_base64']
                 with cols[(i-1) % len(cols)]:
                     st.markdown(f"""
-                    <div onclick="openModal('modal-{mueble_id}-{i}')" style="cursor: pointer;">
-                        <img src="data:image/webp;base64,{img_base64}" class="mueble-image">
+                    <div class="mueble-image-container">
+                        <img src="data:image/webp;base64,{img_base64}" class="mueble-image" onclick="openModal('modal-{mueble_id}-{i}')">
+                        <button class="expand-button" onclick="openModal('modal-{mueble_id}-{i}')">⛶</button>
                     </div>
                     
-                    <div id="modal-{mueble_id}-{i}" class="image-modal">
+                    <div id="modal-{mueble_id}-{i}" class="image-modal" onclick="closeModal('modal-{mueble_id}-{i}')">
                         <span class="close-modal" onclick="closeModal('modal-{mueble_id}-{i}')">&times;</span>
-                        <img src="data:image/webp;base64,{img_base64}" class="modal-content">
+                        <img src="data:image/webp;base64,{img_base64}" class="modal-content" onclick="event.stopPropagation()">
                     </div>
                     """, unsafe_allow_html=True)
-
     
   
 def es_nuevo(fecha_str):
