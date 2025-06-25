@@ -461,7 +461,7 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
     
-    # CSS para el modal (simplificado y con llaves escapadas)
+    # CSS actualizado con el botón más pequeño y en esquina superior derecha
     modal_css = """
     <style>
     .image-modal {{
@@ -489,10 +489,45 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
         font-size: 40px;
         cursor: pointer;
     }}
+    .mueble-image-container {{
+        position: relative;
+        width: 100%;
+        margin-bottom: 10px;
+    }}
+    .expand-button {{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0,0,0,0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+        transition: all 0.3s;
+    }}
+    .expand-button:hover {{
+        background-color: rgba(0,0,0,0.8);
+        transform: scale(1.1);
+    }}
+    .mueble-image {{
+        width: 100%;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        object-fit: cover;
+        max-height: 300px;
+    }}
     </style>
     """
     
-    # JavaScript para el modal
+    # JavaScript para el modal (se mantiene igual)
     modal_js = """
     <script>
     function openModal(imgSrc, modalId) {
@@ -500,34 +535,41 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
         var modalImg = modal.querySelector('.modal-content');
         modal.style.display = "block";
         modalImg.src = imgSrc;
+        document.body.style.overflow = "hidden";
     }
     
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = "none";
+        document.body.style.overflow = "auto";
     }
+    
+    // Cerrar al hacer clic fuera de la imagen
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('image-modal')) {
+            event.target.style.display = 'none';
+            document.body.style.overflow = "auto";
+        }
+    });
     </script>
     """
+    
+    # Renderizar CSS y JS primero
+    st.markdown(modal_css + modal_js, unsafe_allow_html=True)
     
     # Imagen principal
     img_principal = imagenes[0]['imagen_base64']
     principal_html = f"""
     <div class="mueble-image-container">
-        <img src="data:image/webp;base64,{img_principal}" class="mueble-image" 
-             onclick="openModal('data:image/webp;base64,{img_principal}', 'modal-{mueble_id}-0')">
+        <img src="data:image/webp;base64,{img_principal}" class="mueble-image">
         <button class="expand-button" 
                 onclick="openModal('data:image/webp;base64,{img_principal}', 'modal-{mueble_id}-0')" 
-                title="Ampliar imagen">↗</button>
+                title="Ampliar imagen">+</button>
     </div>
     <div id="modal-{mueble_id}-0" class="image-modal" onclick="closeModal('modal-{mueble_id}-0')">
         <span class="close-modal" onclick="closeModal('modal-{mueble_id}-0'); event.stopPropagation()">&times;</span>
         <img class="modal-content" onclick="event.stopPropagation()">
     </div>
     """
-    
-    # Renderizar primero el CSS y JS
-    st.markdown(modal_css + modal_js, unsafe_allow_html=True)
-    
-    # Renderizar la imagen principal
     st.markdown(principal_html, unsafe_allow_html=True)
     
     # Imágenes secundarias
@@ -541,11 +583,10 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
                 with cols[(i-1) % len(cols)]:
                     img_html = f"""
                     <div class="mueble-image-container">
-                        <img src="data:image/webp;base64,{img_base64}" class="mueble-image" 
-                             onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')">
+                        <img src="data:image/webp;base64,{img_base64}" class="mueble-image">
                         <button class="expand-button" 
                                 onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')" 
-                                title="Ampliar imagen">↗</button>
+                                title="Ampliar imagen">+</button>
                     </div>
                     <div id="{modal_id}" class="image-modal" onclick="closeModal('{modal_id}')">
                         <span class="close-modal" onclick="closeModal('{modal_id}'); event.stopPropagation()">&times;</span>
@@ -553,7 +594,6 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
                     </div>
                     """
                     st.markdown(img_html, unsafe_allow_html=True)
-    
 
 def es_nuevo(fecha_str):
     formatos_posibles = [
