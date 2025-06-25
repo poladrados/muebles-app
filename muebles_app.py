@@ -566,7 +566,7 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
                              onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')">
                         <button class="expand-button" 
                                 onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')" 
-                                title="Ampliar imagen">⛶</button>
+                                title="Ampliar imagen">&#x26F6;</button>
                     </div>
                     
                     <div id="{modal_id}" class="image-modal">
