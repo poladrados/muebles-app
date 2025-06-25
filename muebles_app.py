@@ -459,7 +459,7 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
         html_blocks.append(f"""
         <div class="mueble-image-container">
             <img src="data:image/webp;base64,{img_base64}" class="mueble-image" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')">
-            <button class="expand-button" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')" title="Ampliar imagen">🔍</button>
+            <button class="expand-button" ...>&#x26F6;</button>  <!-- ⛶ como código -->
 
         </div>
         <div id="{modal_id}" class="image-modal" onclick="closeModal('{modal_id}')">
