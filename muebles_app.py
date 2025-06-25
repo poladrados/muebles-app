@@ -109,73 +109,70 @@ st.markdown("""
     }
     
     .image-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.95);
-        z-index: 2000;
-        overflow: auto;
-        text-align: center;
-    }
-    
-    .modal-content {
-        margin: auto;
-        display: block;
-        max-height: 90vh;
-        max-width: 90vw;
-        object-fit: contain;
-        padding: 40px 0;
-        animation: zoom 0.3s;
-    }
-    
-    .close-modal {
-        position: fixed;
-        top: 20px;
-        right: 35px;
-        color: white;
-        font-size: 40px;
-        font-weight: bold;
-        cursor: pointer;
-        z-index: 2001;
-        transition: all 0.3s;
-    }
-    
-    .close-modal:hover {
-        color: #ccc;
-    }
-    
-    @keyframes zoom {
-        from {transform: scale(0.8); opacity: 0}
-        to {transform: scale(1); opacity: 1}
-    }
-    
-    @media (max-width: 768px) {
-        .expand-button {
-            width: 36px;
-            height: 36px;
-            font-size: 18px;
-            bottom: 10px;
-            right: 10px;
-        }
-        
-        .modal-content {
-            max-width: 95vw;
-            max-height: 95vh;
-            padding: 20px 0;
-        }
-        
-        .close-modal {
-            top: 15px;
-            right: 20px;
-            font-size: 35px;
-        }
-    }
-    </style>
-""", unsafe_allow_html=True)
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.95);
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
+.modal-content {
+    max-height: 90vh;
+    max-width: 90vw;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    animation: zoom 0.3s;
+}
+
+.close-modal {
+    position: fixed;
+    top: 20px;
+    right: 35px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2001;
+    transition: all 0.3s;
+}
+
+.close-modal:hover {
+    color: #ccc;
+}
+
+@keyframes zoom {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .expand-button {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .modal-content {
+        max-width: 95vw;
+        max-height: 95vh;
+    }
+
+    .close-modal {
+        top: 15px;
+        right: 20px;
+        font-size: 35px;
+    }
+}
 # --- Encabezado principal ---
 st.markdown("""
     <div class="custom-header">
