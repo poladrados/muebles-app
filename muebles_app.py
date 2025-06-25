@@ -562,7 +562,6 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
 
 
 
-
 def es_nuevo(fecha_str):
     formatos_posibles = [
         "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
