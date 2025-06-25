@@ -69,16 +69,13 @@ st.markdown("""
     .header-logo img { height: 80px; width: auto; }
     .header-title { font-size: 2.5rem !important; }
 
-    /* Estilos para imágenes y modales */
     .mueble-image {
         width: 100%;
         border-radius: 8px;
-        cursor: pointer;
+        cursor: zoom-in;
         transition: transform 0.2s;
-    }
-    
-    .mueble-image:hover {
-        transform: scale(1.02);
+        object-fit: contain;
+        max-height: 300px;
     }
     
     .image-modal {
@@ -90,34 +87,46 @@ st.markdown("""
         height: 100%;
         background-color: rgba(0,0,0,0.9);
         z-index: 1000;
+        overflow: auto;
         text-align: center;
     }
     
     .modal-content {
+        margin: auto;
+        display: block;
         max-height: 90vh;
         max-width: 90vw;
-        margin: 5vh auto;
+        object-fit: contain;
+        padding: 20px 0;
+        animation: zoom 0.3s;
+    }
+    
+    @keyframes zoom {
+        from {transform: scale(0.8)}
+        to {transform: scale(1)}
     }
     
     .close-modal {
-        position: absolute;
+        position: fixed;
         top: 20px;
-        right: 30px;
+        right: 35px;
         color: white;
-        font-size: 35px;
+        font-size: 40px;
         font-weight: bold;
         cursor: pointer;
+        z-index: 1001;
     }
-
+    
     @media (max-width: 768px) {
-        .custom-header { padding: 0.8rem 1rem !important; flex-direction: column; }
-        .header-logo { margin-right: 0 !important; margin-bottom: 1rem; }
-        .header-title { font-size: 1.5rem !important; text-align: center; }
-        .header-logo img { height: 50px !important; }
+        .close-modal {
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+        }
         
-        .mueble-image {
-            max-height: 200px;
-            object-fit: cover;
+        .modal-content {
+            max-width: 95vw;
+            max-height: 95vh;
         }
     }
     </style>
@@ -403,16 +412,42 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
     
+    # JavaScript para manejar el modal
+    modal_js = """
+    <script>
+    function openModal(id) {
+        document.getElementById(id).style.display = "block";
+        document.body.style.overflow = "hidden"; // Deshabilitar scroll
+    }
+    
+    function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+        document.body.style.overflow = "auto"; // Habilitar scroll
+    }
+    
+    // Cerrar al hacer clic fuera de la imagen
+    window.onclick = function(event) {
+        if (event.target.className === 'image-modal') {
+            event.target.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+    }
+    </script>
+    """
+    
     # Imagen principal
     img_principal_base64 = imagenes[0]['imagen_base64']
     st.markdown(f"""
-    <div onclick="document.getElementById('modal-{mueble_id}').style.display='block'">
+    <div onclick="openModal('modal-{mueble_id}')" style="cursor: pointer;">
         <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image">
     </div>
-    <div id="modal-{mueble_id}" class="image-modal" onclick="this.style.display='none'">
-        <span class="close-modal">&times;</span>
+    
+    <div id="modal-{mueble_id}" class="image-modal">
+        <span class="close-modal" onclick="closeModal('modal-{mueble_id}')">&times;</span>
         <img src="data:image/webp;base64,{img_principal_base64}" class="modal-content">
     </div>
+    
+    {modal_js}
     """, unsafe_allow_html=True)
     
     # Imágenes secundarias
@@ -423,11 +458,12 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
                 img_base64 = img_dict['imagen_base64']
                 with cols[(i-1) % len(cols)]:
                     st.markdown(f"""
-                    <div onclick="document.getElementById('modal-{mueble_id}-{i}').style.display='block'">
+                    <div onclick="openModal('modal-{mueble_id}-{i}')" style="cursor: pointer;">
                         <img src="data:image/webp;base64,{img_base64}" class="mueble-image">
                     </div>
-                    <div id="modal-{mueble_id}-{i}" class="image-modal" onclick="this.style.display='none'">
-                        <span class="close-modal">&times;</span>
+                    
+                    <div id="modal-{mueble_id}-{i}" class="image-modal">
+                        <span class="close-modal" onclick="closeModal('modal-{mueble_id}-{i}')">&times;</span>
                         <img src="data:image/webp;base64,{img_base64}" class="modal-content">
                     </div>
                     """, unsafe_allow_html=True)
