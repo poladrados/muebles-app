@@ -449,65 +449,58 @@ with st.sidebar:
 def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
-    
-    # Inyectar el JavaScript para manejar el modal (solo una vez)
-    if 'modal_js_injected' not in st.session_state:
-        modal_js = """
-        <script>
-        function openModal(imgSrc, modalId) {
-            const modal = document.getElementById(modalId);
-            const modalImg = modal.querySelector('.modal-content');
-            modal.style.display = "block";
-            modalImg.src = imgSrc;
-            document.body.style.overflow = "hidden";
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-            document.body.style.overflow = "auto";
-        }
-        
-        // Cerrar con ESC
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const modals = document.querySelectorAll('.image-modal');
-                modals.forEach(modal => {
-                    if (modal.style.display === 'block') {
-                        modal.style.display = 'none';
-                        document.body.style.overflow = "auto";
-                    }
-                });
-            }
-        });
-        
-        // Cerrar al hacer clic fuera de la imagen
-        document.addEventListener('click', function(event) {
-            if (event.target.classList.contains('image-modal')) {
-                event.target.style.display = 'none';
-                document.body.style.overflow = "auto";
-            }
-        });
-        </script>
-        """
-        st.components.v1.html(modal_js, height=0, width=0)
-        st.session_state.modal_js_injected = True
-    
+
     # Imagen principal
     img_principal_base64 = imagenes[0]['imagen_base64']
     modal_id = f"modal-{mueble_id}-0"
     st.markdown(f"""
-    <div class="mueble-image-container">
-        <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image" 
-             onclick="openModal(this.src, '{modal_id}')">
-        <button class="expand-button" onclick="openModal('data:image/webp;base64,{img_principal_base64}', '{modal_id}')" 
-                title="Ampliar imagen">⛶</button>
-    </div>
-    
-    <div id="{modal_id}" class="image-modal">
-        <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
-        <img class="modal-content">
-    </div>
-    """, unsafe_allow_html=True)
+        <div class="mueble-image-container">
+            <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image" 
+                 onclick="openModal(this.src, '{modal_id}')">
+            <button class="expand-button" onclick="openModal('data:image/webp;base64,{img_principal_base64}', '{modal_id}')" 
+                    title="Ampliar imagen">⛶</button>
+        </div>
+        
+        <div id="{modal_id}" class="image-modal">
+            <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
+            <img class="modal-content">
+        </div>
+        
+        <script>
+        function openModal(imgSrc, modalId) {{
+            const modal = document.getElementById(modalId);
+            const modalImg = modal.querySelector('.modal-content');
+            modal.style.display = "flex";
+            modalImg.src = imgSrc;
+            document.body.style.overflow = "hidden";
+        }}
+        
+        function closeModal(modalId) {{
+            document.getElementById(modalId).style.display = "none";
+            document.body.style.overflow = "auto";
+        }}
+        
+        document.addEventListener('keydown', function(event) {{
+            if (event.key === 'Escape') {{
+                const modals = document.querySelectorAll('.image-modal');
+                modals.forEach(modal => {{
+                    if (modal.style.display === 'flex') {{
+                        modal.style.display = 'none';
+                        document.body.style.overflow = "auto";
+                    }}
+                }});
+            }}
+        }});
+        
+        document.addEventListener('click', function(event) {{
+            if (event.target.classList.contains('image-modal')) {{
+                event.target.style.display = 'none';
+                document.body.style.overflow = "auto";
+            }}
+        }});
+        </script>
+        """, unsafe_allow_html=True)
+
     
     # Imágenes secundarias
     if len(imagenes) > 1:
