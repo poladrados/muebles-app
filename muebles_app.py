@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 import streamlit as st
 import hashlib
+import urllib.parse
 from PIL import Image
 from datetime import datetime
 from io import BytesIO
@@ -729,7 +730,9 @@ with tab1:
                             st.markdown(f"**Descripción:** {desc}")
 
                     share_url = f"https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/?id={mueble['id']}"
-                    whatsapp_url = f"https://wa.me/?text=Mira este mueble: {share_url}"
+                    mensaje = f"Mira este mueble: {share_url}"
+                    mensaje_codificado = urllib.parse.quote(mensaje)
+                    whatsapp_url = f"https://wa.me/?text={mensaje_codificado}"
                     st.markdown(f"[📱 Compartir por WhatsApp]({whatsapp_url})", unsafe_allow_html=True)
 
                     
