@@ -524,7 +524,9 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
                     
                     <div id="modal-{mueble_id}-{i}" class="image-modal">
                         <span class="close-modal" onclick="closeModal('modal-{mueble_id}-{i}')" title="Cerrar">&times;</span>
-                        <img src="data:image/
+                        <img src="data:image/webp;base64,{img_base64}" class="modal-content">
+                    </div>
+                    """, unsafe_allow_html=True)
 def es_nuevo(fecha_str):
     formatos_posibles = [
         "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
