@@ -571,7 +571,7 @@ def mostrar_formulario_edicion(mueble_id):
                 c.execute("""
                     INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
                     VALUES (%s, %s, %s)
-                """, (mueble_id, img_base64, es_principal))
+                """, (mueble_id, base64_str, es_principal))
 
         conn.commit()
         st.success("¡Cambios guardados!")
@@ -602,6 +602,7 @@ def mostrar_formulario_edicion(mueble_id):
                         c.execute("UPDATE imagenes_muebles SET es_principal = TRUE WHERE mueble_id = %s AND imagen_base64 = %s", (mueble_id, img_base64))
                         conn.commit()
                         st.rerun()
+
 
 
 # Galería de imágenes mejorada con miniaturas, ampliación visual y scroll horizontal
