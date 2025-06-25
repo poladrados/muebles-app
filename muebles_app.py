@@ -393,16 +393,16 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
     
-    # Mostrar la imagen principal con posibilidad de ampliación
+    # --- Imagen principal con modal ---
     img_principal_base64 = imagenes[0]['imagen_base64']
     html_code = f"""
     <div style="cursor: pointer;" onclick="
-        document.getElementById('img-{mueble_id}').style.display = 'block';
-        document.getElementById('img-{mueble_id}-content').src = 'data:image/webp;base64,{img_principal_base64}';
+        document.getElementById('img-{mueble_id}-0').style.display = 'block';
+        document.getElementById('img-{mueble_id}-0-content').src = 'data:image/webp;base64,{img_principal_base64}';
     ">
         <img src="data:image/webp;base64,{img_principal_base64}" style="width: 100%; border-radius: 8px;">
     </div>
-    <div id="img-{mueble_id}" style="
+    <div id="img-{mueble_id}-0" style="
         display: none;
         position: fixed;
         top: 0;
@@ -414,7 +414,7 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
         text-align: center;
         cursor: pointer;
     " onclick="this.style.display='none'">
-        <img id="img-{mueble_id}-content" style="
+        <img id="img-{mueble_id}-0-content" style="
             max-height: 90%;
             max-width: 90%;
             margin-top: 5vh;
@@ -423,37 +423,44 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     """
     st.markdown(html_code, unsafe_allow_html=True)
     
-    # Si hay más imágenes, mostrar un desplegable
+    # --- Imágenes secundarias con su propio modal ---
     if len(imagenes) > 1:
         with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})"):
-            cols = st.columns(min(3, len(imagenes)-1))  # Asegurar que no haya más columnas que imágenes
-            for i, img_dict in enumerate(imagenes[1:], 1):
-                with cols[i-1 if len(imagenes)-1 <= 3 else (i-1)%3]:  # Manejar correctamente el índice
-                    img_base64 = img_dict['imagen_base64']
+            cols = st.columns(min(3, len(imagenes)-1))
+            for i, img_dict in enumerate(imagenes[1:], start=1):
+                img_base64 = img_dict['imagen_base64']
+                modal_id = f"{mueble_id}-{i}"  # id único para cada imagen
+
+                with cols[(i-1) % len(cols)]:
                     st.markdown(f"""
                     <div style="cursor: pointer;" onclick="
-                        document.getElementById('img-{mueble_id}').style.display = 'block';
-                        document.getElementById('img-{mueble_id}-content').src = 'data:image/webp;base64,{img_base64}';
+                        document.getElementById('img-{modal_id}').style.display = 'block';
+                        document.getElementById('img-{modal_id}-content').src = 'data:image/webp;base64,{img_base64}';
                     ">
                         <img src="data:image/webp;base64,{img_base64}" style="width: 100%; border-radius: 8px;">
                     </div>
+                    <div id="img-{modal_id}" style="
+                        display: none;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0,0,0,0.9);
+                        z-index: 1000;
+                        text-align: center;
+                        cursor: pointer;
+                    " onclick="this.style.display='none'">
+                        <img id="img-{modal_id}-content" style="
+                            max-height: 90%;
+                            max-width: 90%;
+                            margin-top: 5vh;
+                        ">
+                    </div>
                     """, unsafe_allow_html=True)
+
     
-    # Si hay más imágenes, mostrar un desplegable
-    if len(imagenes) > 1:
-        with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})"):
-            cols = st.columns(3)  # Mostrar 3 imágenes por fila
-            for i, img_dict in enumerate(imagenes[1:], 1):
-                with cols[(i-1) % 3]:
-                    img_base64 = img_dict['imagen_base64']
-                    st.markdown(f"""
-                    <div style="cursor: pointer;" onclick="
-                        document.getElementById('img-{mueble_id}').style.display = 'block';
-                        document.getElementById('img-{mueble_id}-content').src = 'data:image/webp;base64,{img_base64}';
-                    ">
-                        <img src="data:image/webp;base64,{img_base64}" style="width: 100%; border-radius: 8px;">
-                    </div>
-                    """, unsafe_allow_html=True)
+  
 def es_nuevo(fecha_str):
     formatos_posibles = [
         "%Y-%m-%d %H:%M:%S.%f",  # con microsegundos
