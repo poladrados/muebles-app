@@ -426,6 +426,22 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     # Si hay más imágenes, mostrar un desplegable
     if len(imagenes) > 1:
         with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})"):
+            cols = st.columns(min(3, len(imagenes)-1))  # Asegurar que no haya más columnas que imágenes
+            for i, img_dict in enumerate(imagenes[1:], 1):
+                with cols[i-1 if len(imagenes)-1 <= 3 else (i-1)%3]:  # Manejar correctamente el índice
+                    img_base64 = img_dict['imagen_base64']
+                    st.markdown(f"""
+                    <div style="cursor: pointer;" onclick="
+                        document.getElementById('img-{mueble_id}').style.display = 'block';
+                        document.getElementById('img-{mueble_id}-content').src = 'data:image/webp;base64,{img_base64}';
+                    ">
+                        <img src="data:image/webp;base64,{img_base64}" style="width: 100%; border-radius: 8px;">
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+    # Si hay más imágenes, mostrar un desplegable
+    if len(imagenes) > 1:
+        with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})"):
             cols = st.columns(3)  # Mostrar 3 imágenes por fila
             for i, img_dict in enumerate(imagenes[1:], 1):
                 with cols[(i-1) % 3]:
