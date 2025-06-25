@@ -683,6 +683,10 @@ with tab1:
                     
                     if mueble['descripcion']:
                         st.markdown(f"**Descripción:** {mueble['descripcion']}")
+                    share_url = f"https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/?id={mueble['id']}"
+                    whatsapp_url = f"https://wa.me/?text=Mira este mueble: {share_url}"
+                    st.markdown(f"[📱 Compartir por WhatsApp]({whatsapp_url})", unsafe_allow_html=True)
+
                     
                     if st.session_state.get('editar_mueble_id') == mueble['id']:
                         mostrar_formulario_edicion(mueble['id'])
