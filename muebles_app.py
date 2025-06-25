@@ -29,103 +29,107 @@ if 'editar_mueble_id' not in st.session_state:
     st.session_state.editar_mueble_id = None
 
 # --- Estilos CSS unificados y globales ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+# --- Estilos CSS separados ---
+css_global = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Playfair Display', serif !important;
-    }
+html, body, [class*="css"] {
+    font-family: 'Playfair Display', serif !important;
+}
 
-    .header-title,
-    .muebles-disponibles-title,
-    .vendidos-title {
-        font-family: 'Playfair Display', serif !important;
-        font-weight: 700 !important;
-        letter-spacing: 1px !important;
-        color: #023e8a !important;
-        margin-bottom: 1rem !important;
-        text-align: center !important;
-    }
+.header-title,
+.muebles-disponibles-title,
+.vendidos-title {
+    font-family: 'Playfair Display', serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    color: #023e8a !important;
+    margin-bottom: 1rem !important;
+    text-align: center !important;
+}
 
-    .stApp > header { display: none; }
-    .stApp { background-color: #E6F0F8; padding: 2rem; }
+.stApp > header { display: none; }
+.stApp { background-color: #E6F0F8; padding: 2rem; }
 
-    .custom-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-    }
+.custom-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
 
-    .header-logo {
-        margin-right: 1.5rem;
-    }
+.header-logo {
+    margin-right: 1.5rem;
+}
 
-    .header-logo img { height: 80px; width: auto; }
-    .header-title { font-size: 2.5rem !important; }
+.header-logo img { height: 80px; width: auto; }
+.header-title { font-size: 2.5rem !important; }
 
-    .mueble-image-container {
-        position: relative;
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    
-    .mueble-image {
-        width: 100%;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: transform 0.2s;
-        object-fit: cover;
-        max-height: 300px;
-    }
-    
-    .expand-button {
-        position: absolute;
-        bottom: 15px;
-        right: 15px;
-        background-color: rgba(0,0,0,0.7);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 2;
-        transition: all 0.3s;
-    }
-    
-    .expand-button:hover {
-        background-color: rgba(0,0,0,0.9);
-        transform: scale(1.1);
-    }
-    
-    .image-modal {
+.mueble-image-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.mueble-image {
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    object-fit: cover;
+    max-height: 300px;
+}
+
+.expand-button {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: all 0.3s;
+}
+
+.expand-button:hover {
+    background-color: rgba(0,0,0,0.9);
+    transform: scale(1.1);
+}
+</style>
+"""
+
+css_modal = """
+<style>
+.image-modal {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: rgba(0,0,0,0.95);
     z-index: 2000;
     overflow: hidden;
-    display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .modal-content {
-    max-height: 90vh;
-    max-width: 90vw;
+    max-height: 90%;
+    max-width: 90%;
     object-fit: contain;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0,0,0,0.7);
@@ -150,7 +154,7 @@ st.markdown("""
 
 @keyframes zoom {
     from { transform: scale(0.8); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
+    to { transform: scale(1); opacity: 1; }
 }
 
 @media (max-width: 768px) {
@@ -163,8 +167,8 @@ st.markdown("""
     }
 
     .modal-content {
-        max-width: 95vw;
-        max-height: 95vh;
+        max-width: 95%;
+        max-height: 95%;
     }
 
     .close-modal {
@@ -173,6 +177,12 @@ st.markdown("""
         font-size: 35px;
     }
 }
+</style>
+"""
+
+# Aplicar los estilos al inicio de tu aplicación
+st.markdown(css_global, unsafe_allow_html=True)
+st.markdown(css_modal, unsafe_allow_html=True)
 # --- Encabezado principal ---
 st.markdown("""
     <div class="custom-header">
