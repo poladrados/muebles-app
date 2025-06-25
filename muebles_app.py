@@ -208,6 +208,7 @@ css_modal = """
 # Aplicar los estilos al inicio de tu aplicación
 st.markdown(css_global, unsafe_allow_html=True)
 st.markdown(css_modal, unsafe_allow_html=True)
+st.components.v1.html("""
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];
@@ -223,6 +224,8 @@ st.markdown(css_modal, unsafe_allow_html=True)
   })();
 </script>
 <!-- End Matomo Code -->
+""", height=0)
+
 # --- Encabezado principal ---
 st.markdown("""
     <div class="custom-header">
