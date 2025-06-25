@@ -449,111 +449,87 @@ with st.sidebar:
 def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
-
-    html_parts = []
-
-    # CSS + JS (usando double braces para escapar las llaves en CSS)
-    base_html = """
-    <style>
-    .image-modal {{
-        display: none;
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0,0,0,0.95);
-        z-index: 2000;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }}
-    .modal-content {{
-        max-height: 90vh;
-        max-width: 90vw;
-        object-fit: contain;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.7);
-        animation: zoom 0.3s;
-    }}
-    .close-modal {{
-        position: fixed;
-        top: 20px;
-        right: 35px;
-        color: white;
-        font-size: 40px;
-        font-weight: bold;
-        cursor: pointer;
-        z-index: 2001;
-        transition: all 0.3s;
-    }}
-    .close-modal:hover {{
-        color: #ccc;
-    }}
-    @keyframes zoom {{
-        from {{ transform: scale(0.8); opacity: 0; }}
-        to {{ transform: scale(1); opacity: 1; }}
-    }}
-    </style>
-    <script>
-    function openModal(modalId, imgSrc) {{
-        const modal = document.getElementById(modalId);
-        const modalImg = modal.querySelector('.modal-content');
-        modal.style.display = "flex";
-        modalImg.src = imgSrc;
-        document.body.style.overflow = "hidden";
-    }}
-    function closeModal(modalId) {{
-        const modal = document.getElementById(modalId);
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
-    }}
-    document.addEventListener('keydown', function(event) {{
-        if (event.key === 'Escape') {{
-            document.querySelectorAll('.image-modal').forEach(modal => {{
-                modal.style.display = 'none';
+    
+    # Inyectar el JavaScript para manejar el modal (solo una vez)
+    if 'modal_js_injected' not in st.session_state:
+        modal_js = """
+        <script>
+        function openModal(imgSrc, modalId) {
+            const modal = document.getElementById(modalId);
+            const modalImg = modal.querySelector('.modal-content');
+            modal.style.display = "block";
+            modalImg.src = imgSrc;
+            document.body.style.overflow = "hidden";
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+        
+        // Cerrar con ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.image-modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = "auto";
+                    }
+                });
+            }
+        });
+        
+        // Cerrar al hacer clic fuera de la imagen
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('image-modal')) {
+                event.target.style.display = 'none';
                 document.body.style.overflow = "auto";
-            }});
-        }}
-    }});
-    </script>
-    """
-
-    html_parts.append(base_html)
-
+            }
+        });
+        </script>
+        """
+        st.components.v1.html(modal_js, height=0, width=0)
+        st.session_state.modal_js_injected = True
+    
     # Imagen principal
-    img_base64 = imagenes[0]['imagen_base64']
+    img_principal_base64 = imagenes[0]['imagen_base64']
     modal_id = f"modal-{mueble_id}-0"
-    html_parts.append(f"""
+    st.markdown(f"""
     <div class="mueble-image-container">
-        <img src="data:image/webp;base64,{img_base64}" class="mueble-image" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')">
-        <button class="expand-button" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')" title="Ampliar imagen">&#x26F6;</button>
+        <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image" 
+             onclick="openModal(this.src, '{modal_id}')">
+        <button class="expand-button" onclick="openModal('data:image/webp;base64,{img_principal_base64}', '{modal_id}')" 
+                title="Ampliar imagen">⛶</button>
     </div>
-    <div id="{modal_id}" class="image-modal" onclick="closeModal('{modal_id}')">
-        <span class="close-modal" onclick="closeModal('{modal_id}'); event.stopPropagation();">&times;</span>
-        <img class="modal-content" onclick="event.stopPropagation();" />
+    
+    <div id="{modal_id}" class="image-modal">
+        <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
+        <img class="modal-content">
     </div>
-    """)
-
-    # Imágenes adicionales (en expander)
+    """, unsafe_allow_html=True)
+    
+    # Imágenes secundarias
     if len(imagenes) > 1:
         with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})", expanded=False):
-            cols = st.columns(min(3, len(imagenes) - 1))
+            cols = st.columns(min(3, len(imagenes)-1))
             for i, img_dict in enumerate(imagenes[1:], start=1):
-                img_b64 = img_dict['imagen_base64']
-                mod_id = f"modal-{mueble_id}-{i}"
-                html_parts.append(f"""
-                <div class="mueble-image-container">
-                    <img src="data:image/webp;base64,{img_b64}" class="mueble-image" onclick="openModal('{mod_id}', 'data:image/webp;base64,{img_b64}')">
-                    <button class="expand-button" onclick="openModal('{mod_id}', 'data:image/webp;base64,{img_b64}')" title="Ampliar imagen">&#x26F6;</button>
-                </div>
-                <div id="{mod_id}" class="image-modal" onclick="closeModal('{mod_id}')">
-                    <span class="close-modal" onclick="closeModal('{mod_id}'); event.stopPropagation();">&times;</span>
-                    <img class="modal-content" onclick="event.stopPropagation();" />
-                </div>
-                """)
-
-    # Render final (en un solo iframe)
-    st.components.v1.html("".join(html_parts), height=650)
+                img_base64 = img_dict['imagen_base64']
+                modal_id = f"modal-{mueble_id}-{i}"
+                with cols[(i-1) % len(cols)]:
+                    st.markdown(f"""
+                    <div class="mueble-image-container">
+                        <img src="data:image/webp;base64,{img_base64}" class="mueble-image" 
+                             onclick="openModal(this.src, '{modal_id}')">
+                        <button class="expand-button" onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')" 
+                                title="Ampliar imagen">⛶</button>
+                    </div>
+                    
+                    <div id="{modal_id}" class="image-modal">
+                        <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
+                        <img class="modal-content">
+                    </div>
+                    """, unsafe_allow_html=True)
 
 def es_nuevo(fecha_str):
     formatos_posibles = [
