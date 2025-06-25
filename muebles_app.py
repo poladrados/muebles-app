@@ -208,17 +208,21 @@ css_modal = """
 # Aplicar los estilos al inicio de tu aplicación
 st.markdown(css_global, unsafe_allow_html=True)
 st.markdown(css_modal, unsafe_allow_html=True)
-st.components.v1.html("""
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-66J4H4B3KM"></script>
+<!-- Matomo -->
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-66J4H4B3KM');
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://inventarioeljueves.matomo.cloud/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '1']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src='https://cdn.matomo.cloud/inventarioeljueves.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
 </script>
-""", height=0)
-
+<!-- End Matomo Code -->
 # --- Encabezado principal ---
 st.markdown("""
     <div class="custom-header">
