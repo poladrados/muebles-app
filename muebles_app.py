@@ -451,7 +451,7 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
     
-    # CSS + JavaScript para el modal
+    # CSS con llaves escapadas correctamente
     modal_html = """
     <style>
     .image-modal {{
@@ -494,6 +494,10 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
         to {{transform: scale(1); opacity: 1}}
     }}
     </style>
+    """
+    
+    # JavaScript para el modal
+    modal_js = """
     <script>
     function openModal(imgSrc, modalId) {{
         const modal = document.getElementById(modalId);
@@ -521,7 +525,7 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
         }}
     }});
     
-    // Cerrar al hacer clic fuera de la imagen
+    // Cerrar al hacer clic fuera
     document.addEventListener('click', function(event) {{
         if (event.target.classList.contains('image-modal')) {{
             event.target.style.display = 'none';
@@ -531,27 +535,27 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     </script>
     """
     
-    # Imagen principal
+    # Construir el HTML completo
+    html_content = modal_html + modal_js
+    
+    # Añadir la imagen principal
     img_principal_base64 = imagenes[0]['imagen_base64']
     modal_id = f"modal-{mueble_id}-0"
-    
-    html_content = f"""
-    {modal_html}
+    html_content += f"""
     <div class="mueble-image-container">
         <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image" 
              onclick="openModal('data:image/webp;base64,{img_principal_base64}', '{modal_id}')">
         <button class="expand-button" 
                 onclick="openModal('data:image/webp;base64,{img_principal_base64}', '{modal_id}')" 
-                title="Ampliar imagen">⛶</button>
+                title="Ampliar imagen">↗</button>
     </div>
-    
     <div id="{modal_id}" class="image-modal">
         <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
-        <img src="data:image/webp;base64,{img_principal_base64}" class="modal-content">
+        <img class="modal-content">
     </div>
     """
     
-    # Imágenes secundarias
+    # Añadir imágenes secundarias si existen
     if len(imagenes) > 1:
         with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})", expanded=False):
             cols = st.columns(min(3, len(imagenes)-1))
@@ -566,16 +570,16 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
                              onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')">
                         <button class="expand-button" 
                                 onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')" 
-                                title="Ampliar imagen">&#x26F6;</button>
+                                title="Ampliar imagen">↗</button>
                     </div>
-                    
                     <div id="{modal_id}" class="image-modal">
                         <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
-                        <img src="data:image/webp;base64,{img_base64}" class="modal-content">
+                        <img class="modal-content">
                     </div>
                     """
     
     st.components.v1.html(html_content, height=0, width=0)
+    
 
 def es_nuevo(fecha_str):
     formatos_posibles = [
