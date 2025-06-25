@@ -349,28 +349,6 @@ if st.session_state.es_admin:
             for clave, label in etiquetas.items():
                 medidas[clave] = st.number_input(label, min_value=0.0, step=0.5)
 
-            
-            # Mostrar campos
-            st.markdown("**Medidas (rellena las necesarias):**")
-            medidas = {}
-            etiquetas = {
-                "alto": "Alto (cm)",
-                "largo": "Largo (cm)",
-                "fondo": "Fondo (cm)",
-                "diametro": "Diámetro (cm)",
-                "diametro_base": "Ø Base (cm)",
-                "diametro_boca": "Ø Boca (cm)"
-            }
-            for clave in etiquetas:
-                if clave in medidas_visibles:
-                    medidas[clave] = st.number_input(etiquetas[clave], min_value=0.0)
-                else:
-                    medidas[clave] = 0.0  # para que exista en la base aunque no se pida
-            
-            if medidas_visibles:
-                st.caption(f"ℹ️ Medidas requeridas para {tipo}: {', '.join([etiquetas[m] for m in medidas_visibles])}")
-            else:
-                st.caption("ℹ️ Todas las medidas son opcionales")
 
             imagenes = st.file_uploader("Seleccionar imágenes", 
                                 type=["jpg", "jpeg", "png"], 
