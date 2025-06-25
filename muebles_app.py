@@ -571,31 +571,6 @@ if filtro_nombre:
     query += " AND LOWER(nombre) LIKE %s"
     params.append(f"%{filtro_nombre.lower()}%")
 
-# --- NUEVO: botón flotante para añadir mueble (solo en móvil/admin) ---
-st.markdown("""
-    <style>
-    .floating-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #023e8a;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        font-size: 28px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        z-index: 1000;
-        cursor: pointer;
-    }
-    @media (min-width: 768px) {
-        .floating-button { display: none; }
-    }
-    </style>
-    <button class="floating-button" onclick="window.scrollTo(0, 0)">＋</button>
-""", unsafe_allow_html=True)
 
 tab1, tab2 = st.tabs(["📦 En venta", "💰 Vendidos"])
 
