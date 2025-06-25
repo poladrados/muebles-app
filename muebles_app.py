@@ -499,96 +499,110 @@ def es_nuevo(fecha_str):
 def mostrar_formulario_edicion(mueble_id):
     c.execute("SELECT * FROM muebles WHERE id = %s", (mueble_id,))
     mueble = c.fetchone()
-    
+
     c.execute("SELECT imagen_base64, es_principal FROM imagenes_muebles WHERE mueble_id = %s ORDER BY es_principal DESC", (mueble_id,))
     imagenes_actuales = c.fetchall()
-    
+
+    etiquetas = {
+        "alto": "Alto (cm)",
+        "largo": "Largo (cm)",
+        "fondo": "Fondo (cm)",
+        "diametro": "Diámetro (cm)",
+        "diametro_base": "Ø Base (cm)",
+        "diametro_boca": "Ø Boca (cm)"
+    }
+
     with st.form(key=f"form_editar_{mueble_id}"):
         st.markdown(f"### Editando: {mueble['nombre']}")
-        
+
         col1, col2 = st.columns(2)
         with col1:
-            tienda = st.radio("Tienda", options=["El Rastro", "Regueros"], 
-                             index=0 if mueble['tienda'] == "El Rastro" else 1)
+            tienda = st.radio("Tienda", options=["El Rastro", "Regueros"],
+                              index=0 if mueble['tienda'] == "El Rastro" else 1)
         with col2:
             vendido = st.checkbox("Marcar como vendido", value=mueble['vendido'])
-        
+
         nombre = st.text_input("Nombre*", value=mueble['nombre'])
-        precio = st.number_input("Precio (€)*", min_value=0.0, value=mueble['precio'])
+        precio = st.number_input("Precio (€)*", min_value=0.0, value=float(mueble['precio']))
         descripcion = st.text_area("Descripción", value=mueble['descripcion'])
-        
-        st.markdown("### Imágenes actuales")
-        if imagenes_actuales:
-            try:
-                mostrar_galeria_imagenes(imagenes_actuales, mueble_id)
-            except:
-                st.warning("Error al cargar la galería de imágenes")
-            
-            # Mantener la lógica para marcar como principal y eliminar
-            cols = st.columns(min(3, len(imagenes_actuales)))
-            for i, img_dict in enumerate(imagenes_actuales):
-                img_base64 = img_dict['imagen_base64']
-                es_principal = img_dict['es_principal']
-                with cols[i % 3]:
-                    if st.radio("Marcar como principal", ["Sí", "No"], 
-                               index=0 if es_principal else 1, 
-                               key=f"principal_{i}_{mueble_id}") == "Sí":
+
+        st.markdown("### Medidas")
+        medidas = {}
+        for clave in etiquetas:
+            valor = mueble.get(clave) or 0.0
+            medidas[clave] = st.number_input(etiquetas[clave], min_value=0.0, step=0.5, value=float(valor), key=f"{clave}_{mueble_id}")
+
+        st.markdown("### Añadir nuevas imágenes")
+        nuevas_imagenes = st.file_uploader("Seleccionar imágenes",
+                                           type=["jpg", "jpeg", "png"],
+                                           accept_multiple_files=True,
+                                           key=f"uploader_{mueble_id}")
+
+        guardar = st.form_submit_button("💾 Guardar cambios")
+        cancelar = st.form_submit_button("❌ Cancelar edición")
+
+    if cancelar:
+        st.session_state.pop('editar_mueble_id', None)
+        st.rerun()
+
+    if guardar:
+        c.execute("""
+            UPDATE muebles SET
+                nombre = %s, precio = %s, descripcion = %s,
+                tienda = %s, vendido = %s,
+                alto = %s, largo = %s, fondo = %s,
+                diametro = %s, diametro_base = %s, diametro_boca = %s
+            WHERE id = %s
+        """, (
+            nombre, precio, descripcion, tienda, vendido,
+            medidas["alto"] or None,
+            medidas["largo"] or None,
+            medidas["fondo"] or None,
+            medidas["diametro"] or None,
+            medidas["diametro_base"] or None,
+            medidas["diametro_boca"] or None,
+            mueble_id
+        ))
+
+        if nuevas_imagenes:
+            for img in nuevas_imagenes:
+                img_base64 = image_to_base64(img)
+                es_principal = 0 if imagenes_actuales else 1
+                c.execute("""
+                    INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
+                    VALUES (%s, %s, %s)
+                """, (mueble_id, img_base64, es_principal))
+
+        conn.commit()
+        st.success("¡Cambios guardados!")
+        st.session_state.pop('editar_mueble_id', None)
+        st.rerun()
+
+    # 🔁 Mostrar imágenes actuales y botones fuera del formulario
+    st.markdown("### Imágenes actuales")
+    if imagenes_actuales:
+        try:
+            mostrar_galeria_imagenes(imagenes_actuales, mueble_id)
+        except:
+            st.warning("Error al cargar la galería de imágenes")
+
+        cols = st.columns(min(3, len(imagenes_actuales)))
+        for i, img_dict in enumerate(imagenes_actuales):
+            img_base64 = img_dict['imagen_base64']
+            es_principal = img_dict['es_principal']
+            with cols[i % len(cols)]:
+                if st.button(f"❌ Eliminar esta imagen", key=f"del_img_out_{i}_{mueble_id}"):
+                    c.execute("DELETE FROM imagenes_muebles WHERE imagen_base64 = %s", (img_base64,))
+                    conn.commit()
+                    st.rerun()
+
+                if not es_principal:
+                    if st.button("⭐️ Marcar como principal", key=f"principal_out_{i}_{mueble_id}"):
                         c.execute("UPDATE imagenes_muebles SET es_principal = FALSE WHERE mueble_id = %s", (mueble_id,))
                         c.execute("UPDATE imagenes_muebles SET es_principal = TRUE WHERE mueble_id = %s AND imagen_base64 = %s", (mueble_id, img_base64))
                         conn.commit()
                         st.rerun()
-                    
-                    if st.button(f"❌ Eliminar esta imagen", key=f"del_img_{i}_{mueble_id}"):
-                        c.execute("DELETE FROM imagenes_muebles WHERE imagen_base64 = %s", (img_base64,))
-                        conn.commit()
-                        st.rerun
 
-        st.markdown("### Añadir nuevas imágenes")
-        nuevas_imagenes = st.file_uploader("Seleccionar imágenes", 
-                                         type=["jpg", "jpeg", "png"], 
-                                         accept_multiple_files=True,
-                                         key=f"uploader_{mueble_id}")
-        
-        # Botones de acción
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.form_submit_button("💾 Guardar cambios"):
-                c.execute("""
-                    UPDATE muebles SET
-                        nombre = %s, precio = %s, descripcion = %s,
-                        tienda = %s, vendido = %s
-                    WHERE id = %s
-                """, (nombre, precio, descripcion, tienda, vendido, mueble_id))
-                
-                if nuevas_imagenes:
-                    for img in nuevas_imagenes:
-                        img_base64 = image_to_base64(img)
-                        es_principal = 0 if imagenes_actuales else 1
-                        c.execute("""
-                            INSERT INTO muebles (nombre, precio, descripcion, tienda, vendido, tipo, fecha,
-                                alto, largo, fondo, diametro, diametro_base, diametro_boca)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s,
-                                %s, %s, %s, %s, %s, %s)
-                        """, (
-                            nombre, precio, descripcion, tienda, vendido, tipo, datetime.now(),
-                            medidas["alto"] or None,
-                            medidas["largo"] or None,
-                            medidas["fondo"] or None,
-                            medidas["diametro"] or None,
-                            medidas["diametro_base"] or None,
-                            medidas["diametro_boca"] or None
-                        ))
-
-                
-                conn.commit()
-                st.success("¡Cambios guardados!")
-                st.session_state.pop('editar_mueble_id', None)
-                st.rerun()
-        
-        with col2:
-            if st.form_submit_button("❌ Cancelar edición"):
-                st.session_state.pop('editar_mueble_id', None)
-                st.rerun()
 
 # Galería de imágenes mejorada con miniaturas, ampliación visual y scroll horizontal
 from streamlit.components.v1 import html
