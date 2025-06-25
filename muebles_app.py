@@ -450,79 +450,98 @@ def mostrar_galeria_imagenes(imagenes, mueble_id):
     if not imagenes:
         return
 
-    # Imagen principal
-    img_principal_base64 = imagenes[0]['imagen_base64']
-    modal_id = f"modal-{mueble_id}-0"
-    st.markdown(f"""
-        <div class="mueble-image-container">
-            <img src="data:image/webp;base64,{img_principal_base64}" class="mueble-image" 
-                 onclick="openModal(this.src, '{modal_id}')">
-            <button class="expand-button" onclick="openModal('data:image/webp;base64,{img_principal_base64}', '{modal_id}')" 
-                    title="Ampliar imagen">⛶</button>
-        </div>
-        
-        <div id="{modal_id}" class="image-modal">
-            <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
-            <img class="modal-content">
-        </div>
-        
-        <script>
-        function openModal(imgSrc, modalId) {{
-            const modal = document.getElementById(modalId);
-            const modalImg = modal.querySelector('.modal-content');
-            modal.style.display = "flex";
-            modalImg.src = imgSrc;
-            document.body.style.overflow = "hidden";
-        }}
-        
-        function closeModal(modalId) {{
-            document.getElementById(modalId).style.display = "none";
-            document.body.style.overflow = "auto";
-        }}
-        
-        document.addEventListener('keydown', function(event) {{
-            if (event.key === 'Escape') {{
-                const modals = document.querySelectorAll('.image-modal');
-                modals.forEach(modal => {{
-                    if (modal.style.display === 'flex') {{
-                        modal.style.display = 'none';
-                        document.body.style.overflow = "auto";
-                    }}
-                }});
-            }}
-        }});
-        
-        document.addEventListener('click', function(event) {{
-            if (event.target.classList.contains('image-modal')) {{
-                event.target.style.display = 'none';
-                document.body.style.overflow = "auto";
-            }}
-        }});
-        </script>
-        """, unsafe_allow_html=True)
+    html_blocks = []
 
-    
-    # Imágenes secundarias
-    if len(imagenes) > 1:
-        with st.expander(f"📸 Ver más imágenes ({len(imagenes)-1})", expanded=False):
-            cols = st.columns(min(3, len(imagenes)-1))
-            for i, img_dict in enumerate(imagenes[1:], start=1):
-                img_base64 = img_dict['imagen_base64']
-                modal_id = f"modal-{mueble_id}-{i}"
-                with cols[(i-1) % len(cols)]:
-                    st.markdown(f"""
-                    <div class="mueble-image-container">
-                        <img src="data:image/webp;base64,{img_base64}" class="mueble-image" 
-                             onclick="openModal(this.src, '{modal_id}')">
-                        <button class="expand-button" onclick="openModal('data:image/webp;base64,{img_base64}', '{modal_id}')" 
-                                title="Ampliar imagen">⛶</button>
-                    </div>
-                    
-                    <div id="{modal_id}" class="image-modal">
-                        <span class="close-modal" onclick="closeModal('{modal_id}')" title="Cerrar">&times;</span>
-                        <img class="modal-content">
-                    </div>
-                    """, unsafe_allow_html=True)
+    for i, img_dict in enumerate(imagenes):
+        img_base64 = img_dict['imagen_base64']
+        modal_id = f"modal-{mueble_id}-{i}"
+
+        html_blocks.append(f"""
+        <div class="mueble-image-container">
+            <img src="data:image/webp;base64,{img_base64}" class="mueble-image" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')">
+            <button class="expand-button" onclick="openModal('{modal_id}', 'data:image/webp;base64,{img_base64}')" title="Ampliar imagen">⛶</button>
+        </div>
+        <div id="{modal_id}" class="image-modal" onclick="closeModal('{modal_id}')">
+            <span class="close-modal" onclick="closeModal('{modal_id}'); event.stopPropagation();">&times;</span>
+            <img class="modal-content" onclick="event.stopPropagation();" />
+        </div>
+        """)
+
+    full_html = f"""
+    <style>
+    .image-modal {{
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0,0,0,0.95);
+        z-index: 2000;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }}
+    .modal-content {{
+        max-height: 90vh;
+        max-width: 90vw;
+        object-fit: contain;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.7);
+        animation: zoom 0.3s;
+    }}
+    .close-modal {{
+        position: fixed;
+        top: 20px;
+        right: 35px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 2001;
+        transition: all 0.3s;
+    }}
+    .close-modal:hover {{
+        color: #ccc;
+    }}
+    @keyframes zoom {{
+        from {{ transform: scale(0.8); opacity: 0; }}
+        to   {{ transform: scale(1); opacity: 1; }}
+    }}
+    </style>
+
+    {''.join(html_blocks)}
+
+    <script>
+    function openModal(modalId, imgSrc) {{
+        const modal = document.getElementById(modalId);
+        const modalImg = modal.querySelector('.modal-content');
+        modal.style.display = "flex";
+        modalImg.src = imgSrc;
+        document.body.style.overflow = "hidden";
+    }}
+
+    function closeModal(modalId) {{
+        const modal = document.getElementById(modalId);
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }}
+
+    document.addEventListener('keydown', function(event) {{
+        if (event.key === 'Escape') {{
+            document.querySelectorAll('.image-modal').forEach(modal => {{
+                modal.style.display = 'none';
+                document.body.style.overflow = "auto";
+            }});
+        }}
+    }});
+    </script>
+    """
+
+    # Renderizamos todo como HTML completo (JS sí se ejecuta)
+    st.components.v1.html(full_html, height=600)
+
 
 
 def es_nuevo(fecha_str):
