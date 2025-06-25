@@ -336,23 +336,19 @@ if st.session_state.es_admin:
             descripcion = st.text_area("Descripción")
             tipo = st.selectbox("Tipo de mueble", list(TIPOS_PLURAL.keys()))
 
-# Mostrar si es redondo para algunos tipos
-            es_redondo = False
-            tipos_redondos = ["Mesa", "Copa", "Otro artículo"]
-            if tipo in tipos_redondos:
-                es_redondo = st.radio("¿Es redondo?", ["No", "Sí"], horizontal=True) == "Sí"
-            
-            # Definir qué medidas mostrar según tipo y forma
-            if tipo == "Mesa":
-                medidas_visibles = ["alto", "diametro"] if es_redondo else ["alto", "largo", "fondo"]
-            elif tipo == "Copa":
-                medidas_visibles = ["alto", "diametro_base", "diametro_boca"]
-            elif tipo == "Columna":
-                medidas_visibles = ["alto"]
-            elif tipo == "Espejo":
-                medidas_visibles = ["alto", "largo"]
-            else:
-                medidas_visibles = []
+            st.markdown("**Medidas (rellena solo las que correspondan):**")
+            etiquetas = {
+                "alto": "Alto (cm)",
+                "largo": "Largo (cm)",
+                "fondo": "Fondo (cm)",
+                "diametro": "Diámetro (cm)",
+                "diametro_base": "Ø Base (cm)",
+                "diametro_boca": "Ø Boca (cm)"
+            }
+            medidas = {}
+            for clave, label in etiquetas.items():
+                medidas[clave] = st.number_input(label, min_value=0.0, step=0.5)
+
             
             # Mostrar campos
             st.markdown("**Medidas (rellena las necesarias):**")
@@ -383,16 +379,6 @@ if st.session_state.es_admin:
             if guardar:
                 if not nombre or precio <= 0 or not imagenes:
                     st.warning("Por favor, rellena todos los campos obligatorios, incluyendo al menos una imagen.")
-                    st.stop()
-            
-                # Validar solo las medidas visibles
-                errores = []
-                for clave in medidas_visibles:
-                    if medidas[clave] <= 0:
-                        errores.append(etiquetas[clave])
-            
-                if errores:
-                    st.error(f"Faltan las siguientes medidas requeridas: {', '.join(errores)}")
                     st.stop()
             
                 # Insertar en muebles
