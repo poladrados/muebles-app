@@ -208,16 +208,15 @@ css_modal = """
 # Aplicar los estilos al inicio de tu aplicación
 st.markdown(css_global, unsafe_allow_html=True)
 st.markdown(css_modal, unsafe_allow_html=True)
-# --- Google Analytics ---
-st.components.v1.html("""
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-66J4H4B3KM"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+
   gtag('config', 'G-66J4H4B3KM');
 </script>
-""", height=0)
 # --- Encabezado principal ---
 st.markdown("""
     <div class="custom-header">
