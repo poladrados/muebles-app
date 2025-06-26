@@ -422,13 +422,14 @@ if st.session_state.es_admin:
                 mueble_id = c.fetchone()['lastval']
             
                 # Insertar imágenes
-                for i, imagen in enumerate(imagenes):
-                    base64_str = image_to_base64(imagen)
-                    es_principal = i == 0
+                for i, img in enumerate(nuevas_imagenes):
+                    img_base64 = image_to_base64(img)
+                    es_principal = (len(imagenes_actuales) == 0 and i == 0)
                     c.execute("""
                         INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
                         VALUES (%s, %s, %s)
-                    """, (mueble_id, base64_str, es_principal))
+                    """, (int(mueble_id), str(img_base64), bool(es_principal)))
+
             
                 conn.commit()
                 st.success("✅ ¡Mueble añadido con éxito!")
