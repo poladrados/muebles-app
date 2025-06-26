@@ -1,7 +1,7 @@
 {
   "name": "Inventario El Jueves",
   "short_name": "El Jueves",
-  "start_url": "/",
+  "start_url": "/muebles-app/",
   "display": "standalone",
   "background_color": "#E6F0F8",
   "theme_color": "#023e8a",
