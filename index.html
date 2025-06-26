@@ -5,47 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#E6F0F8">
   <title>Inventario Antigüedades El Jueves</title>
-  
+
   <!-- PWA Metadata -->
   <link rel="manifest" href="/muebles-app/manifest.json">
   <link rel="apple-touch-icon" href="/muebles-app/images/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
+
   <!-- Fuente -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-  
+
   <style>
-    body {
+    html, body {
       margin: 0;
-      background: #E6F0F8;
+      padding: 0;
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 100vw;
       font-family: 'Playfair Display', serif;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
+      overflow: hidden;
     }
-    .container {
+
+    body {
+      background-image: url("/muebles-app/images/fondo.jpg"); /* Cambia esto si usas otro nombre */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .contenido {
       text-align: center;
-      background: white;
-      padding: 2rem 3rem;
-      border-radius: 16px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-      max-width: 90%;
+      background-color: rgba(255, 255, 255, 0.0); /* Sin fondo visible */
+      padding: 1rem;
     }
+
     .logo {
       height: 90px;
-      margin-bottom: 1rem;
-    }
-    h1 {
-      color: #023e8a;
       margin-bottom: 1.5rem;
-      font-size: 1.8rem;
-      line-height: 1.4;
     }
+
+    h1 {
+      color: white;
+      font-size: 2rem;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+      margin-bottom: 2rem;
+    }
+
     button {
       font-size: 1.1rem;
       padding: 0.8rem 2rem;
@@ -56,15 +63,15 @@
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: inherit;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
     }
+
     button:hover {
       background-color: #0353a4;
       transform: scale(1.05);
     }
+
     @media (max-width: 480px) {
-      .container {
-        padding: 1.5rem;
-      }
       h1 {
         font-size: 1.5rem;
       }
@@ -72,7 +79,7 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="contenido">
     <img src="/muebles-app/images/apple-touch-icon.png" alt="Logo El Jueves" class="logo">
     <h1>Inventario de Antigüedades El Jueves</h1>
     <button onclick="window.location.href='https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/'">
@@ -89,14 +96,15 @@
           .catch(err => console.log('Error SW: ', err));
       });
     }
-    
-    // Prevenir comportamiento de desplazamiento en iOS
+
+    // Prevenir scroll en iOS
     document.addEventListener('touchmove', function(e) {
       e.preventDefault();
     }, { passive: false });
   </script>
 </body>
 </html>
+
 
 
 
