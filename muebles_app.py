@@ -411,7 +411,7 @@ if st.session_state.es_admin:
                     medidas["fondo"] or None,
                     medidas["diametro"] or None,
                     medidas["diametro_base"] or None,
-                    medidas["diametro_boca"] or None
+                    medidas["diametro_boca"] or None,
                     medidas["alto_respaldo"] or None,
                     medidas["alto_asiento"] or None,
                     medidas["ancho"] or None
