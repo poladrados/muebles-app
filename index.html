@@ -60,6 +60,26 @@
       height: 90px;
       margin-bottom: 1.5rem;
     }
+    .titulo-con-fondo {
+      color: white;
+      font-size: 2rem;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+      margin-bottom: 2rem;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.35); /* Fondo oscuro con opacidad */
+      border-radius: 8px;
+      display: inline-block;
+    }
+    
+    /* Ajuste especial para móvil */
+    @media (max-width: 600px) {
+      .titulo-con-fondo {
+        font-size: 1.4rem;
+        padding: 0.4rem 0.8rem;
+        background: rgba(0, 0, 0, 0.5); /* Un poco más opaco para móviles */
+      }
+    }
+
 
     h1 {
       color: white;
@@ -96,7 +116,7 @@
 <body>
   <div class="contenido">
     <img src="/muebles-app/images/apple-touch-icon.png" alt="Logo El Jueves" class="logo">
-    <h1>Inventario de Antigüedades El Jueves</h1>
+    <h1 class="titulo-con-fondo">Inventario de Antigüedades El Jueves</h1>
     <button onclick="window.location.href='https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/'">
       Entrar a la app
     </button>
