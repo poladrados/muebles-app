@@ -26,7 +26,7 @@
     }
 
     body {
-      background-image: url("/muebles-app/images/fondo.jpg"); /* Cambia esto si usas otro nombre */
+      background-image: url("/muebles-app/images/fondo.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -34,6 +34,15 @@
       align-items: center;
       justify-content: center;
     }
+    
+    /* Solo en pantallas pequeñas: aplicar un efecto más "alejado" */
+    @media (max-width: 600px) {
+      body {
+        background-size: 130%; /* Se verá menos ampliado que "cover" */
+        background-position: top center;
+      }
+    }
+
 
     .contenido {
       display: flex;
