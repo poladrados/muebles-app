@@ -66,19 +66,25 @@
       text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
       margin-bottom: 2rem;
       padding: 0.5rem 1rem;
-      background: rgba(0, 0, 0, 0.35); /* Fondo oscuro con opacidad */
+      background: rgba(0, 0, 0, 0.35);
       border-radius: 8px;
       display: inline-block;
     }
     
-    /* Ajuste especial para móvil */
     @media (max-width: 600px) {
       .titulo-con-fondo {
         font-size: 1.4rem;
         padding: 0.4rem 0.8rem;
-        background: rgba(0, 0, 0, 0.5); /* Un poco más opaco para móviles */
+        background: rgba(0, 0, 0, 0.5);
       }
     }
+    
+    @supports (backdrop-filter: blur(4px)) {
+      .titulo-con-fondo {
+        backdrop-filter: blur(4px);
+      }
+    }
+
 
     button {
       font-size: 1.1rem;
