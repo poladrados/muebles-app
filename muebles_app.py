@@ -373,8 +373,12 @@ if st.session_state.es_admin:
                 "fondo": "Fondo (cm)",
                 "diametro": "Diámetro (cm)",
                 "diametro_base": "Ø Base (cm)",
-                "diametro_boca": "Ø Boca (cm)"
+                "diametro_boca": "Ø Boca (cm)",
+                "alto_respaldo": "Alto respaldo (cm)",
+                "alto_asiento": "Alto asiento (cm)",
+                "ancho": "Ancho (cm)"
             }
+
             medidas = {}
             for clave, label in etiquetas.items():
                 medidas[clave] = st.number_input(label, min_value=0.0, step=0.5)
@@ -393,10 +397,13 @@ if st.session_state.es_admin:
                 c.execute("""
                     INSERT INTO muebles (
                         nombre, precio, descripcion, tienda, vendido, tipo, fecha,
-                        alto, largo, fondo, diametro, diametro_base, diametro_boca
-                    )
+                        alto, largo, fondo, diametro, diametro_base, diametro_boca,
+                        alto_respaldo, alto_asiento, ancho)
                     VALUES (%s, %s, %s, %s, %s, %s, %s,
-                            %s, %s, %s, %s, %s, %s)
+                            %s, %s, %s, %s, %s, %s,
+                            %s, %s, %s)
+
+
                 """, (
                     nombre, precio, descripcion, tienda, vendido, tipo, datetime.now(),
                     medidas["alto"] or None,
@@ -405,6 +412,10 @@ if st.session_state.es_admin:
                     medidas["diametro"] or None,
                     medidas["diametro_base"] or None,
                     medidas["diametro_boca"] or None
+                    medidas["alto_respaldo"] or None,
+                    medidas["alto_asiento"] or None,
+                    medidas["ancho"] or None
+
                 ))
             
                 c.execute("SELECT LASTVAL() AS lastval")
@@ -516,13 +527,17 @@ def mostrar_formulario_edicion(mueble_id):
     imagenes_actuales = c.fetchall()
 
     etiquetas = {
-        "alto": "Alto (cm)",
-        "largo": "Largo (cm)",
-        "fondo": "Fondo (cm)",
-        "diametro": "Diámetro (cm)",
-        "diametro_base": "Ø Base (cm)",
-        "diametro_boca": "Ø Boca (cm)"
+        'alto': "Alto",
+        'largo': "Largo",
+        'fondo': "Fondo",
+        'diametro': "Diámetro",
+        'diametro_base': "Ø Base",
+        'diametro_boca': "Ø Boca",
+        'alto_respaldo': "Alto respaldo",
+        'alto_asiento': "Alto asiento",
+        'ancho': "Ancho"
     }
+
 
     with st.form(key=f"form_editar_{mueble_id}"):
         st.markdown(f"### Editando: {mueble['nombre']}")
@@ -565,8 +580,10 @@ def mostrar_formulario_edicion(mueble_id):
                 nombre = %s, precio = %s, descripcion = %s,
                 tienda = %s, vendido = %s,
                 alto = %s, largo = %s, fondo = %s,
-                diametro = %s, diametro_base = %s, diametro_boca = %s
+                diametro = %s, diametro_base = %s, diametro_boca = %s,
+                alto_respaldo = %s, alto_asiento = %s, ancho = %s
             WHERE id = %s
+
         """, (
             nombre, precio, descripcion, tienda, vendido,
             medidas["alto"] or None,
@@ -575,6 +592,9 @@ def mostrar_formulario_edicion(mueble_id):
             medidas["diametro"] or None,
             medidas["diametro_base"] or None,
             medidas["diametro_boca"] or None,
+            medidas["alto_respaldo"] or None,
+            medidas["alto_asiento"] or None,
+            medidas["ancho"] or None,
             mueble_id
         ))
 
@@ -630,8 +650,12 @@ def mostrar_medidas_extendido(mueble):
         'fondo': "Fondo",
         'diametro': "Diámetro",
         'diametro_base': "Ø Base",
-        'diametro_boca': "Ø Boca"
+        'diametro_boca': "Ø Boca",
+        'alto_respaldo': "Alto respaldo",
+        'alto_asiento': "Alto asiento",
+        'ancho': "Ancho"
     }
+
     partes = []
     for clave, nombre in etiquetas.items():
         valor = mueble.get(clave)
