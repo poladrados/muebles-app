@@ -1,4 +1,4 @@
-const CACHE_NAME = 'v1_cache';
+const CACHE_NAME = 'v2_cache';
 const urlsToCache = [
   '/muebles-app/',
   '/muebles-app/index.html',
