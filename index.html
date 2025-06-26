@@ -5,35 +5,64 @@
     <title>Inventario Antigüedades El Jueves</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Ícono para pantallas de inicio -->
+    <!-- Íconos -->
     <link rel="apple-touch-icon" href="https://poladrados.github.io/muebles-app/images/apple-touch-icon.png" />
     <link rel="icon" href="https://poladrados.github.io/muebles-app/images/apple-touch-icon.png" />
     <meta name="theme-color" content="#E6F0F8" />
+
+    <!-- Fuente -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
     <style>
       body {
         margin: 0;
-        background: #ffffff;
+        background: #E6F0F8;
         height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-family: sans-serif;
+        font-family: 'Playfair Display', serif;
+      }
+      .container {
+        text-align: center;
+        background: white;
+        padding: 2rem 3rem;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      }
+      .logo {
+        height: 90px;
+        margin-bottom: 1rem;
+      }
+      h1 {
+        color: #023e8a;
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
       }
       button {
-        font-size: 1.2rem;
-        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        padding: 0.8rem 2rem;
         background-color: #023e8a;
         color: white;
         border: none;
         border-radius: 8px;
         cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      button:hover {
+        background-color: #0353a4;
+        transform: scale(1.05);
       }
     </style>
   </head>
   <body>
-    <button onclick="window.open('https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/', '_self')">
-      Haz clic para abrir la app
-    </button>
+    <div class="container">
+      <img src="https://poladrados.github.io/muebles-app/images/apple-touch-icon.png" alt="Logo El Jueves" class="logo" />
+      <h1>Inventario de Antigüedades El Jueves</h1>
+      <button onclick="window.open('https://muebles-app-kntlnhehoh6c2o9bbvofft.streamlit.app/', '_self')">
+        Entrar a la app
+      </button>
+    </div>
   </body>
 </html>
 
