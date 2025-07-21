@@ -424,7 +424,7 @@ if st.session_state.es_admin:
                 # Insertar imágenes
                 for i, img in enumerate(imagenes):
                     img_base64 = image_to_base64(img)
-                    es_principal = (len(imagenes_actuales) == 0 and i == 0)
+                    es_principal = (i == 0)
                     c.execute("""
                         INSERT INTO imagenes_muebles (mueble_id, imagen_base64, es_principal)
                         VALUES (%s, %s, %s)
