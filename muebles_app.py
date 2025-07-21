@@ -422,7 +422,7 @@ if st.session_state.es_admin:
                 mueble_id = c.fetchone()['lastval']
             
                 # Insertar imágenes
-                for i, img in enumerate(nuevas_imagenes):
+                for i, img in enumerate(imagenes):
                     img_base64 = image_to_base64(img)
                     es_principal = (len(imagenes_actuales) == 0 and i == 0)
                     c.execute("""
