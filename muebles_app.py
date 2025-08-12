@@ -758,7 +758,9 @@ with tab1:
                     st.markdown(f"**Precio:** {mueble['precio']} €")
                     st.markdown(f"**Tienda:** {mueble['tienda']}")
                     st.markdown(f"**Medidas:** {mostrar_medidas_extendido(mueble)}")
-                    st.markdown(f"**Fecha registro:** {mueble['fecha']}")
+                    fecha_formateada = mueble['fecha'].strftime("%d/%m/%Y")
+                    st.markdown(f"**Fecha registro:** {fecha_formateada}")
+
 
                     desc = mueble['descripcion']
                     if desc:
