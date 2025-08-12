@@ -276,10 +276,12 @@ def get_db_connection():
             sslmode="require",
             connect_timeout=3
         )
+        conn.set_client_encoding('UTF8')  # ✅ Esta línea soluciona el problema de tildes
         return conn
     except Exception as e:
         st.error(f"Error de conexión: {str(e)}")
         st.stop()
+
 
 def init_session():
     if 'es_admin' not in st.session_state:
